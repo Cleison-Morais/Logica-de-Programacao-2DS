@@ -3,155 +3,176 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel do Professor – Ponto Certo Arcade</title>
+<title>Painel do Professor – Código Arcade</title>
+<link rel="stylesheet" href="css/estilo.css">
 <style>
-@font-face{font-family:"Press Start 2P";src:url(fontes/press-start-2p.woff2) format("woff2");font-display:swap}
-@font-face{font-family:"VT323";src:url(fontes/vt323.woff2) format("woff2");font-display:swap}
-</style>
-<style>
-:root{--bg:#0b0b1f;--panel:#1b1b45;--line:#2e2e6e;--red:#ff2a4d;--cyan:#00e5ff;--yellow:#ffd23f;--green:#39ff6a;--white:#f4f4ff;--gray:#8a8ab0;--px:"Press Start 2P",monospace;--txt:"VT323",monospace}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--white);font-family:var(--txt);font-size:22px;padding:16px}
-h1{font-family:var(--px);font-size:16px;color:var(--yellow);text-shadow:3px 3px 0 var(--red);line-height:1.6}
-.px{font-family:var(--px)}
-canvas{image-rendering:pixelated}
-.box{background:var(--panel);box-shadow:0 0 0 4px #000,0 0 0 8px var(--line);padding:16px;margin:16px 8px}
-.btn{font-family:var(--px);font-size:10px;border:none;cursor:pointer;color:#fff;background:var(--red);padding:10px 14px;box-shadow:inset -3px -3px 0 #b3001e,0 0 0 3px #000;margin:3px}
-.btn.cy{background:#0094b3;box-shadow:inset -3px -3px 0 #005a6e,0 0 0 3px #000}
-.btn.dk{background:#2e2e6e;box-shadow:inset -3px -3px 0 #1b1b45,0 0 0 3px #000}
-.inp{font-family:var(--txt);font-size:24px;background:#05051a;color:var(--yellow);border:none;box-shadow:inset 0 0 0 3px var(--line);padding:6px 10px;outline:none}
+body{padding:16px}
+h1{font-family:var(--px);font-size:16px;color:var(--yellow);text-shadow:3px 3px 0 var(--red);line-height:1.6;margin:6px 10px}
 .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.row .inp{width:auto;min-width:220px;font-size:24px}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
-.card{background:#22224a;box-shadow:0 0 0 3px #000;padding:12px;text-align:center}
-.card b{display:block;font-family:var(--px);font-size:20px;color:var(--yellow);margin-bottom:6px}
+.card{background:#22224a;box-shadow:0 0 0 3px #000;padding:12px;text-align:center;border-radius:3px}
+.card b{display:block;font-family:var(--px);font-size:20px;margin-bottom:6px}
 .tw{overflow-x:auto}
-table{border-collapse:collapse;width:100%;min-width:900px}
+table{border-collapse:collapse;width:100%;min-width:980px;font-size:22px}
 th{font-family:var(--px);font-size:9px;color:var(--cyan);text-align:left;padding:8px 6px;border-bottom:3px solid var(--line);cursor:pointer;white-space:nowrap}
-td{padding:4px 6px;border-bottom:1px solid #2a2a5a;white-space:nowrap}
+td{padding:4px 6px;border-bottom:1px solid #2a2a5a;white-space:nowrap;vertical-align:middle}
 tr:hover td{background:#22224a}
-.f{display:inline-block;width:26px;text-align:center;font-size:18px;margin-right:2px;background:#05051a}
+td canvas{height:46px;width:auto}
+.f{display:inline-block;width:24px;text-align:center;margin-right:2px;background:#05051a}
 .f.s0{color:#33335a}.f.s1{color:#e0884a}.f.s2{color:#d8d8e8}.f.s3{color:var(--yellow)}
 .cod{color:var(--green)}
-.msg{color:var(--yellow);margin-top:10px}
+.mini{font-family:var(--px);font-size:8px;padding:3px 5px;color:#000;border-radius:2px}
 .err{color:#ff8095}
-.tag{color:#000;background:var(--yellow);font-family:var(--px);font-size:8px;padding:3px 5px}
 </style>
 </head>
 <body>
-<h1>PAINEL DO PROFESSOR · PONTO CERTO ARCADE</h1>
+<h1>PAINEL DO PROFESSOR · CÓDIGO ARCADE</h1>
 
-<div class="box" id="login">
-  <div class="row">
-    <span>Senha do professor:</span>
-    <input class="inp" id="senha" type="password" autocomplete="off">
-    <button class="btn" id="bEntrar">ENTRAR</button>
-  </div>
-  <div class="msg" id="lMsg"></div>
+<div class="box" id="login" style="max-width:560px">
+  <p id="aviso" style="margin-bottom:10px;color:var(--gray)">Entre com o e-mail e a senha do seu usuário no Supabase.</p>
+  <label class="px" style="font-size:10px;color:var(--cyan)">E-MAIL</label>
+  <input class="inp" id="email" type="email" autocomplete="username">
+  <label class="px" style="font-size:10px;color:var(--cyan);display:block;margin-top:12px">SENHA</label>
+  <input class="inp" id="senha" type="password" autocomplete="current-password">
+  <div class="mt"><button class="btn" id="bEntrar">ENTRAR</button></div>
+  <p class="msg" id="lMsg"></p>
 </div>
 
 <div id="painel" style="display:none">
   <div class="box">
     <div class="row">
-      <span>Turma:</span><select class="inp" id="fTurma"></select>
-      <span>Buscar aluno:</span><input class="inp" id="fBusca" placeholder="nome...">
-      <button class="btn cy" id="bAtualizar">↻ ATUALIZAR</button>
-      <button class="btn dk" id="bCsv">⬇ BAIXAR CSV</button>
+      <button class="btn cy" data-aba="alunos">ALUNOS</button>
+      <button class="btn dk" data-aba="turmas">TURMAS</button>
+      <span style="flex:1"></span>
+      <button class="btn dk sm" id="bSair">SAIR</button>
     </div>
   </div>
-  <div class="box cards" id="cards"></div>
-  <div class="box">
-    <p style="color:var(--gray);margin-bottom:10px">Clique no título de uma coluna para ordenar. Em cada fase: <span class="f s3">3</span> = 3 estrelas · <span class="f s0">·</span> = não fez. Código de verificação = o mesmo que o aluno envia no AVA.</p>
-    <div class="tw"><table id="tab"></table></div>
+
+  <div id="abaAlunos">
+    <div class="box"><div class="row">
+      <span>Turma:</span><select class="inp" id="fTurma"></select>
+      <span>Buscar:</span><input class="inp" id="fBusca" placeholder="nome, nick ou e-mail...">
+      <button class="btn cy" id="bAtualizar">↻ ATUALIZAR</button>
+      <button class="btn dk" id="bCsv">⬇ CSV</button>
+    </div></div>
+    <div class="box cards" id="cards"></div>
+    <div class="box">
+      <p style="color:var(--gray);margin-bottom:10px">Clique no título da coluna para ordenar. Em cada fase: <span class="f s3">3</span> estrelas · <span class="f s0">·</span> não fez. O código do troféu é o mesmo que o aluno envia no AVA.</p>
+      <div class="tw"><table id="tab"></table></div>
+    </div>
+  </div>
+
+  <div id="abaTurmas" style="display:none">
+    <div class="box">
+      <div class="row"><input class="inp" id="novaTurma" placeholder="Nome da turma (ex.: 2º DS – Tarde)"><button class="btn gr" id="bCriarTurma">CRIAR TURMA</button></div>
+      <div id="listaTurmas" class="mt"></div>
+    </div>
   </div>
 </div>
 
-<script src="config.js"></script>
-<script src="avatar.js"></script>
-<script src="fases.js"></script>
+<script src="js/config.js?v=4"></script>
+<script src="js/dados.js?v=4"></script>
+<script src="js/avatar.js?v=4"></script>
+<script src="mundos/mundos.js?v=4"></script>
+<script src="mundos/mundo1.js?v=4"></script>
+<script src="mundos/mundo2.js?v=4"></script>
 <script>
 const $ = s => document.querySelector(s);
-const URL_SRV = (window.CONFIG.URL_SERVIDOR || "").trim();
 const esc = s => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
-let LISTA = [], ordem = { k: "estrelas", dir: -1 };
+const semAcento = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "");
+function fnv(str) { let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h >>> 0; }
+function codigoVerif(...p) { return "CA-" + fnv(p.join("|") + "|codigoarcade").toString(16).toUpperCase().padStart(8, "0").slice(0, 6); }
+const P = DADOS.professor;
+let JWT = null, LISTA = [], TURMAS = [], ordem = { k: "estrelas", dir: -1 };
 
-async function api(acao, dados) {
-  const r = await fetch(URL_SRV, { method: "POST", body: JSON.stringify(Object.assign({ acao }, dados)) });
-  return r.json();
+if (!P.online) { $("#aviso").innerHTML = '<span class="err">O jogo está no MODO OFFLINE: preencha SUPABASE_URL e SUPABASE_ANON_KEY no arquivo js/config.js para usar o painel.</span>'; $("#bEntrar").disabled = true; }
+try { JWT = sessionStorage.getItem("ca_prof"); } catch (e) {}
+if (JWT) abrir();
+
+$("#bEntrar").onclick = async () => {
+  $("#lMsg").textContent = "Entrando...";
+  try { JWT = await P.login($("#email").value.trim(), $("#senha").value); try { sessionStorage.setItem("ca_prof", JWT); } catch (e) {} abrir(); }
+  catch (e) { $("#lMsg").innerHTML = `<span class="err">${esc(e.message)}</span>`; }
+};
+$("#senha").addEventListener("keydown", e => { if (e.key === "Enter") $("#bEntrar").click(); });
+$("#bSair").onclick = () => { try { sessionStorage.removeItem("ca_prof"); } catch (e) {} location.reload(); };
+document.querySelectorAll("[data-aba]").forEach(b => b.onclick = () => {
+  const a = b.dataset.aba; $("#abaAlunos").style.display = a === "alunos" ? "" : "none"; $("#abaTurmas").style.display = a === "turmas" ? "" : "none";
+  document.querySelectorAll("[data-aba]").forEach(x => x.className = "btn " + (x === b ? "cy" : "dk"));
+  if (a === "turmas") carregarTurmas();
+});
+
+async function abrir() {
+  try {
+    TURMAS = await P.rpc("admin_turmas", {}, JWT);
+  } catch (e) {
+    try { sessionStorage.removeItem("ca_prof"); } catch (x) {}
+    JWT = null;
+    $("#lMsg").innerHTML = `<span class="err">${/sem_permissao/.test(e.message) ? "Este usuário ainda não é professor. Rode no SQL Editor o comando do final do arquivo schema.sql." : "Sessão expirada ou erro: " + esc(e.message)}</span>`;
+    return;
+  }
+  $("#login").style.display = "none"; $("#painel").style.display = "";
+  $("#fTurma").innerHTML = `<option value="">Todas</option>` + TURMAS.map(t => `<option value="${t.id}">${esc(t.nome)}</option>`).join("");
+  carregar();
 }
-function senha() { return $("#senha").value; }
-
-$("#bEntrar").onclick = carregar;
-$("#senha").addEventListener("keydown", e => { if (e.key === "Enter") carregar(); });
 $("#bAtualizar").onclick = carregar;
-$("#fTurma").onchange = desenhar; $("#fBusca").oninput = desenhar;
-try { const s = sessionStorage.getItem("pc_senha"); if (s) { $("#senha").value = s; } } catch (e) {}
-
-if (!URL_SRV) $("#lMsg").innerHTML = '<span class="err">O endereço da planilha ainda não foi colocado no arquivo config.js (URL_SERVIDOR).</span>';
+$("#fTurma").onchange = carregar; $("#fBusca").oninput = desenhar;
 
 async function carregar() {
-  if (!URL_SRV) return;
-  $("#lMsg").textContent = "Carregando...";
-  try {
-    const r = await api("admin_listar", { senha: senha() });
-    if (!r.ok) { $("#lMsg").innerHTML = `<span class="err">${r.erro === "senha" ? "Senha errada." : "Erro: " + esc(r.erro)}</span>`; return; }
-    try { sessionStorage.setItem("pc_senha", senha()); } catch (e) {}
-    LISTA = r.lista;
-    $("#login").style.display = "none"; $("#painel").style.display = "block";
-    const turmas = [...new Set([...(window.CONFIG.TURMAS || []), ...LISTA.map(a => a.turma)])];
-    const atual = $("#fTurma").value;
-    $("#fTurma").innerHTML = `<option value="">Todas</option>` + turmas.map(t => `<option>${esc(t)}</option>`).join("");
-    $("#fTurma").value = atual;
-    desenhar();
-  } catch (e) { $("#lMsg").innerHTML = `<span class="err">Não consegui falar com a planilha. Confira a internet e o endereço no config.js.</span>`; }
+  const t = $("#fTurma").value;
+  try { LISTA = await P.rpc("admin_listar", { p_turma: t ? Number(t) : null }, JWT); desenhar(); }
+  catch (e) { alert("Erro ao carregar: " + e.message); }
 }
-
-function filtrados() {
-  const t = $("#fTurma").value, b = $("#fBusca").value.trim().toLowerCase();
-  return LISTA.filter(a => (!t || a.turma === t) && (!b || a.nome.toLowerCase().includes(b)));
+const somaMundo = (a, n) => FASES.filter(f => f.mundo === n).reduce((s, f) => s + ((a.progresso[f.id] || {}).estrelas || 0), 0);
+function trofeus(a) {
+  return MUNDOS.filter(m => FASES.some(f => f.mundo === m.n)).map(m => {
+    const fs = FASES.filter(f => f.mundo === m.n);
+    if (!fs.every(f => (a.progresso[f.id] || {}).estrelas > 0)) return "";
+    const e = fs.reduce((s, f) => s + a.progresso[f.id].estrelas, 0), x = fs.reduce((s, f) => s + a.progresso[f.id].xp, 0);
+    return `M${m.n}: ${codigoVerif(a.turma, semAcento(a.nome).toLowerCase(), "m" + m.n, e, x)}`;
+  }).filter(Boolean).join("<br>");
 }
-
 function desenhar() {
-  const L = filtrados().slice().sort((a, b) => {
-    const va = a[ordem.k], vb = b[ordem.k];
-    return (typeof va === "string" ? va.localeCompare(vb) : (va - vb)) * ordem.dir;
-  });
-  const total = FASES.length, max = total * 3;
-  const concl = L.filter(a => a.fases >= total).length;
-  const media = L.length ? (L.reduce((s, a) => s + a.estrelas, 0) / L.length).toFixed(1) : 0;
-  const mediaF = L.length ? (L.reduce((s, a) => s + a.fases, 0) / L.length).toFixed(1) : 0;
-  $("#cards").innerHTML = `
-    <div class="card"><b>${L.length}</b>alunos</div>
-    <div class="card"><b>${concl}</b>zeraram o jogo</div>
-    <div class="card"><b>${mediaF}</b>fases em média (de ${total})</div>
-    <div class="card"><b>${media}</b>estrelas em média (de ${max})</div>`;
-  const cols = [["", ""], ["nome", "ALUNO"], ["turma", "TURMA"], ["estrelas", "★"], ["xp", "XP"], ["fases", "FASES"], ["", "POR FASE"], ["ultimo", "ÚLTIMO ACESSO"], ["codigo", "CÓDIGO"], ["", "PIN"]];
+  const b = $("#fBusca").value.trim().toLowerCase();
+  const L = LISTA.filter(a => !b || (a.nome + " " + (a.nick || "") + " " + (a.email || "")).toLowerCase().includes(b)).map(a => Object.assign(a, { fases: Object.values(a.progresso || {}).filter(x => x.estrelas > 0).length }))
+    .sort((x, y) => { const va = x[ordem.k], vb = y[ordem.k]; return (typeof va === "string" ? va.localeCompare(vb) : (va - vb)) * ordem.dir; });
+  const tot = FASES.length;
+  const media = k => L.length ? (L.reduce((s, a) => s + a[k], 0) / L.length).toFixed(1) : 0;
+  const ativos7 = L.filter(a => Date.now() - new Date(a.ultimo_acesso) < 7 * 864e5).length;
+  $("#cards").innerHTML = `<div class="card"><b style="color:var(--cyan)">${L.length}</b>alunos</div><div class="card"><b style="color:var(--green)">${ativos7}</b>jogaram nos últimos 7 dias</div>
+    <div class="card"><b style="color:var(--yellow)">${media("fases")}</b>fases em média (de ${tot})</div><div class="card"><b style="color:var(--yellow)">${media("estrelas")}</b>estrelas em média (de ${tot * 3})</div>`;
+  const cols = [["", ""], ["nome", "ALUNO"], ["nick", "NICK"], ["turma", "TURMA"], ["estrelas", "★"], ["xp", "XP"], ["moedas", "MOEDAS"], ["fases", "FASES"], ["", "POR FASE"], ["ultimo_acesso", "ÚLTIMO ACESSO"], ["", "TROFÉUS"], ["", ""]];
   const tab = $("#tab");
   tab.innerHTML = `<tr>${cols.map(([k, n]) => `<th data-k="${k}">${n}${ordem.k === k && k ? (ordem.dir > 0 ? " ▲" : " ▼") : ""}</th>`).join("")}</tr>`;
   L.forEach(a => {
     const tr = document.createElement("tr");
-    const fs = FASES.map(f => { const s = (a.progresso[f.id] || {}).estrelas || 0; return `<span class="f s${s}" title="${f.id} – ${esc(f.titulo)}">${s || "·"}</span>`; }).join("");
-    tr.innerHTML = `<td></td><td>${esc(a.nome)}</td><td>${esc(a.turma)}</td><td style="color:var(--yellow)">${a.estrelas}</td><td style="color:var(--green)">${a.xp}</td><td>${a.fases}/${total}</td><td>${fs}</td><td>${esc(a.ultimo)}</td><td class="cod">${esc(a.codigo)}</td>
-      <td>${a.semPin ? '<span class="tag">RESETADO</span>' : '<button class="btn dk">RESETAR PIN</button>'}</td>`;
-    const c = document.createElement("canvas"); AVATAR.desenhar(c, a.avatar, 2); tr.firstChild.appendChild(c);
-    const b = tr.querySelector("button");
-    if (b) b.onclick = async () => {
-      if (!confirm(`Resetar o PIN de ${a.nome}?\nNo próximo acesso, o PIN que ele digitar passa a valer.`)) return;
-      b.disabled = true; b.textContent = "...";
-      try { const r = await api("admin_resetar", { senha: senha(), turma: a.turma, nome: a.nome }); if (r.ok) { a.semPin = true; desenhar(); } else alert("Erro: " + r.erro); } catch (e) { alert("Sem conexão."); }
-    };
+    const fs = MUNDOS.filter(m => FASES.some(f => f.mundo === m.n)).map(m => `<span class="mini" style="background:${m.cor}">M${m.n}</span> ` + FASES.filter(f => f.mundo === m.n).map(f => { const s = (a.progresso[f.id] || {}).estrelas || 0; return `<span class="f s${s}" title="${esc(f.titulo)}">${s || "·"}</span>`; }).join("")).join(" ");
+    const ult = a.ultimo_acesso ? new Date(a.ultimo_acesso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "";
+    tr.innerHTML = `<td></td><td>${esc(a.nome)}${a.bloqueado ? ' <span class="mini" style="background:#ff8095">BLOQUEADO</span>' : ""}<br><small style="color:var(--gray)">${esc(a.email || "")}</small></td><td>${esc(a.nick || "")}</td><td>${esc(a.turma)}</td><td style="color:var(--yellow)">${a.estrelas}</td><td style="color:var(--green)">${a.xp}</td><td style="color:var(--yellow)">${a.moedas}</td><td>${a.fases}/${tot}</td><td>${fs}</td><td>${ult}</td><td class="cod">${trofeus(a)}</td>
+      <td>${a.sem_senha ? '<span class="mini" style="background:var(--yellow)">SENHA RESETADA</span>' : '<button class="btn dk sm" data-r>RESETAR SENHA</button>'} <button class="btn gr sm" data-m>+ MOEDAS</button> <button class="btn sm" data-x>APAGAR</button></td>`;
+    const c = document.createElement("canvas"); AVATAR.desenhar(c, a.avatar, 1, true, { retrato: true }); tr.firstChild.appendChild(c);
+    const br = tr.querySelector("[data-r]");
+    if (br) br.onclick = async () => { if (!confirm(`Resetar a senha de ${a.nome}?\nNo próximo acesso, a senha que ele digitar (mínimo 6 caracteres) passa a valer.`)) return; await P.rpc("admin_resetar_senha", { p_aluno: a.id }, JWT); carregar(); };
+    tr.querySelector("[data-m]").onclick = async () => { const q = parseInt(prompt(`Quantas moedas dar para ${a.nome}? (use número negativo para tirar)`, "50"), 10); if (!q) return; await P.rpc("admin_dar_moedas", { p_aluno: a.id, p_qtd: q }, JWT); carregar(); };
+    tr.querySelector("[data-x]").onclick = async () => { if (!confirm(`APAGAR ${a.nome} e todo o progresso? Isso não pode ser desfeito.`)) return; await P.rpc("admin_apagar_aluno", { p_aluno: a.id }, JWT); carregar(); };
     tab.appendChild(tr);
   });
   tab.querySelectorAll("th").forEach(th => th.onclick = () => { const k = th.dataset.k; if (!k) return; ordem = { k, dir: ordem.k === k ? -ordem.dir : (k === "nome" || k === "turma" ? 1 : -1) }; desenhar(); });
 }
-
 $("#bCsv").onclick = () => {
-  const L = filtrados();
-  const linhas = [["Turma", "Aluno", "Estrelas", "XP", "Fases", ...FASES.map(f => f.id), "Último acesso", "Código"]];
-  L.forEach(a => linhas.push([a.turma, a.nome, a.estrelas, a.xp, a.fases, ...FASES.map(f => (a.progresso[f.id] || {}).estrelas || 0), a.ultimo, a.codigo]));
+  const linhas = [["Turma", "Aluno", "Nick", "E-mail", "Estrelas", "XP", "Moedas", "Fases", ...FASES.map(f => f.id), "Último acesso"]];
+  LISTA.forEach(a => linhas.push([a.turma, a.nome, a.nick, a.email, a.estrelas, a.xp, a.moedas, a.fases, ...FASES.map(f => (a.progresso[f.id] || {}).estrelas || 0), a.ultimo_acesso]));
   const csv = "﻿" + linhas.map(l => l.map(v => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\n");
-  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-  const el = document.createElement("a"); el.href = url; el.download = "ponto-certo-arcade.csv"; el.click(); URL.revokeObjectURL(url);
+  const u = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); const el = document.createElement("a"); el.href = u; el.download = "codigo-arcade.csv"; el.click(); URL.revokeObjectURL(u);
 };
+async function carregarTurmas() {
+  TURMAS = await P.rpc("admin_turmas", {}, JWT);
+  $("#listaTurmas").innerHTML = TURMAS.map(t => `<div class="row" style="padding:8px 0;border-bottom:1px solid #2a2a5a"><span style="flex:1">${esc(t.nome)} <small style="color:var(--gray)">· ${t.alunos} alunos</small></span>
+    <button class="btn sm ${t.ativa ? "dk" : "gr"}" data-t="${t.id}" data-a="${!t.ativa}">${t.ativa ? "ESCONDER DO JOGO" : "MOSTRAR NO JOGO"}</button></div>`).join("");
+  document.querySelectorAll("[data-t]").forEach(b => b.onclick = async () => { await P.rpc("admin_ativar_turma", { p_turma: Number(b.dataset.t), p_ativa: b.dataset.a === "true" }, JWT); carregarTurmas(); });
+}
+$("#bCriarTurma").onclick = async () => { const n = $("#novaTurma").value.trim(); if (!n) return; await P.rpc("admin_criar_turma", { p_nome: n }, JWT); $("#novaTurma").value = ""; carregarTurmas(); };
 </script>
 </body>
 </html>

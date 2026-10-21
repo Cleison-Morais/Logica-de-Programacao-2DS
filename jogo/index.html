@@ -2,266 +2,11 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ponto Certo Arcade</title>
-<style>
-@font-face{font-family:"Press Start 2P";src:url(fontes/press-start-2p.woff2) format("woff2");font-display:swap}
-@font-face{font-family:"VT323";src:url(fontes/vt323.woff2) format("woff2");font-display:swap}
-</style>
-<style>
-:root{
-  --bg:#0b0b1f; --bg2:#14143a; --panel:#1b1b45; --line:#2e2e6e;
-  --red:#ff2a4d; --red-d:#b3001e; --cyan:#00e5ff; --yellow:#ffd23f; --green:#39ff6a; --pink:#ff4fd8; --white:#f4f4ff; --gray:#8a8ab0;
-  --px:"Press Start 2P", monospace; --txt:"VT323", "Courier New", monospace;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{min-height:100%}
-body{background:var(--bg);color:var(--white);font-family:var(--txt);font-size:24px;line-height:1.25;overflow-x:hidden;
-  background-image:linear-gradient(rgba(0,229,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.05) 1px,transparent 1px);background-size:32px 32px}
-.crt{position:fixed;inset:0;pointer-events:none;z-index:999;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 2px,transparent 2px 4px);mix-blend-mode:multiply}
-.crt::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 120px rgba(0,0,0,.55)}
-canvas{image-rendering:pixelated;image-rendering:crisp-edges}
-code,.mono{font-family:var(--txt)}
-b{color:var(--yellow);font-weight:normal}
-.tela{display:none;min-height:100vh;padding-bottom:40px}
-.tela.on{display:block;animation:entra .35s steps(5)}
-@keyframes entra{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-.wrap{max-width:980px;margin:0 auto;padding:0 16px}
-h1,h2,h3,.px{font-family:var(--px);font-weight:normal;line-height:1.5}
-
-/* ---------- botões ---------- */
-.btn{font-family:var(--px);font-size:12px;border:none;cursor:pointer;color:var(--white);background:var(--red);padding:14px 18px;position:relative;
-  box-shadow:inset -4px -4px 0 var(--red-d),inset 4px 4px 0 #ff7a8f,0 0 0 4px #000;margin:4px;transition:transform .05s;text-transform:uppercase;letter-spacing:1px}
-.btn:hover{filter:brightness(1.15)}
-.btn:active{transform:translate(2px,2px)}
-.btn.cy{background:#0094b3;box-shadow:inset -4px -4px 0 #005a6e,inset 4px 4px 0 #5cefff,0 0 0 4px #000}
-.btn.gr{background:#13a83a;box-shadow:inset -4px -4px 0 #0a6322,inset 4px 4px 0 #6bff8f,0 0 0 4px #000}
-.btn.yl{background:#e0a800;color:#1a1a1a;box-shadow:inset -4px -4px 0 #8a6500,inset 4px 4px 0 #ffe680,0 0 0 4px #000}
-.btn.dk{background:#2e2e6e;box-shadow:inset -4px -4px 0 #1b1b45,inset 4px 4px 0 #4a4aa0,0 0 0 4px #000}
-.btn.sm{font-size:9px;padding:9px 10px}
-.btn:disabled{opacity:.45;cursor:default;filter:none}
-.box{background:var(--panel);box-shadow:0 0 0 4px #000,0 0 0 8px var(--line);padding:18px;margin:12px 8px}
-
-/* ---------- tela inicial ---------- */
-#tInicio .logo{text-align:center;padding:48px 0 16px}
-.logo h1{font-size:38px;color:var(--yellow);text-shadow:4px 4px 0 var(--red),8px 8px 0 #000;letter-spacing:2px}
-.logo h1 span{display:block;font-size:20px;color:var(--cyan);text-shadow:3px 3px 0 #000;margin-top:14px}
-.blink{animation:blink 1s steps(2) infinite}
-@keyframes blink{50%{opacity:0}}
-.start{font-family:var(--px);color:var(--white);font-size:14px;text-align:center;margin:24px 0}
-.login{max-width:520px;margin:0 auto}
-.login label{display:block;font-family:var(--px);font-size:10px;color:var(--cyan);margin:14px 0 6px}
-.inp{width:100%;font-family:var(--txt);font-size:28px;background:#05051a;color:var(--yellow);border:none;box-shadow:inset 0 0 0 3px var(--line);padding:8px 12px;outline:none}
-.inp:focus{box-shadow:inset 0 0 0 3px var(--cyan)}
-select.inp{cursor:pointer}
-.msg{margin-top:12px;min-height:30px;color:var(--yellow)}
-.msg.err{color:#ff8095}
-.sprites{display:flex;justify-content:center;gap:18px;margin:6px 0 10px}
-.sprites canvas{animation:bob 1.2s steps(2) infinite}
-.sprites canvas:nth-child(2){animation-delay:.3s}.sprites canvas:nth-child(3){animation-delay:.6s}
-@keyframes bob{50%{transform:translateY(-6px)}}
-.foot{font-family:var(--px);font-size:8px;color:var(--gray);text-align:center;margin-top:28px;line-height:2}
-
-/* ---------- HUD ---------- */
-.hud{position:sticky;top:0;z-index:50;background:#06061a;box-shadow:0 4px 0 #000,0 8px 0 var(--line);padding:8px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.hud .who{display:flex;align-items:center;gap:10px;margin-right:auto}
-.hud .who canvas{box-shadow:0 0 0 3px #000}
-.hud .nm{font-family:var(--px);font-size:10px;line-height:1.8}
-.hud .nm small{display:block;color:var(--gray);font-size:8px}
-.stat{font-family:var(--px);font-size:11px;padding:6px 8px;background:#14143a;box-shadow:0 0 0 3px #000}
-.stat.st{color:var(--yellow)}.stat.xp{color:var(--green)}
-.sync{font-size:20px;color:var(--gray)}
-.sync.ok{color:var(--green)}.sync.off{color:var(--yellow)}
-
-/* ---------- mapa ---------- */
-.mundo{margin:26px auto 10px;max-width:640px}
-.banner{font-family:var(--px);text-align:center;padding:14px 10px;color:#000;box-shadow:0 0 0 4px #000;font-size:13px;position:relative}
-.banner small{display:block;font-family:var(--txt);font-size:22px;margin-top:6px;color:#000}
-.trilha{position:relative;margin:0 auto}
-.trilha > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.no{position:absolute;width:74px;height:74px;transform:translate(-50%,-50%);border:none;cursor:pointer;font-family:var(--px);font-size:18px;color:#fff;
-  box-shadow:0 0 0 4px #000,inset -6px -6px 0 rgba(0,0,0,.35),inset 6px 6px 0 rgba(255,255,255,.3)}
-.no.lock{background:#2b2b4f;color:#55557a;cursor:not-allowed}
-.no.atual{animation:pulse 1s steps(2) infinite}
-@keyframes pulse{50%{box-shadow:0 0 0 4px #000,0 0 0 10px var(--yellow),inset -6px -6px 0 rgba(0,0,0,.35),inset 6px 6px 0 rgba(255,255,255,.3)}}
-.no.boss{width:96px;height:96px;font-size:26px}
-.no .stars{position:absolute;left:50%;bottom:-26px;transform:translateX(-50%);font-size:12px;color:var(--yellow);white-space:nowrap;text-shadow:2px 2px 0 #000}
-.no .tt{position:absolute;left:calc(100% + 12px);top:50%;transform:translateY(-50%);font-family:var(--txt);font-size:20px;white-space:nowrap;color:var(--white);text-shadow:2px 2px 0 #000;text-align:left;pointer-events:none}
-.no.esq .tt{left:auto;right:calc(100% + 12px);text-align:right}
-.eu{position:absolute;pointer-events:none;animation:bob 1s steps(2) infinite;z-index:3}
-
-/* ---------- fase ---------- */
-.fhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 8px 6px}
-.fhead h2{font-size:15px;color:var(--yellow)}
-.fhead .tag{font-family:var(--px);font-size:9px;padding:6px 8px;color:#000}
-.dialogo{display:flex;gap:16px;align-items:flex-start}
-.dialogo canvas{flex:none;box-shadow:0 0 0 4px #000}
-.fala{flex:1;min-height:120px}
-.fala .quem{font-family:var(--px);font-size:10px;color:var(--pink);margin-bottom:8px}
-.code{background:#05051a;box-shadow:inset 0 0 0 3px #2a2a5a;padding:12px 14px;font-family:var(--txt);font-size:24px;white-space:pre;overflow-x:auto;line-height:1.3;margin:12px 0;color:#d4d4ff}
-.kw{color:#ff6ec7}.st{color:#ffb86b}.cm{color:#6a9955}.bi{color:#ffe66d}.fn{color:#7dd3fc}.nm{color:#b5f5a5}.df{color:#00e5ff}
-.slot{display:inline-block;min-width:110px;text-align:center;border:3px dashed var(--yellow);color:var(--yellow);animation:blink 1s steps(2) infinite;padding:0 6px}
-.slot.ok{border-style:solid;border-color:var(--green);color:var(--green);animation:none;background:rgba(57,255,106,.12)}
-.prog{display:flex;align-items:center;gap:12px;margin:10px 8px}
-.bar{flex:1;height:20px;background:#05051a;box-shadow:0 0 0 3px #000,inset 0 0 0 2px var(--line);display:flex;padding:3px;gap:3px}
-.bar i{flex:1;background:#22224a}
-.bar i.ok{background:var(--green)}.bar i.now{background:var(--yellow);animation:blink 1s steps(2) infinite}
-.meter{font-size:26px;letter-spacing:2px;color:var(--yellow);text-shadow:2px 2px 0 #000;min-width:96px;text-align:right}
-.meter .off{color:#33335a}
-.perg{font-size:28px;margin-bottom:6px}
-.tipo{font-family:var(--px);font-size:9px;color:var(--cyan);margin-bottom:10px}
-.ops{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-.op{font-family:var(--txt);font-size:25px;text-align:left;background:#22224a;color:var(--white);border:none;cursor:pointer;padding:12px 14px;box-shadow:0 0 0 3px #000,inset -4px -4px 0 #15153a;white-space:pre-wrap}
-.op:hover{background:#2e2e6e}
-.op.mono{background:#05051a;color:#cfe;box-shadow:0 0 0 3px #000,inset 0 0 0 2px #2a2a5a}
-.op.err{background:#5a0f1e;color:#ffb3c0;animation:shake .35s steps(4)}
-.op.ok{background:#0f5a26;color:#b8ffcb}
-.op:disabled{cursor:default}
-@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.chips{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px}
-.chips .op{padding:10px 16px}
-.linhas{background:#05051a;box-shadow:inset 0 0 0 3px #2a2a5a;margin:10px 0;padding:8px 0}
-.lin{display:flex;cursor:pointer;font-size:24px;white-space:pre;padding:2px 0}
-.lin:hover{background:#22224a}
-.lin .n{width:46px;text-align:right;padding-right:14px;color:#55557a;flex:none}
-.lin.err{background:#5a0f1e;animation:shake .35s steps(4)}
-.lin.ok{background:#0f5a26}
-.ordem{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.ordem h4{font-family:var(--px);font-size:9px;color:var(--cyan);margin-bottom:8px}
-.pool,.resp{min-height:120px;background:#05051a;box-shadow:inset 0 0 0 3px #2a2a5a;padding:8px;display:flex;flex-direction:column;gap:8px}
-.peca{font-size:22px;white-space:pre;background:#22224a;padding:6px 10px;cursor:pointer;box-shadow:0 0 0 2px #000;text-align:left;color:var(--white);border:none;font-family:var(--txt);overflow-x:auto}
-.peca:hover{background:#3a3a8a}
-.resp .peca{background:#1b3a5a}
-.peca.bad{background:#5a0f1e}
-.dica{margin-top:14px;padding:12px 14px;background:#3a0a1e;box-shadow:0 0 0 3px #000;color:#ffc2cf;display:none}
-.dica.on{display:block;animation:entra .3s steps(4)}
-.dica b{color:#fff}
-.acerto{margin-top:14px;padding:12px 14px;background:#0a3a1a;box-shadow:0 0 0 3px #000;color:#b8ffcb;display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.acerto.on{display:flex;animation:entra .3s steps(4)}
-.acerto .px{font-size:12px;color:var(--green)}
-.digita{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-.digita .inp{flex:1;min-width:220px}
-.xpfloat{position:fixed;font-family:var(--px);color:var(--green);font-size:16px;pointer-events:none;z-index:200;animation:sobe 1s steps(8) forwards;text-shadow:2px 2px 0 #000}
-@keyframes sobe{to{transform:translateY(-70px);opacity:0}}
-
-/* ---------- resultado ---------- */
-.res{text-align:center;padding-top:30px}
-.res h2{font-size:22px;color:var(--yellow);text-shadow:3px 3px 0 var(--red)}
-.big{font-size:80px;letter-spacing:10px;margin:18px 0;color:#33335a}
-.big span{display:inline-block}
-.big span.on{color:var(--yellow);animation:pop .5s steps(5) both;text-shadow:4px 4px 0 #000}
-.big span:nth-child(2){animation-delay:.35s}.big span:nth-child(3){animation-delay:.7s}
-@keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.4)}100%{transform:scale(1)}}
-.unl{margin:14px auto;max-width:640px;text-align:left;display:flex;gap:14px;align-items:center}
-.unl .ic{font-size:40px}
-.unl .px{font-size:10px;color:var(--cyan);margin-bottom:6px}
-
-/* ---------- avatar ---------- */
-.ed{display:grid;grid-template-columns:300px 1fr;gap:10px;align-items:start}
-.prev{text-align:center}
-.prev canvas{box-shadow:0 0 0 4px #000,0 0 0 8px var(--line);margin:10px 0 16px;max-width:100%}
-.tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
-.tabs .btn{font-size:9px;padding:9px 10px}
-.tabs .btn.on{background:var(--yellow);color:#000;box-shadow:inset -4px -4px 0 #8a6500,0 0 0 4px #000}
-.grade{display:flex;flex-wrap:wrap;gap:12px}
-.sw{width:52px;height:52px;border:none;cursor:pointer;box-shadow:0 0 0 3px #000}
-.sw.on{box-shadow:0 0 0 3px #000,0 0 0 7px var(--yellow)}
-.it{width:112px;background:#22224a;border:none;cursor:pointer;padding:8px;color:var(--white);font-family:var(--txt);font-size:19px;box-shadow:0 0 0 3px #000;position:relative}
-.it canvas{display:block;margin:0 auto 4px}
-.it.on{background:#5a4a00;box-shadow:0 0 0 3px #000,0 0 0 7px var(--yellow)}
-.it.lock{cursor:not-allowed;color:#77779a}
-.it.lock canvas{filter:brightness(.15)}
-.it .lk{position:absolute;top:30px;left:0;right:0;text-align:center;font-family:var(--px);font-size:10px;color:var(--yellow)}
-
-/* ---------- ranking ---------- */
-.rk{display:flex;align-items:center;gap:14px;padding:8px 12px;margin:10px 0;background:#22224a;box-shadow:0 0 0 3px #000}
-.rk.eu2{background:#4a3a00;box-shadow:0 0 0 3px #000,0 0 0 6px var(--yellow)}
-.rk .pos{font-family:var(--px);font-size:16px;width:52px;text-align:center;color:var(--cyan)}
-.rk .pos.p1{color:#ffd23f}.rk .pos.p2{color:#d8d8e8}.rk .pos.p3{color:#e0884a}
-.rk .info{flex:1;font-size:26px}
-.rk .info small{display:block;font-size:20px;color:var(--gray)}
-.rk .pts{font-family:var(--px);font-size:12px;color:var(--yellow);text-align:right;line-height:2}
-.rk .pts span{color:var(--green)}
-
-/* ---------- terminal ---------- */
-.term{background:#000;box-shadow:0 0 0 4px #000,0 0 0 8px var(--line);margin:12px 8px}
-.term .tb{background:#1a1a3a;padding:8px 12px;font-family:var(--px);font-size:9px;color:var(--gray);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
-.term .body{height:430px;overflow-y:auto;padding:12px 14px;color:#39ff6a;font-size:24px;white-space:pre-wrap;text-shadow:0 0 6px rgba(57,255,106,.5);cursor:text}
-.term .body input{background:transparent;border:none;outline:none;color:var(--yellow);font-family:var(--txt);font-size:24px;flex:1;caret-color:var(--yellow)}
-.term .il{display:flex}
-.term .ty{color:var(--yellow)}
-.term .er{color:#ff6b81}
-.term .fim{color:var(--gray)}
-.feats{display:flex;flex-wrap:wrap;gap:8px;margin:8px}
-.feat{font-size:20px;padding:4px 10px;box-shadow:0 0 0 2px #000;background:#22224a;color:#55557a}
-.feat.on{background:#0f5a26;color:#b8ffcb}
-
-/* ---------- certificado ---------- */
-.cert{text-align:center;max-width:720px;margin:20px auto;padding:30px 20px;background:var(--panel);box-shadow:0 0 0 4px #000,0 0 0 8px var(--yellow),0 0 0 12px #000}
-.cert h2{font-size:18px;color:var(--yellow);text-shadow:3px 3px 0 var(--red);margin-bottom:6px}
-.cert .px{font-size:10px;color:var(--cyan)}
-.cert canvas{margin:18px auto;box-shadow:0 0 0 4px #000}
-.cert .nome{font-size:40px;color:var(--white)}
-.cert .cod{font-family:var(--px);font-size:22px;color:var(--green);background:#05051a;display:inline-block;padding:12px 18px;margin:16px 0;box-shadow:0 0 0 3px #000;letter-spacing:3px}
-.cert table{margin:10px auto;font-size:24px;border-collapse:collapse}
-.cert td{padding:4px 14px;text-align:left}
-.cert td:first-child{color:var(--gray)}
-
-.modal{position:fixed;inset:0;background:rgba(0,0,20,.85);z-index:300;display:none;align-items:center;justify-content:center;padding:16px}
-.modal.on{display:flex}
-.modal .box{max-width:520px;text-align:center}
-.center{text-align:center}
-.mt{margin-top:16px}
-
-/* ================= VISUAL 2.0 (mapa com cenário, molduras, ícones) ================= */
-.pxi{vertical-align:-2px;image-rendering:pixelated}
-.box{border-radius:6px;box-shadow:0 0 0 3px #000,0 0 0 6px #4a4aa0,0 0 0 9px #000,inset 0 0 0 2px #2a2a6a;
-  background-color:var(--panel);
-  background-image:radial-gradient(circle at 9px 9px,#7a7ad0 0 2px,#000 2px 3px,transparent 3px),radial-gradient(circle at calc(100% - 9px) 9px,#7a7ad0 0 2px,#000 2px 3px,transparent 3px),
-    radial-gradient(circle at 9px calc(100% - 9px),#7a7ad0 0 2px,#000 2px 3px,transparent 3px),radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),#7a7ad0 0 2px,#000 2px 3px,transparent 3px);
-  margin:16px 10px}
-select.inp{appearance:none;-webkit-appearance:none;padding-right:44px;background:#05051a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4' shape-rendering='crispEdges'%3E%3Cpath fill='%23ffd23f' d='M0 0h7v1H0zM1 1h5v1H1zM2 2h3v1H2zM3 3h1v1H3z'/%3E%3C/svg%3E") no-repeat right 14px center/22px 13px}
-.moldura{padding:6px;background:#141436;border-radius:4px;box-shadow:0 0 0 3px #000,0 0 0 6px #4a4aa0,0 0 0 9px #000;
-  background-image:radial-gradient(circle at 5px 5px,#7a7ad0 0 2px,transparent 2px),radial-gradient(circle at calc(100% - 5px) 5px,#7a7ad0 0 2px,transparent 2px),radial-gradient(circle at 5px calc(100% - 5px),#7a7ad0 0 2px,transparent 2px),radial-gradient(circle at calc(100% - 5px) calc(100% - 5px),#7a7ad0 0 2px,transparent 2px)}
-.sprites{gap:26px;margin:10px 0 18px}
-.sprites .moldura{animation:bob 1.2s steps(2) infinite}.sprites .moldura:nth-child(2){animation-delay:.3s}.sprites .moldura:nth-child(3){animation-delay:.6s}
-.sprites canvas{animation:none;display:block}
-.hud .who canvas{height:46px;width:auto}
-.stat .pxi{vertical-align:-1px}
-
-.mundo{max-width:none;margin:24px auto 10px}
-.trilha{position:relative;margin:0 auto;box-shadow:0 0 0 4px #000,0 0 0 8px var(--line);border-radius:4px;overflow:hidden}
-.trilha canvas.cenario{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
-.trilha > svg{z-index:1}
-.trilha .banner{position:absolute;top:26px;left:50%;transform:translateX(-50%);width:min(640px,88%);z-index:3;box-shadow:0 0 0 4px #000,6px 6px 0 4px rgba(0,0,0,.35)}
-.no{z-index:2;border-radius:3px;width:78px;height:78px}
-.no .num{font-family:var(--px);font-size:20px;text-shadow:3px 3px 0 #000}
-.no.livre{background:#4a4ad0;box-shadow:0 0 0 4px #000,inset -7px -7px 0 #2c2c8a,inset 7px 7px 0 #7f7ff0}
-.no.feito{background:var(--cor,#ff2a4d);box-shadow:0 0 0 4px #000,inset -7px -7px 0 rgba(0,0,0,.35),inset 7px 7px 0 rgba(255,255,255,.35)}
-.no.lock{cursor:not-allowed}
-.no.caixote{background:repeating-linear-gradient(0deg,#a06838 0 15px,#7a4a24 15px 18px);box-shadow:0 0 0 4px #000,inset 0 0 0 6px #6b3f1d,inset 0 0 0 9px #c08048}
-.no.pedra{background:#7e8296;box-shadow:0 0 0 4px #000,inset -7px -7px 0 #545868,inset 7px 7px 0 #a8acc0,inset 0 0 0 11px #6e7286}
-.no .cad{display:block;line-height:0;filter:drop-shadow(2px 2px 0 #000)}
-.no.atual{animation:pulse 1s steps(2) infinite}
-.no.boss{width:100px;height:100px}
-.no .stars{bottom:-22px;display:flex;gap:2px;filter:drop-shadow(2px 2px 0 #000)}
-.no .tt{font-size:22px;color:#fff;text-shadow:2px 0 0 #000,-2px 0 0 #000,0 2px 0 #000,0 -2px 0 #000,2px 2px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000}
-.eu{z-index:4;filter:drop-shadow(3px 3px 0 rgba(0,0,0,.4))}
-.it{width:128px}
-.it .lk{top:26px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px}
-.prev canvas{border-radius:4px}
-@media(max-width:760px){.no .tt{display:none}.no{width:64px;height:64px}.no.boss{width:84px;height:84px}}
-
-@media(max-width:760px){
-  .logo h1{font-size:24px}.logo h1 span{font-size:13px}
-  .ops,.ordem{grid-template-columns:1fr}
-  .ed{grid-template-columns:1fr}
-  .dialogo canvas{width:72px;height:72px}
-  .no .tt{display:none}
-  .hud .nm{display:none}
-  body{font-size:22px}
-}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b0b1f">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Código Arcade</title>
+<link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
 <div class="crt"></div>
@@ -269,53 +14,85 @@ select.inp{appearance:none;-webkit-appearance:none;padding-right:44px;background
 <!-- ============================ INÍCIO ============================ -->
 <section class="tela on" id="tInicio">
   <div class="wrap">
-    <div class="logo">
-      <h1>PONTO CERTO<span>★ ARCADE ★</span></h1>
-    </div>
+    <div class="logo"><h1 id="logoNome">CÓDIGO ARCADE</h1></div>
     <div class="sprites" id="spritesInicio"></div>
     <div class="start blink">APERTE START</div>
     <div class="box login">
-      <label>TURMA</label>
-      <select class="inp" id="lTurma"></select>
-      <label>NOME E SOBRENOME</label>
-      <input class="inp" id="lNome" maxlength="40" autocomplete="off" placeholder="Ex.: Ana Souza">
-      <label>PIN SECRETO (4 NÚMEROS)</label>
-      <input class="inp" id="lPin" maxlength="4" inputmode="numeric" autocomplete="off" type="password" placeholder="••••">
-      <div class="center mt">
-        <button class="btn" id="bEntrar">▶ START</button>
+      <div class="center"><button class="btn yl" id="abaEntrar">ENTRAR</button><button class="btn dk" id="abaCriar">CRIAR CONTA</button></div>
+      <div id="formEntrar">
+        <label>NICKNAME OU E-MAIL</label>
+        <input class="inp" id="lLogin" maxlength="120" autocomplete="username" autocapitalize="off" placeholder="Ex.: ana_dev">
+        <label>SENHA</label>
+        <input class="inp" id="lSenha" type="password" autocomplete="current-password" placeholder="••••••">
+        <div class="center mt"><button class="btn" id="bEntrar">▶ START</button></div>
+      </div>
+      <div id="formCriar" style="display:none">
+        <label>NOME E SOBRENOME</label>
+        <input class="inp" id="cNome" maxlength="60" autocomplete="name" placeholder="Ex.: Ana Souza">
+        <label>NICKNAME (NOME NO JOGO)</label>
+        <input class="inp" id="cNick" maxlength="16" autocomplete="off" autocapitalize="off" placeholder="Ex.: ana_dev">
+        <label>E-MAIL DA ESCOLA</label>
+        <input class="inp" id="cEmail" type="email" maxlength="120" autocomplete="email" autocapitalize="off" placeholder="seu e-mail">
+        <label>SENHA (MÍNIMO 6)</label>
+        <input class="inp" id="cSenha" type="password" autocomplete="new-password">
+        <label>REPITA A SENHA</label>
+        <input class="inp" id="cSenha2" type="password" autocomplete="new-password">
+        <label>TURMA</label>
+        <select class="inp" id="cTurma"><option>Carregando...</option></select>
+        <div class="center mt"><button class="btn gr" id="bCriarConta">CRIAR CONTA ▶</button></div>
       </div>
       <div class="msg" id="lMsg"></div>
-      <div class="center" id="novoBox" style="display:none">
-        <button class="btn gr" id="bCriar">CRIAR JOGADOR</button>
-        <button class="btn dk" id="bVoltarLogin">CORRIGIR</button>
-      </div>
     </div>
-    <div class="foot">TÉCNICO EM DESENVOLVIMENTO DE SISTEMAS · LÓGICA E LINGUAGEM DE PROGRAMAÇÃO<br>SEMANAS 21 E 22 · PROF. CLEISON DE MORAIS MELLO<br><span id="modoTxt"></span></div>
+    <div class="foot" id="rodape"></div>
   </div>
 </section>
 
 <!-- ============================ HUD ============================ -->
 <div class="hud" id="hud" style="display:none">
-  <div class="who"><canvas id="hudAv"></canvas><div class="nm" id="hudNome"></div></div>
-  <span class="stat st" id="hudSt">★ 0</span>
-  <span class="stat xp" id="hudXp">0 XP</span>
-  <span class="sync" id="hudSync" title="Situação do salvamento"></span>
-  <button class="btn sm cy" data-go="mapa">MAPA</button>
-  <button class="btn sm cy" data-go="avatar">AVATAR</button>
-  <button class="btn sm cy" data-go="ranking">RANKING</button>
-  <button class="btn sm gr" data-go="sistema">MEU SISTEMA</button>
-  <button class="btn sm yl" data-go="certificado">TROFÉU</button>
-  <button class="btn sm dk" id="bSom" title="Som">♪</button>
-  <button class="btn sm dk" id="bSair">SAIR</button>
+  <button class="who" id="hudConta" title="Minha conta"><canvas id="hudAv"></canvas><span class="nm" id="hudNome"></span></button>
+  <span class="stat st" id="hudSt"></span>
+  <span class="stat xp" id="hudXp"></span>
+  <span class="stat md" id="hudMoedas"></span>
+  <span class="sync" id="hudSync"></span>
+  <div class="menu">
+    <button class="btn sm gr" data-go="quarto">QUARTO</button>
+    <button class="btn sm cy" data-go="mundos">MUNDOS</button>
+    <button class="btn sm cy" data-go="avatar">AVATAR</button>
+    <button class="btn sm yl" data-go="loja">LOJA</button>
+    <button class="btn sm cy" data-go="ranking">RANKING</button>
+    <button class="btn sm cy" data-go="caderno">CADERNO</button>
+    <button class="btn sm cy" data-go="trofeus">TROFÉUS</button>
+    <button class="btn sm dk" id="bSom" title="Som">♪</button>
+    <button class="btn sm dk" id="bSair">SAIR</button>
+  </div>
 </div>
 
-<!-- ============================ MAPA ============================ -->
+<!-- ============================ QUARTO ============================ -->
+<section class="tela" id="tQuarto"><div class="wrap">
+  <div class="fhead"><h2 id="qTitulo">MEU QUARTO</h2><span style="flex:1"></span><button class="btn sm yl" id="bDecorar">DECORAR</button><button class="btn sm gr" data-go2="loja" onclick="ir('loja')">LOJA</button></div>
+  <div class="sala"><canvas id="qCanvas"></canvas></div>
+  <div class="dica-sala">Use as <b>setas</b> do teclado ou <b>toque no chão</b> para andar. Entre na <b>porta</b> para ir aos mundos.</div>
+  <div class="dpad" id="dpad">
+    <button id="dp_cima" title="Cima">▲</button><button id="dp_esq" title="Esquerda">◀</button><button id="dp_dir" title="Direita">▶</button><button id="dp_baixo" title="Baixo">▼</button>
+  </div>
+  <div class="box" id="qPainel" style="display:none"></div>
+</div></section>
+
+<section class="tela" id="tVisita"><div class="wrap">
+  <div class="fhead"><button class="btn sm dk" onclick="ir('ranking')">◀ VOLTAR</button><h2 id="vTitulo">QUARTO</h2></div>
+  <div class="sala"><canvas id="vCanvas"></canvas></div>
+</div></section>
+
+<!-- ============================ LOJA ============================ -->
+<section class="tela" id="tLoja"><div class="wrap">
+  <div class="fhead"><h2>LOJA DE MÓVEIS</h2><span class="tag" style="background:var(--yellow)" id="lojaSaldo"></span></div>
+  <p style="margin:0 10px;color:var(--gray)">Ganhe moedas vencendo fases: <b>10 por estrela</b> e <b>+20</b> na primeira vez que vence cada fase.</p>
+  <div class="loja" id="lojaGrade"></div>
+</div></section>
+
+<section class="tela" id="tMundos"><div class="wrap" id="mundosWrap"></div></section>
 <section class="tela" id="tMapa"><div class="wrap" id="mapaWrap"></div></section>
-
-<!-- ============================ FASE ============================ -->
 <section class="tela" id="tFase"><div class="wrap" id="faseWrap"></div></section>
-
-<!-- ============================ RESULTADO ============================ -->
 <section class="tela" id="tResultado"><div class="wrap" id="resWrap"></div></section>
 
 <!-- ============================ AVATAR ============================ -->
@@ -323,727 +100,42 @@ select.inp{appearance:none;-webkit-appearance:none;padding-right:44px;background
   <div class="fhead"><h2 id="avTitulo">EDITAR PERSONAGEM</h2></div>
   <div class="ed">
     <div class="box prev">
-      <canvas id="avPrev"></canvas>
-      <div class="px" style="font-size:9px;color:var(--gray)" id="avEstrelas"></div>
-      <div class="mt"><button class="btn gr" id="bSalvarAv">SALVAR</button></div>
+      <div class="moldura palco"><canvas id="avPrev"></canvas></div>
+      <div><button class="btn sm dk" id="avGirarE" title="Girar">↺</button><button class="btn sm dk" id="avAndar">▶ ANDAR</button><button class="btn sm dk" id="avGirarD" title="Girar">↻</button></div>
+      <div class="px" style="font-size:9px;color:var(--gray);line-height:2;margin-top:8px" id="avEstrelas"></div>
+      <div class="mt"><button class="btn dk" id="bAleatorio">🎲 ALEATÓRIO</button><button class="btn gr" id="bSalvarAv">SALVAR</button></div>
     </div>
     <div class="box">
       <div class="tabs" id="avTabs"></div>
-      <div class="grade" id="avGrade"></div>
+      <div id="avGrade"></div>
     </div>
   </div>
 </div></section>
 
-<!-- ============================ RANKING ============================ -->
 <section class="tela" id="tRanking"><div class="wrap">
   <div class="fhead"><h2>RANKING DA TURMA</h2><span class="tag" style="background:var(--cyan)" id="rkTurma"></span></div>
   <div class="box" id="rkLista"></div>
 </div></section>
 
-<!-- ============================ SISTEMA ============================ -->
-<section class="tela" id="tSistema"><div class="wrap">
-  <div class="fhead"><h2>MEU SISTEMA</h2><span class="tag" style="background:var(--green)">papelaria.py</span></div>
-  <p style="margin:0 8px">Este é o sistema da Papelaria Ponto Certo que <b>você</b> construiu até agora. Cada fase vencida libera uma função nova. Digite no terminal e aperte <b>Enter</b>.</p>
-  <div class="feats" id="feats"></div>
-  <div class="term"><div class="tb"><span>TERMINAL · python papelaria.py</span><button class="btn sm gr" id="bRodar">▶ EXECUTAR</button></div><div class="body" id="termBody"></div></div>
+<section class="tela" id="tCaderno"><div class="wrap">
+  <div class="fhead"><h2>MEU CADERNO</h2><span class="tag" style="background:var(--green)">RESUMOS DAS FASES</span></div>
+  <p style="margin:0 10px;color:var(--gray)">Cada fase vencida libera um resumo aqui. Use para estudar e revisar quando quiser.</p>
+  <div id="cadLista" style="margin:0 10px"></div>
 </div></section>
 
-<!-- ============================ CERTIFICADO ============================ -->
-<section class="tela" id="tCertificado"><div class="wrap" id="certWrap"></div></section>
+<section class="tela" id="tTrofeus"><div class="wrap" id="trofWrap"></div></section>
 
 <div class="modal" id="modal"><div class="box" id="modalBox"></div></div>
 
-<script src="config.js"></script>
-<script src="avatar.js"></script>
-<script src="fases.js"></script>
-<script>
-"use strict";
-/* =================================================================
-   UTILITÁRIOS
-   ================================================================= */
-const $ = s => document.querySelector(s);
-const CFG = window.CONFIG || {};
-const URL_SRV = (CFG.URL_SERVIDOR || "").trim();
-const TOTAL_EST = FASES.length * 3;
-const NPC = { pele: 2, cabelo: "coque", corCabelo: 4, camiseta: 0, calca: 3, rosto: "oculos", fundo: 1 };
-const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-const semAcento = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "");
-const normNome = s => s.trim().replace(/\s+/g, " ").split(" ").map(w => w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : "").join(" ");
-const chave = (turma, nome) => turma + "|" + semAcento(nome).toLowerCase();
-function fnv(str) { let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h >>> 0; }
-function codigoVerif(turma, nome, estrelas, xp) { return "PC-" + fnv([turma, semAcento(nome).toLowerCase(), estrelas, xp, "pontocerto"].join("|")).toString(16).toUpperCase().padStart(8, "0").slice(0, 6); }
-function hl(line) {
-  const re = /(#.*$)|(f?"[^"]*"|'[^']*')|\b(def)\b|\b(while|if|elif|else|return|in|and|or|not|for|True|False)\b|\b(print|input|float|int|len)\b(?=\()|\b(\d+(?:\.\d+)?)\b|\b([a-z_][a-z0-9_]*)(?=\()/g;
-  let out = "", last = 0, m;
-  while ((m = re.exec(line))) {
-    out += esc(line.slice(last, m.index));
-    const v = esc(m[0]);
-    out += m[1] ? `<span class="cm">${v}</span>` : m[2] ? `<span class="st">${v}</span>` : m[3] ? `<span class="df">${v}</span>` : m[4] ? `<span class="kw">${v}</span>` : m[5] ? `<span class="bi">${v}</span>` : m[6] ? `<span class="nm">${v}</span>` : `<span class="fn">${v}</span>`;
-    last = re.lastIndex;
-  }
-  return out + esc(line.slice(last));
-}
-const hlCode = code => code.split("\n").map(hl).join("\n");
-function canvasAv(av, escala, fundo) { const c = document.createElement("canvas"); AVATAR.desenhar(c, av, escala, fundo); return c; }
-
-/* ---------- som (8 bits) ---------- */
-let som = true; try { som = localStorage.getItem("pc_som") !== "0"; } catch (e) {}
-let actx = null;
-function bip(notas) {
-  if (!som) return;
-  try {
-    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-    let t = actx.currentTime;
-    notas.forEach(([f, d]) => {
-      const o = actx.createOscillator(), g = actx.createGain();
-      o.type = "square"; o.frequency.value = f; g.gain.value = 0.06;
-      o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + d); t += d;
-    });
-  } catch (e) {}
-}
-const SOM = { ok: () => bip([[660, .08], [880, .12]]), erro: () => bip([[200, .12], [150, .18]]), clique: () => bip([[520, .04]]), estrela: () => bip([[784, .1], [988, .1], [1318, .2]]), fim: () => bip([[523, .12], [659, .12], [784, .12], [1046, .3]]) };
-
-/* =================================================================
-   ESTADO E SALVAMENTO
-   ================================================================= */
-let J = null;           // jogador atual
-let syncTimer = null;
-const LS = "pc_arcade_v1";
-function lerLocal() { try { return JSON.parse(localStorage.getItem(LS)) || { perfis: {} }; } catch (e) { return { perfis: {} }; } }
-function gravarLocal(db) { try { localStorage.setItem(LS, JSON.stringify(db)); } catch (e) {} }
-function salvarLocal() { if (!J) return; const db = lerLocal(); db.perfis[chave(J.turma, J.nome)] = J; db.ultimo = { turma: J.turma, nome: J.nome }; gravarLocal(db); }
-const estrelasTotais = (p = J) => Object.values(p.progresso || {}).reduce((s, f) => s + (f.estrelas || 0), 0);
-const xpTotal = (p = J) => Object.values(p.progresso || {}).reduce((s, f) => s + (f.xp || 0), 0);
-const fasesFeitas = (p = J) => FASES.filter(f => (p.progresso[f.id] || {}).estrelas > 0).length;
-function mesclar(a, b) { // pega o melhor resultado de cada fase
-  const p = Object.assign({}, a || {});
-  Object.entries(b || {}).forEach(([k, v]) => { if (!p[k] || (v.estrelas || 0) > (p[k].estrelas || 0) || ((v.estrelas || 0) === (p[k].estrelas || 0) && (v.xp || 0) > (p[k].xp || 0))) p[k] = v; });
-  return p;
-}
-
-async function api(acao, dados) {
-  if (!URL_SRV) throw new Error("offline");
-  const ctrl = new AbortController(); const to = setTimeout(() => ctrl.abort(), 15000);
-  try {
-    const r = await fetch(URL_SRV, { method: "POST", body: JSON.stringify(Object.assign({ acao }, dados)), signal: ctrl.signal });
-    return await r.json();
-  } finally { clearTimeout(to); }
-}
-function setSync(estado) {
-  const s = $("#hudSync");
-  if (estado === "ok") { s.className = "sync ok"; s.textContent = "☁ SALVO"; }
-  else if (estado === "salvando") { s.className = "sync"; s.textContent = "⏳ SALVANDO"; }
-  else { s.className = "sync off"; s.textContent = URL_SRV ? "💾 SEM INTERNET" : "💾 OFFLINE"; }
-}
-async function sincronizar() {
-  if (!J) return;
-  salvarLocal();
-  if (!URL_SRV) { setSync("off"); return; }
-  setSync("salvando");
-  try {
-    const r = await api("salvar", { turma: J.turma, nome: J.nome, pin: J.pin, avatar: J.avatar, progresso: J.progresso });
-    if (r && r.ok) { J.pendente = false; salvarLocal(); setSync("ok"); }
-    else throw new Error((r && r.erro) || "falha");
-  } catch (e) { J.pendente = true; salvarLocal(); setSync("off"); }
-}
-
-/* =================================================================
-   TELA INICIAL / LOGIN
-   ================================================================= */
-(function initInicio() {
-  const sel = $("#lTurma");
-  sel.innerHTML = (CFG.TURMAS || ["Minha turma"]).map(t => `<option>${esc(t)}</option>`).join("");
-  const db = lerLocal();
-  if (db.ultimo) { sel.value = db.ultimo.turma; $("#lNome").value = db.ultimo.nome; }
-  const sp = $("#spritesInicio");
-  [{ pele: 0, cabelo: "espetado", corCabelo: 6, camiseta: 2, fundo: 0 }, { pele: 2, cabelo: "curto", camiseta: 0, calca: 3, cabeca: "bone", rosto: "oculos", fundo: 1 }, { pele: 4, cabelo: "afro", corCabelo: 0, camiseta: 3, fundo: 3 }]
-    .forEach(a => { const fr = document.createElement("div"); fr.className = "moldura"; fr.appendChild(canvasAv(a, 5)); sp.appendChild(fr); });
-  $("#modoTxt").textContent = URL_SRV ? "● ONLINE: O PROGRESSO VAI PARA A PLANILHA DO PROFESSOR" : "● MODO OFFLINE: O PROGRESSO FICA SALVO NESTE COMPUTADOR";
-  $("#lPin").addEventListener("input", e => e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4));
-  ["#lNome", "#lPin"].forEach(s => $(s).addEventListener("keydown", e => { if (e.key === "Enter") entrar(false); }));
-  $("#bEntrar").onclick = () => entrar(false);
-  $("#bCriar").onclick = () => entrar(true);
-  $("#bVoltarLogin").onclick = () => { $("#novoBox").style.display = "none"; $("#bEntrar").style.display = ""; msg(""); $("#lNome").focus(); };
-})();
-function msg(t, err) { const m = $("#lMsg"); m.textContent = t; m.className = "msg" + (err ? " err" : ""); }
-
-async function entrar(criar) {
-  SOM.clique();
-  const turma = $("#lTurma").value, nome = normNome($("#lNome").value), pin = $("#lPin").value;
-  if (nome.split(" ").length < 2) return msg("Digite o NOME e o SOBRENOME.", true);
-  if (!/^\d{4}$/.test(pin)) return msg("O PIN precisa ter 4 números.", true);
-  $("#lNome").value = nome;
-  const db = lerLocal(), k = chave(turma, nome), local = db.perfis[k];
-  let perfil = null, novo = false;
-  if (URL_SRV) {
-    msg("Conectando...");
-    try {
-      const r = await api("entrar", { turma, nome, pin, criar });
-      if (r.ok) { perfil = { turma, nome: r.perfil.nome || nome, pin, avatar: r.perfil.avatar, progresso: r.perfil.progresso || {} }; novo = !!r.novo; }
-      else if (r.erro === "nao_existe") return pedirCriar(nome);
-      else if (r.erro === "pin") return msg("PIN errado! Se esqueceu, peça ao professor para resetar.", true);
-      else return msg("Erro no servidor: " + (r.erro || "desconhecido"), true);
-    } catch (e) {
-      // sem internet: usa o computador
-      if (!local && !criar) return pedirCriar(nome, true);
-    }
-  } else if (!local && !criar) return pedirCriar(nome);
-  if (!perfil) {
-    if (local) { if (local.pin !== pin) return msg("PIN errado para este jogador neste computador.", true); perfil = local; }
-    else { perfil = { turma, nome, pin, avatar: null, progresso: {} }; novo = true; }
-  } else if (local && local.pin === pin) {
-    perfil.progresso = mesclar(perfil.progresso, local.progresso);
-    if (!perfil.avatar && local.avatar) perfil.avatar = local.avatar;
-  }
-  J = perfil; J.avatar = AVATAR.normalizar(J.avatar); J.progresso = J.progresso || {};
-  salvarLocal();
-  $("#novoBox").style.display = "none"; $("#bEntrar").style.display = ""; msg("");
-  $("#hud").style.display = "flex";
-  atualizarHud();
-  sincronizar();
-  clearInterval(syncTimer); syncTimer = setInterval(() => { if (J && J.pendente) sincronizar(); }, 30000);
-  if (novo) { abrirAvatar(true); } else ir("mapa");
-}
-function pedirCriar(nome, offline) {
-  msg(`Jogador novo: ${nome}. ${offline ? "(sem internet: ficará salvo neste computador) " : ""}Confira o nome e crie!`);
-  $("#novoBox").style.display = "block"; $("#bEntrar").style.display = "none";
-}
-$("#bSair").onclick = () => { SOM.clique(); J = null; clearInterval(syncTimer); $("#hud").style.display = "none"; $("#lPin").value = ""; mostrar("tInicio"); };
-$("#bSom").onclick = () => { som = !som; try { localStorage.setItem("pc_som", som ? "1" : "0"); } catch (e) {} $("#bSom").textContent = som ? "♪" : "×"; SOM.clique(); };
-
-/* =================================================================
-   NAVEGAÇÃO
-   ================================================================= */
-function mostrar(id) { document.querySelectorAll(".tela").forEach(t => t.classList.toggle("on", t.id === id)); window.scrollTo(0, 0); }
-function ir(dest) {
-  SOM.clique();
-  if (dest === "mapa") { mostrar("tMapa"); renderMapa(); }
-  else if (dest === "avatar") abrirAvatar(false);
-  else if (dest === "ranking") abrirRanking();
-  else if (dest === "sistema") abrirSistema();
-  else if (dest === "certificado") abrirCertificado();
-}
-document.querySelectorAll("[data-go]").forEach(b => b.onclick = () => ir(b.dataset.go));
-function atualizarHud() {
-  AVATAR.desenhar($("#hudAv"), J.avatar, 2);
-  $("#hudNome").innerHTML = `${esc(J.nome)}<small>${esc(J.turma)}</small>`;
-  $("#hudSt").innerHTML = `${ICONE.estrela("#00e5ff", 14)} ${estrelasTotais()}/${TOTAL_EST}`;
-  $("#hudXp").textContent = `${xpTotal()} XP`;
-}
-
-/* =================================================================
-   MAPA
-   ================================================================= */
-function liberada(i) { return i === 0 || ((J.progresso[FASES[i - 1].id] || {}).estrelas > 0); }
-function renderMapa() {
-  const w = $("#mapaWrap"); w.innerHTML = "";
-  const head = document.createElement("div");
-  head.className = "fhead"; head.innerHTML = `<h2>MAPA DE FASES</h2><span class="tag" style="background:var(--yellow)">${fasesFeitas()}/${FASES.length} FASES</span>`;
-  w.appendChild(head);
-  let atual = FASES.findIndex((f, i) => liberada(i) && !((J.progresso[f.id] || {}).estrelas > 0));
-  MUNDOS.forEach(m => {
-    const fs = FASES.map((f, i) => ({ f, i })).filter(x => x.f.mundo === m.n);
-    const sec = document.createElement("div"); sec.className = "mundo";
-    const W = Math.min(940, (w.clientWidth || document.documentElement.clientWidth - 32) - 8), H = 150 + fs.length * 130;
-    const amp = W < 600 ? W * 0.2 : Math.min(170, W * 0.17);
-    const pts = fs.map((x, k) => [Math.round(W / 2 + Math.sin(k * 1.25 + m.n) * amp), 170 + k * 130]);
-    const tr = document.createElement("div"); tr.className = "trilha";
-    tr.style.width = W + "px"; tr.style.height = H + "px";
-    const cen = document.createElement("canvas"); cen.className = "cenario";
-    pintarCenario(cen, m.n, W, H, [[W / 2 + Math.sin(m.n) * amp * 0.4, 0], ...pts, [pts[pts.length - 1][0], H]]);
-    tr.appendChild(cen);
-    tr.insertAdjacentHTML("beforeend", `<svg viewBox="0 0 ${W} ${H}"><polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="#000" stroke-width="12"/><polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="${m.cor}" stroke-width="6" stroke-dasharray="12 10"/></svg>
-      <div class="banner" style="background:${m.cor}">${m.nome}<small>${m.sub}</small></div>`);
-    fs.forEach(({ f, i }, k) => {
-      const pr = J.progresso[f.id] || {}, ok = pr.estrelas > 0, lib = liberada(i);
-      const b = document.createElement("button");
-      const tipoBloq = (i % 2 ? "caixote" : "pedra");
-      b.className = "no" + (f.chefe ? " boss" : "") + (lib ? (ok ? " feito" : " livre") : " lock " + tipoBloq) + (i === atual ? " atual" : "") + (pts[k][0] > W / 2 ? " esq" : "");
-      b.style.left = pts[k][0] + "px"; b.style.top = pts[k][1] + "px";
-      if (lib && ok) b.style.setProperty("--cor", m.cor);
-      b.innerHTML = (lib ? `<span class="num">${f.chefe ? "☠" : (i + 1)}</span>` : ICONE.cadeado) +
-        (ok ? `<span class="stars">${[1, 2, 3].map(n => ICONE.estrela(n <= pr.estrelas ? "#ffd23f" : "#3a3a5a", 16)).join("")}</span>` : "") +
-        `<span class="tt">${f.chefe ? "" : "FASE " + (i + 1) + "<br>"}${esc(f.titulo)}</span>`;
-      b.onclick = () => { if (lib) abrirFase(i); else { SOM.erro(); modal(`<p class="px" style="font-size:11px">FASE BLOQUEADA</p><p class="mt">Vença a fase anterior para liberar.</p><button class="btn mt" onclick="fecharModal()">OK</button>`); } };
-      tr.appendChild(b);
-      if (i === atual) { const eu = canvasAv(J.avatar, 2, false); eu.className = "eu"; eu.style.left = (pts[k][0] - 26) + "px"; eu.style.top = (pts[k][1] - (f.chefe ? 50 : 39) - 58) + "px"; tr.appendChild(eu); }
-    });
-    sec.appendChild(tr); w.appendChild(sec);
-  });
-  if (atual === -1) {
-    const fim = document.createElement("div"); fim.className = "box center mt";
-    fim.innerHTML = `<p class="px" style="color:var(--yellow);font-size:12px">VOCÊ ZEROU O JOGO!</p><p class="mt">Agora tente fazer 3 estrelas em todas as fases para liberar todos os itens.</p><button class="btn yl mt" onclick="ir('certificado')">VER CERTIFICADO</button>`;
-    w.appendChild(fim);
-  }
-}
-
-/* ---------- ícones em pixel art (SVG) ---------- */
-const ICONE = {
-  estrela(cor, px) {
-    const m = ["....#....", "...###...", "...###...", "#########", ".#######.", "..#####..", "..##.##..", ".##...##.", "##.....##"];
-    return pixelSvg(m, { "#": cor || "#00e5ff" }, px || 14);
-  },
-  get cadeado() {
-    const m = ["..####..", ".#....#.", ".#....#.", "########", "##YYYY##", "##YkkY##", "##YkkY##", "##YYYY##", "########"];
-    return `<span class="cad">${pixelSvg(m, { "#": "#3a2a00", "Y": "#ffd23f", "k": "#3a2a00" }, 28)}</span>`;
-  }
-};
-function pixelSvg(m, cores, px) {
-  const h = m.length, wd = m[0].length; let r = "";
-  m.forEach((l, y) => [...l].forEach((ch, x) => { if (cores[ch]) r += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${cores[ch]}"/>`; }));
-  return `<svg class="pxi" viewBox="0 0 ${wd} ${h}" width="${px}" height="${Math.round(px * h / wd)}" shape-rendering="crispEdges">${r}</svg>`;
-}
-
-/* ---------- cenário do mapa em pixel art ---------- */
-function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
-function distSeg(px, py, ax, ay, bx, by) {
-  const dx = bx - ax, dy = by - ay, l = dx * dx + dy * dy;
-  let t = l ? ((px - ax) * dx + (py - ay) * dy) / l : 0; t = Math.max(0, Math.min(1, t));
-  return Math.hypot(px - ax - t * dx, py - ay - t * dy);
-}
-function pintarCenario(cv, mundo, W, H, ptsBrutos) {
-  const P = 4, w = Math.ceil(W / P), h = Math.ceil(H / P);
-  const low = document.createElement("canvas"); low.width = w; low.height = h;
-  const c = low.getContext("2d"), R = rng(mundo * 7919 + 13);
-  const pts = ptsBrutos.map(([x, y]) => [x / P, y / P]);
-  const dist = (x, y) => { let d = 1e9; for (let i = 1; i < pts.length; i++) d = Math.min(d, distSeg(x, y, pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1])); return d; };
-  const px = (x, y, cor) => { c.fillStyle = cor; c.fillRect(Math.round(x), Math.round(y), 1, 1); };
-  const disco = (cx, cy, r, cor) => { c.fillStyle = cor; for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) if (x * x + y * y <= r * r + r * 0.6) c.fillRect(Math.round(cx + x), Math.round(cy + y), 1, 1); };
-  const bloq = [];
-  for (let y = 0; y < h; y++) { bloq[y] = []; for (let x = 0; x < w; x++) bloq[y][x] = dist(x, y); }
-  const longe = (x, y, d) => x >= 0 && y >= 0 && x < w && y < h && bloq[Math.floor(y)][Math.floor(x)] > d;
-
-  if (mundo === 1) {
-    // grama
-    const verdes = ["#5cb83c", "#63c043", "#56ad37", "#6bc84a"];
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) px(x, y, verdes[(R() * 100 | 0) % 7 === 0 ? 2 + (R() * 2 | 0) : (R() * 2 | 0)]);
-    // trilha de terra
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const d = bloq[y][x];
-      if (d < 9.5) px(x, y, d > 8.3 ? "#9c6a3c" : (R() < 0.08 ? "#c48a55" : (R() < 0.5 ? "#dcaa6e" : "#d6a165")));
-      else if (d < 10.6 && R() < 0.5) px(x, y, "#4e9c32");
-    }
-    for (let k = 0; k < w * h / 260; k++) { const x = R() * w, y = R() * h; if (bloq[y | 0][x | 0] < 7) { px(x, y, "#b88450"); px(x + 1, y, "#e9c08a"); } }
-    // tufos de grama
-    for (let k = 0; k < w * h / 70; k++) { const x = R() * w | 0, y = R() * h | 0; if (!longe(x, y, 11)) continue; const cor = R() < 0.5 ? "#3f8f2a" : "#8be06a"; px(x, y, cor); px(x - 1, y - 1, cor); px(x + 1, y - 1, cor); }
-    // flores
-    const fl = ["#ff4b5c", "#ffd23f", "#4fa8ff", "#ffffff", "#ff8a3d"];
-    for (let k = 0; k < w * h / 240; k++) { const x = R() * w | 0, y = R() * h | 0; if (!longe(x, y, 12)) continue; const cor = fl[R() * fl.length | 0]; px(x - 1, y, cor); px(x + 1, y, cor); px(x, y - 1, cor); px(x, y + 1, cor); px(x, y, "#ffe680"); px(x, y + 2, "#3f8f2a"); }
-    // árvores (de cima para baixo para sobrepor certo)
-    const arv = [];
-    for (let k = 0; k < 600 && arv.length < w * h / 650; k++) { const x = R() * w, y = R() * h; const r = 7 + (R() * 5 | 0); if (longe(x, y, r + 16) && !arv.some(a => Math.hypot(a.x - x, a.y - y) < (a.r + r) * 0.9)) arv.push({ x, y, r }); }
-    arv.sort((a, b) => a.y - b.y).forEach(({ x, y, r }) => {
-      c.fillStyle = "rgba(20,60,10,.45)"; for (let i = -r; i <= r; i++) c.fillRect(Math.round(x + i), Math.round(y + r + 2), 1, 2);
-      c.fillStyle = "#6b3f1d"; c.fillRect(Math.round(x - 1), Math.round(y + r - 3), 3, 6); c.fillStyle = "#8a5a2e"; c.fillRect(Math.round(x - 1), Math.round(y + r - 3), 1, 6);
-      disco(x, y, r, "#1f5e22"); disco(x - 1, y - 1, r - 1, "#2f7d32"); disco(x - r * 0.3, y - r * 0.3, Math.max(2, r - 4), "#45a03c"); disco(x - r * 0.4, y - r * 0.45, Math.max(1, r - 7), "#6cc855");
-      for (let i = 0; i < r; i++) { const a = R() * 6.28, d = R() * r * 0.8; px(x + Math.cos(a) * d, y + Math.sin(a) * d, R() < 0.5 ? "#1f5e22" : "#58b84a"); }
-    });
-    // arbustos perto da trilha
-    for (let k = 0; k < 18; k++) { const x = R() * w, y = R() * h; if (longe(x, y, 13) && !longe(x, y, 22)) { disco(x, y, 3, "#2f7d32"); disco(x - 1, y - 1, 2, "#45a03c"); px(x - 1, y - 2, "#6cc855"); } }
-  } else {
-    // placa de circuito (memória)
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) px(x, y, (x % 8 === 0 && y % 8 === 0) ? "#1b6a4a" : (R() < 0.5 ? "#0f4a33" : "#0d4430"));
-    // trilhas douradas
-    for (let k = 0; k < w * h / 300; k++) {
-      let x = R() * w | 0, y = R() * h | 0; if (!longe(x, y, 13)) continue;
-      const passos = 8 + (R() * 30 | 0); let horiz = R() < 0.5;
-      for (let s = 0; s < passos; s++) { if (!longe(x, y, 12)) break; px(x, y, "#c9a23a"); px(x + (horiz ? 0 : 1), y + (horiz ? 1 : 0), "#7a5f1c"); if (horiz) x++; else y++; if (R() < 0.08) horiz = !horiz; }
-      if (longe(x, y, 12)) { px(x - 1, y, "#e8c35a"); px(x + 1, y, "#e8c35a"); px(x, y - 1, "#e8c35a"); px(x, y + 1, "#e8c35a"); px(x, y, "#0b2a1e"); }
-    }
-    // chips de memória
-    for (let k = 0; k < w * h / 1400; k++) {
-      const cw = 10 + (R() * 10 | 0), ch = 6 + (R() * 5 | 0), x = R() * (w - cw) | 0, y = R() * (h - ch) | 0;
-      if (!longe(x, y, 14) || !longe(x + cw, y + ch, 14) || !longe(x + cw, y, 14) || !longe(x, y + ch, 14)) continue;
-      c.fillStyle = "#0b0b14"; c.fillRect(x, y, cw, ch); c.fillStyle = "#24243a"; c.fillRect(x + 1, y + 1, cw - 2, 1);
-      c.fillStyle = "#b8b8c8"; for (let i = 1; i < cw - 1; i += 2) { c.fillRect(x + i, y - 1, 1, 1); c.fillRect(x + i, y + ch, 1, 1); }
-      px(x + 2, y + ch - 2, "#5a5a7a");
-    }
-    // LEDs
-    for (let k = 0; k < w * h / 500; k++) { const x = R() * w | 0, y = R() * h | 0; if (!longe(x, y, 12)) continue; const cor = R() < 0.6 ? "#00e5ff" : "#ff2a4d"; c.fillStyle = cor + "55"; c.fillRect(x - 1, y - 1, 4, 4); c.fillStyle = cor; c.fillRect(x, y, 2, 2); }
-    // barramento (caminho)
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const d = bloq[y][x];
-      if (d < 9.5) px(x, y, d > 8.3 ? "#1a2430" : d > 7.3 ? "#8aa0b8" : ((x + y) % 6 === 0 ? "#556a80" : "#4a5d70"));
-    }
-    for (let i = 1; i < pts.length; i++) { const [ax, ay] = pts[i - 1], [bx, by] = pts[i], n = Math.hypot(bx - ax, by - ay); for (let s = 0; s < n; s += 6) px(ax + (bx - ax) * s / n, ay + (by - ay) * s / n, "#00e5ff"); }
-  }
-  cv.width = W; cv.height = H;
-  const g = cv.getContext("2d"); g.imageSmoothingEnabled = false; g.drawImage(low, 0, 0, w * P, h * P);
-}
-
-window.addEventListener("resize", () => { if ($("#tMapa").classList.contains("on")) renderMapa(); });
-
-/* =================================================================
-   FASE
-   ================================================================= */
-let F = null; // estado da fase em andamento
-function abrirFase(i) {
-  const f = FASES[i];
-  F = { i, f, d: 0, erros: 0, xp: 0, errouAtual: false };
-  const m = MUNDOS.find(x => x.n === f.mundo);
-  const w = $("#faseWrap");
-  w.innerHTML = `
-    <div class="fhead"><span class="tag" style="background:${m.cor}">${f.chefe ? "CHEFÃO" : "FASE " + (i + 1)}</span><h2>${esc(f.titulo)}</h2></div>
-    <div class="box dialogo" id="dlg"><div id="npc"></div><div class="fala"><div class="quem">DONA CÉLIA · DONA DA PAPELARIA</div><div id="falaTxt"></div></div></div>
-    <div class="center"><button class="btn" id="bCont">CONTINUAR ▶</button></div>`;
-  $("#npc").appendChild(canvasAv(NPC, 4));
-  mostrar("tFase");
-  digitar($("#falaTxt"), f.historia);
-  $("#bCont").onclick = () => { SOM.clique(); mostrarAprenda(); };
-}
-async function digitar(el, txt) {
-  el.textContent = ""; let pular = false;
-  const sk = () => pular = true; el.parentElement.addEventListener("click", sk, { once: true });
-  for (let k = 0; k < txt.length; k++) { if (pular) { el.textContent = txt; return; } el.textContent += txt[k]; if (k % 3 === 0) await sleep(18); }
-}
-function mostrarAprenda() {
-  const f = F.f, w = $("#faseWrap");
-  w.innerHTML = `
-    <div class="fhead"><span class="tag" style="background:var(--cyan)">APRENDA</span><h2>${esc(f.titulo)}</h2></div>
-    <div class="box"><p>${f.aprenda.texto}</p><div class="code">${hlCode(f.aprenda.codigo)}</div></div>
-    <div class="center"><button class="btn gr" id="bDes">COMEÇAR DESAFIOS ▶</button></div>`;
-  window.scrollTo(0, 0);
-  $("#bDes").onclick = () => { SOM.clique(); renderDesafio(); };
-}
-const estrelasDe = erros => erros === 0 ? 3 : erros <= 2 ? 2 : 1;
-const NOMES_TIPO = { quiz: "PERGUNTA", escolha: "COMPLETE O CÓDIGO", saida: "O QUE APARECE NO TERMINAL?", bug: "CAÇA AO BUG", ordem: "MONTE O CÓDIGO", digite: "DIGITE O CÓDIGO" };
-function renderDesafio() {
-  const f = F.f, d = f.desafios[F.d], w = $("#faseWrap");
-  F.errouAtual = false;
-  const barra = f.desafios.map((_, k) => `<i class="${k < F.d ? "ok" : k === F.d ? "now" : ""}"></i>`).join("");
-  const est = estrelasDe(F.erros);
-  w.innerHTML = `
-    <div class="fhead"><span class="tag" style="background:var(--yellow)">${F.d + 1}/${f.desafios.length}</span><h2>${esc(f.titulo)}</h2></div>
-    <div class="prog"><div class="bar">${barra}</div><div class="meter" id="meter">${"★".repeat(est)}<span class="off">${"★".repeat(3 - est)}</span></div></div>
-    <div class="box"><div class="tipo">${NOMES_TIPO[d.tipo]}</div><div class="perg">${esc(d.pergunta)}</div><div id="area"></div>
-      <div class="dica" id="dica"></div>
-      <div class="acerto" id="acerto"><span class="px" id="acTxt"></span><button class="btn gr" id="bProx">PRÓXIMO ▶</button></div>
-    </div>`;
-  window.scrollTo(0, 0);
-  ({ quiz: dQuiz, escolha: dEscolha, saida: dQuiz, bug: dBug, ordem: dOrdem, digite: dDigite })[d.tipo](d, $("#area"));
-  $("#bProx").onclick = () => { SOM.clique(); F.d++; if (F.d < f.desafios.length) renderDesafio(); else terminarFase(); };
-}
-function errou(d, j, el) {
-  SOM.erro();
-  F.erros++; F.errouAtual = true;
-  const est = estrelasDe(F.erros);
-  $("#meter").innerHTML = `${"★".repeat(est)}<span class="off">${"★".repeat(3 - est)}</span>`;
-  const txt = (d.dicas && j != null && d.dicas[j]) || d.dica || "Tente outra vez!";
-  const di = $("#dica"); di.classList.remove("on"); void di.offsetWidth;
-  di.innerHTML = `<b>✘ AINDA NÃO.</b> ${esc(txt)}`; di.classList.add("on");
-  if (el) { el.classList.remove("err"); void el.offsetWidth; el.classList.add("err"); }
-}
-function acertou(el) {
-  SOM.ok();
-  const ganho = F.errouAtual ? 5 : 10; F.xp += ganho;
-  $("#dica").classList.remove("on");
-  const frases = ["MANDOU BEM!", "BOA!", "PERFEITO!", "É ISSO AÍ!", "SHOW!", "ACERTOU!"];
-  $("#acTxt").textContent = `✔ ${frases[Math.floor(Math.random() * frases.length)]}  +${ganho} XP`;
-  $("#acerto").classList.add("on");
-  if (el) { const r = el.getBoundingClientRect(); const fx = document.createElement("div"); fx.className = "xpfloat"; fx.textContent = "+" + ganho + " XP"; fx.style.left = (r.left + r.width / 2 - 40) + "px"; fx.style.top = (r.top - 10) + "px"; document.body.appendChild(fx); setTimeout(() => fx.remove(), 1100); }
-  $("#bProx").focus({ preventScroll: true });
-}
-function dQuiz(d, area) {
-  const mono = d.tipo === "saida";
-  area.innerHTML = (d.codigo ? `<div class="code">${hlCode(d.codigo)}</div>` : "") + `<div class="ops">${d.opcoes.map((o, j) => `<button class="op${mono ? " mono" : ""}" data-j="${j}">${esc(o)}</button>`).join("")}</div>`;
-  area.querySelectorAll(".op").forEach(b => b.onclick = () => {
-    const j = +b.dataset.j;
-    if (j === d.certa) { b.classList.add("ok"); area.querySelectorAll(".op").forEach(x => x.disabled = true); acertou(b); }
-    else { b.disabled = true; errou(d, j, b); }
-  });
-}
-function dEscolha(d, area) {
-  area.innerHTML = `<div class="code">${hlCode(d.codigo).replace("@@", '<span class="slot" id="slot">?</span>')}</div><div class="chips">${d.opcoes.map((o, j) => `<button class="op mono" data-j="${j}">${esc(o)}</button>`).join("")}</div>`;
-  area.querySelectorAll(".op").forEach(b => b.onclick = () => {
-    const j = +b.dataset.j;
-    if (j === d.certa) { b.classList.add("ok"); const s = $("#slot"); s.textContent = d.opcoes[j]; s.classList.add("ok"); area.querySelectorAll(".op").forEach(x => x.disabled = true); acertou(b); }
-    else { b.disabled = true; errou(d, j, b); }
-  });
-}
-function dBug(d, area) {
-  area.innerHTML = `<div class="linhas">${d.linhas.map((l, j) => `<div class="lin" data-j="${j}"><span class="n">${j + 1}</span><span>${hl(l) || " "}</span></div>`).join("")}</div>`;
-  let fim = false;
-  area.querySelectorAll(".lin").forEach(el => el.onclick = () => {
-    if (fim) return; const j = +el.dataset.j;
-    if (d.linhas[j].trim() === "") return;
-    if (j === d.certa) { fim = true; el.classList.add("ok"); acertou(el); }
-    else errou(d, null, el);
-  });
-}
-function embaralhar(arr) { const a = arr.slice(); do { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } } while (a.every((x, k) => x === arr[k]) && arr.length > 1); return a; }
-function dOrdem(d, area) {
-  const pecas = embaralhar(d.linhas.map((l, k) => ({ l, k })));
-  let resp = [], fim = false;
-  area.innerHTML = `<p style="font-size:20px;color:var(--gray)">Clique nas peças na ordem certa. Clique numa peça montada para devolver.</p>
-    <div class="ordem"><div><h4>PEÇAS</h4><div class="pool" id="pool"></div></div><div><h4>SEU CÓDIGO</h4><div class="resp" id="resp"></div></div></div>
-    <div class="center mt"><button class="btn cy" id="bConf" disabled>CONFERIR</button></div>`;
-  function draw() {
-    const usados = new Set(resp.map(p => p.k));
-    $("#pool").innerHTML = ""; $("#resp").innerHTML = "";
-    pecas.filter(p => !usados.has(p.k)).forEach(p => { const b = document.createElement("button"); b.className = "peca"; b.innerHTML = hl(p.l); b.onclick = () => { if (fim) return; SOM.clique(); resp.push(p); draw(); }; $("#pool").appendChild(b); });
-    resp.forEach((p, idx) => { const b = document.createElement("button"); b.className = "peca" + (p.bad ? " bad" : ""); b.innerHTML = hl(p.l); b.onclick = () => { if (fim) return; SOM.clique(); resp.splice(idx, 1); resp.forEach(x => x.bad = false); draw(); }; $("#resp").appendChild(b); });
-    $("#bConf").disabled = resp.length !== d.linhas.length || fim;
-  }
-  draw();
-  $("#bConf").onclick = () => {
-    const certo = resp.every((p, idx) => p.l === d.linhas[idx]);
-    if (certo) { fim = true; draw(); acertou($("#bConf")); }
-    else { const k = resp.findIndex((p, idx) => p.l !== d.linhas[idx]); resp.forEach((p, idx) => p.bad = idx >= k); errou(d, null, null); draw(); }
-  };
-}
-function dDigite(d, area) {
-  area.innerHTML = (d.codigo ? `<div class="code">${hlCode(d.codigo)}</div>` : "") + `<div class="digita"><input class="inp" id="dig" autocomplete="off" spellcheck="false" placeholder="digite aqui..."><button class="btn cy" id="bDig">CONFERIR</button></div>`;
-  const norm = s => s.replace(/\s+/g, "").replace(/'/g, '"');
-  let fim = false;
-  const conf = () => {
-    if (fim) return; const v = $("#dig").value; if (!v.trim()) return;
-    if (d.respostas.map(norm).includes(norm(v))) { fim = true; $("#dig").disabled = true; $("#dig").style.color = "var(--green)"; acertou($("#bDig")); }
-    else errou(d, null, $("#dig"));
-  };
-  $("#bDig").onclick = conf; $("#dig").addEventListener("keydown", e => { if (e.key === "Enter") conf(); });
-  $("#dig").focus();
-}
-function terminarFase() {
-  const f = F.f, est = estrelasDe(F.erros);
-  const antesEst = estrelasTotais();
-  const prev = J.progresso[f.id] || {};
-  const primeira = !(prev.estrelas > 0);
-  const novo = { estrelas: Math.max(est, prev.estrelas || 0), xp: Math.max(F.xp + 50, prev.xp || 0) };
-  J.progresso[f.id] = novo;
-  const depoisEst = estrelasTotais();
-  const novosItens = AVATAR.ITENS.filter(it => it.estrelas > antesEst && it.estrelas <= depoisEst);
-  salvarLocal(); atualizarHud(); sincronizar();
-  const prox = FASES[F.i + 1];
-  const w = $("#resWrap");
-  w.innerHTML = `<div class="res">
-    <h2>${f.chefe ? "CHEFÃO DERROTADO!" : "FASE COMPLETA!"}</h2>
-    <div class="big">${[1, 2, 3].map(n => `<span class="${n <= est ? "on" : ""}">★</span>`).join("")}</div>
-    <p class="px" style="font-size:12px;color:var(--green)">+${F.xp + 50} XP  ·  ${F.erros} ERRO(S)</p>
-    ${!primeira && est <= (prev.estrelas || 0) ? `<p class="mt" style="color:var(--gray)">Seu recorde nesta fase continua: ${"★".repeat(prev.estrelas)}</p>` : ""}
-    ${est < 3 ? `<p class="mt" style="color:var(--gray)">Jogue de novo sem errar para fazer 3 estrelas!</p>` : ""}
-    <div class="box unl"><div class="ic">${ICONE.estrela("#00e5ff", 40)}</div><div><div class="px">${primeira ? "NOVA FUNÇÃO NO SEU SISTEMA" : "FUNÇÃO DO SEU SISTEMA"}</div>${esc(f.sistema)}</div></div>
-    ${novosItens.map(it => `<div class="box unl"><div class="ic" data-item="${it.id}"></div><div><div class="px" style="color:var(--yellow)">ITEM DESBLOQUEADO!</div>${esc(it.nome)} para o seu avatar.</div></div>`).join("")}
-    <div class="mt">
-      <button class="btn gr" onclick="ir('sistema')">▶ TESTAR NO TERMINAL</button>
-      ${novosItens.length ? `<button class="btn yl" onclick="ir('avatar')">VESTIR ITEM</button>` : ""}
-      <button class="btn dk" onclick="abrirFase(${F.i})">JOGAR DE NOVO</button>
-      ${prox ? `<button class="btn" onclick="abrirFase(${F.i + 1})">PRÓXIMA FASE ▶</button>` : `<button class="btn yl" onclick="ir('certificado')">CERTIFICADO</button>`}
-      <button class="btn cy" onclick="ir('mapa')">MAPA</button>
-    </div></div>`;
-  w.querySelectorAll("[data-item]").forEach(el => { const a = Object.assign({}, J.avatar); const it = AVATAR.ITENS.find(x => x.id === el.dataset.item); if (it.slot === "fundo") a.fundo = 4; else a[it.slot] = it.id; el.appendChild(canvasAv(a, 2)); });
-  mostrar("tResultado");
-  est === 3 ? SOM.fim() : SOM.estrela();
-}
-
-/* =================================================================
-   EDITOR DE AVATAR
-   ================================================================= */
-let AV = null, abaAv = "pele", primeiroAv = false;
-const ABAS = [["pele", "PELE"], ["cabelo", "CABELO"], ["corCabelo", "COR DO CABELO"], ["camiseta", "CAMISETA"], ["calca", "CALÇA"], ["fundo", "FUNDO"], ["itens", "ITENS"]];
-function abrirAvatar(primeiro) {
-  primeiroAv = primeiro; AV = Object.assign({}, J.avatar);
-  $("#avTitulo").textContent = primeiro ? "CRIE SEU PERSONAGEM!" : "EDITAR PERSONAGEM";
-  $("#avTabs").innerHTML = ABAS.map(([k, n]) => `<button class="btn dk" data-aba="${k}">${n}${k === "itens" ? " " + ICONE.estrela("#00e5ff", 12) : ""}</button>`).join("");
-  $("#avTabs").querySelectorAll("button").forEach(b => b.onclick = () => { SOM.clique(); abaAv = b.dataset.aba; renderAv(); });
-  renderAv(); mostrar("tAvatar");
-}
-function renderAv() {
-  AVATAR.desenhar($("#avPrev"), AV, 9);
-  const est = estrelasTotais();
-  const prox = AVATAR.ITENS.find(it => it.estrelas > est);
-  $("#avEstrelas").innerHTML = `${ICONE.estrela("#00e5ff", 16)} ${est}/${TOTAL_EST}<br><br>${prox ? `PRÓXIMO ITEM: ${esc(prox.nome).toUpperCase()} (${prox.estrelas}${ICONE.estrela("#ffd23f", 10)})` : "TODOS OS ITENS LIBERADOS!"}`;
-  $("#avTabs").querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.aba === abaAv));
-  const g = $("#avGrade"); g.innerHTML = "";
-  const P = AVATAR.PALETA;
-  const swatches = (lista, campo) => lista.forEach((c, j) => {
-    if (c === "dourado") return;
-    const b = document.createElement("button"); b.className = "sw" + (AV[campo] === j ? " on" : ""); b.style.background = c;
-    b.onclick = () => { SOM.clique(); AV[campo] = j; renderAv(); }; g.appendChild(b);
-  });
-  if (abaAv === "pele") swatches(P.pele, "pele");
-  else if (abaAv === "corCabelo") swatches(P.cabelo, "corCabelo");
-  else if (abaAv === "camiseta") swatches(P.camiseta, "camiseta");
-  else if (abaAv === "calca") swatches(P.calca, "calca");
-  else if (abaAv === "fundo") swatches(P.fundo, "fundo");
-  else if (abaAv === "cabelo") AVATAR.CABELOS.forEach(c => {
-    const b = document.createElement("button"); b.className = "it" + (AV.cabelo === c ? " on" : "");
-    b.appendChild(canvasAv(Object.assign({}, AV, { cabelo: c }), 4)); b.append(c);
-    b.onclick = () => { SOM.clique(); AV.cabelo = c; renderAv(); }; g.appendChild(b);
-  });
-  else if (abaAv === "itens") AVATAR.ITENS.forEach(it => {
-    const lib = est >= it.estrelas;
-    const usando = it.slot === "fundo" ? AV.fundo === 4 : AV[it.slot] === it.id;
-    const b = document.createElement("button"); b.className = "it" + (usando ? " on" : "") + (lib ? "" : " lock");
-    const a = Object.assign({}, AV); if (it.slot === "fundo") a.fundo = 4; else a[it.slot] = it.id;
-    b.appendChild(canvasAv(a, 4)); b.append(it.nome);
-    if (!lib) { const l = document.createElement("div"); l.className = "lk"; l.innerHTML = ICONE.cadeado + `<span>${it.estrelas} ${ICONE.estrela("#ffd23f", 11)}</span>`; b.appendChild(l); }
-    b.onclick = () => {
-      if (!lib) { SOM.erro(); return; }
-      SOM.clique();
-      if (it.slot === "fundo") AV.fundo = usando ? 0 : 4; else AV[it.slot] = usando ? "" : it.id;
-      renderAv();
-    };
-    g.appendChild(b);
-  });
-}
-$("#bSalvarAv").onclick = () => {
-  SOM.ok();
-  // não deixa usar item ainda bloqueado
-  const est = estrelasTotais();
-  AVATAR.ITENS.forEach(it => { if (est < it.estrelas) { if (it.slot === "fundo") { if (AV.fundo === 4) AV.fundo = 0; } else if (AV[it.slot] === it.id) AV[it.slot] = ""; } });
-  J.avatar = AV; atualizarHud(); sincronizar(); ir("mapa");
-};
-
-/* =================================================================
-   RANKING
-   ================================================================= */
-async function abrirRanking() {
-  $("#rkTurma").textContent = J.turma;
-  const box = $("#rkLista"); mostrar("tRanking");
-  let lista = null;
-  if (URL_SRV) {
-    box.innerHTML = `<p class="center blink">CARREGANDO...</p>`;
-    try { const r = await api("ranking", { turma: J.turma }); if (r.ok) lista = r.lista; } catch (e) {}
-  }
-  if (!lista) {
-    box.innerHTML = `<p class="center" style="color:var(--gray)">${URL_SRV ? "Sem conexão com a planilha agora." : "Modo offline: o ranking aparece quando o professor ligar a planilha."} Mostrando só você.</p>`;
-    lista = [{ nome: J.nome, avatar: J.avatar, estrelas: estrelasTotais(), xp: xpTotal(), fases: fasesFeitas() }];
-  } else box.innerHTML = "";
-  lista.sort((a, b) => b.estrelas - a.estrelas || b.xp - a.xp);
-  lista.forEach((p, k) => {
-    const el = document.createElement("div");
-    const eu = semAcento(p.nome).toLowerCase() === semAcento(J.nome).toLowerCase();
-    el.className = "rk" + (eu ? " eu2" : "");
-    el.innerHTML = `<div class="pos ${k < 3 ? "p" + (k + 1) : ""}">${k < 3 ? ["1º", "2º", "3º"][k] : (k + 1) + "º"}</div>`;
-    el.appendChild(canvasAv(p.avatar, 2));
-    el.insertAdjacentHTML("beforeend", `<div class="info">${esc(p.nome)}${eu ? " (você)" : ""}<small>${p.fases}/${FASES.length} fases</small></div><div class="pts">★ ${p.estrelas}<br><span>${p.xp} XP</span></div>`);
-    box.appendChild(el);
-  });
-}
-
-/* =================================================================
-   MEU SISTEMA (terminal simulado)
-   ================================================================= */
-const FEATS = [["F01", "Menu"], ["F03", "Opção inválida"], ["F04", "Menu repete"], ["F05", "Cadastrar"], ["F06", "Consultar"], ["F07", "Aviso da memória"], ["F09", "Total no cadastro"], ["F10", "Busca sem maiúsculas"], ["F11", "Listar"], ["F12", "Lista vazia + total"], ["F13", "Bloqueia repetido"]];
-const tem = id => (J.progresso[id] || {}).estrelas > 0;
-const pyF = n => Number.isInteger(n) ? n.toFixed(1) : String(n);
-class PyErr extends Error {}
-function toFloat(s) { const t = s.trim(); if (t === "" || isNaN(Number(t))) throw new PyErr(`ValueError: could not convert string to float: '${s}'`); return Number(t); }
-function abrirSistema() {
-  $("#feats").innerHTML = FEATS.map(([id, n]) => `<span class="feat ${tem(id) ? "on" : ""}">${tem(id) ? "✔" : "✖"} ${n}</span>`).join("");
-  $("#termBody").innerHTML = `<span class="fim">Clique em ▶ EXECUTAR para rodar o seu papelaria.py</span>`;
-  mostrar("tSistema");
-}
-let runId = 0;
-$("#bRodar").onclick = () => rodarSistema();
-$("#termBody").onclick = () => { const i = $("#termBody input"); if (i) i.focus({ preventScroll: true }); };
-async function rodarSistema() {
-  const my = ++runId, body = $("#termBody"); body.innerHTML = "";
-  const out = (t, c) => { if (my !== runId) return; const d = document.createElement("div"); if (c) d.className = c; d.textContent = t === "" ? " " : t; body.appendChild(d); body.scrollTop = body.scrollHeight; };
-  const inp = p => new Promise(res => {
-    if (my !== runId) return;
-    const d = document.createElement("div"); d.className = "il"; const s = document.createElement("span"); s.textContent = p;
-    const i = document.createElement("input"); i.autocomplete = "off"; i.spellcheck = false; d.append(s, i); body.appendChild(d); body.scrollTop = body.scrollHeight; i.focus({ preventScroll: true });
-    i.addEventListener("keydown", e => { if (e.key === "Enter") { const v = i.value; const sp = document.createElement("span"); sp.className = "ty"; sp.textContent = v; i.replaceWith(sp); res(v); } });
-  });
-  out("> python papelaria.py", "fim");
-  if (!tem("F01")) { out("Seu sistema ainda está vazio. Vença a Fase 1 para criar o menu!", "fim"); return; }
-  const produtos = [];
-  try {
-    let continuar = true;
-    while (continuar) {
-      out(""); out("=== PAPELARIA PONTO CERTO ===");
-      if (tem("F05")) out("Produtos cadastrados: " + produtos.length);
-      out("1 - Cadastrar produto");
-      if (tem("F06")) out("2 - Consultar produto");
-      if (tem("F11")) out("3 - Listar produtos");
-      out("0 - Sair");
-      const op = await inp("Escolha uma opção: ");
-      if (op === "1") {
-        if (!tem("F05")) out("Cadastrando... (o cadastro de verdade chega na Fase 5)");
-        else {
-          const nome = await inp("Nome do produto: ");
-          let repetido = false;
-          if (tem("F13")) for (const p of produtos) if (p[0].toLowerCase() === nome.toLowerCase()) repetido = true;
-          if (repetido) out("Esse produto já existe!");
-          else {
-            let ok = false, preco;
-            while (!ok) { preco = toFloat(await inp("Preço do produto (maior que zero): ")); if (preco > 0) ok = true; else out("Preço inválido. Digite um valor maior que zero."); }
-            produtos.push([nome, preco]); out("Produto cadastrado com sucesso!");
-            if (tem("F09")) out("Total de produtos: " + produtos.length);
-          }
-        }
-      } else if (op === "2" && tem("F06")) {
-        const busca = await inp("Digite o nome do produto: ");
-        let achou = false, i = 0;
-        while (i < produtos.length && !achou) {
-          const a = produtos[i][0], b = busca;
-          if (tem("F10") ? a.toLowerCase() === b.toLowerCase() : a === b) { out(`Produto encontrado: ${produtos[i][0]} - R$ ${produtos[i][1].toFixed(2)}`); achou = true; }
-          i++;
-        }
-        if (!achou) out("Produto não encontrado.");
-      } else if (op === "3" && tem("F11")) {
-        if (tem("F12") && produtos.length === 0) out("Nenhum produto cadastrado.");
-        else {
-          out("=== Produtos cadastrados ===");
-          produtos.forEach(p => out(`${p[0]} - R$ ${pyF(p[1])}`));
-          if (tem("F12")) out(`Total de produtos: ${produtos.length}`);
-        }
-      } else if (op === "0") {
-        continuar = false;
-        out(tem("F07") ? `Encerrando... ${produtos.length} produto(s) apagado(s) da memória.` : "Encerrando o sistema...");
-      } else if (tem("F03")) out("Opção inválida.");
-      if (!tem("F04")) { if (continuar) out("(o programa terminou: o menu que repete chega na Fase 4)", "fim"); break; }
-    }
-    out(">>> Programa encerrado. Clique em ▶ EXECUTAR para rodar de novo.", "fim");
-  } catch (e) {
-    if (my !== runId) return;
-    out("Traceback (most recent call last):", "er"); out(e.message, "er");
-    out(">>> O programa parou por causa do erro. Use PONTO nos centavos: 2.50", "fim");
-  }
-}
-
-/* =================================================================
-   CERTIFICADO
-   ================================================================= */
-function abrirCertificado() {
-  const w = $("#certWrap");
-  const feitas = fasesFeitas(), est = estrelasTotais(), xp = xpTotal();
-  if (feitas < FASES.length) {
-    w.innerHTML = `<div class="cert"><h2>CERTIFICADO BLOQUEADO</h2><p class="mt">Você completou <b>${feitas} de ${FASES.length}</b> fases. Derrote o CHEFÃO para liberar o seu certificado!</p><button class="btn mt" onclick="ir('mapa')">VOLTAR AO MAPA</button></div>`;
-    mostrar("tCertificado"); return;
-  }
-  const cod = codigoVerif(J.turma, J.nome, est, xp);
-  const data = new Date().toLocaleDateString("pt-BR");
-  w.innerHTML = `<div class="cert">
-    <p class="px">PAPELARIA PONTO CERTO · SISTEMA v1.0</p>
-    <h2 class="mt">CERTIFICADO DE CONCLUSÃO</h2>
-    <div id="certAv"></div>
-    <div class="nome">${esc(J.nome)}</div>
-    <p style="color:var(--gray)">${esc(J.turma)}</p>
-    <p class="mt">construiu o sistema da Papelaria Ponto Certo em Python: menu, funções, validação, repetição, listas em memória, cadastro, consulta e listagem.</p>
-    <table><tr><td>Fases</td><td>${feitas}/${FASES.length}</td></tr><tr><td>Estrelas</td><td>${ICONE.estrela("#ffd23f", 16)} ${est}/${TOTAL_EST}</td></tr><tr><td>XP</td><td>${xp}</td></tr><tr><td>Data</td><td>${data}</td></tr></table>
-    <div class="cod">${cod}</div>
-    <p style="font-size:20px;color:var(--gray)">Código de verificação: copie e envie no AVA.</p>
-    <div class="mt"><button class="btn gr" id="bCopiar">COPIAR PARA O AVA</button><button class="btn cy" onclick="ir('mapa')">MAPA</button></div>
-    <p class="mt" id="copOk" style="color:var(--green)"></p>
-  </div>`;
-  $("#certAv").appendChild(canvasAv(J.avatar, 8));
-  $("#bCopiar").onclick = () => {
-    const t = `PONTO CERTO ARCADE – Certificado de conclusão\nAluno(a): ${J.nome}\nTurma: ${J.turma}\nFases: ${feitas}/${FASES.length}\nEstrelas: ${est}/${TOTAL_EST}\nXP: ${xp}\nData: ${data}\nCódigo de verificação: ${cod}`;
-    const ok = () => { $("#copOk").textContent = "✔ Copiado! Agora é só colar no AVA."; SOM.ok(); };
-    const fb = () => { const ta = document.createElement("textarea"); ta.value = t; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} ta.remove(); ok(); };
-    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok).catch(fb); else fb();
-  };
-  mostrar("tCertificado"); SOM.fim();
-}
-
-/* ---------- modal ---------- */
-function modal(html) { $("#modalBox").innerHTML = html; $("#modal").classList.add("on"); }
-function fecharModal() { $("#modal").classList.remove("on"); }
-$("#modal").onclick = e => { if (e.target.id === "modal") fecharModal(); };
-$("#bSom").textContent = som ? "♪" : "×";
-</script>
+<script src="js/config.js?v=4"></script>
+<script src="js/dados.js?v=4"></script>
+<script src="js/avatar.js?v=4"></script>
+<script src="js/cenarios.js?v=4"></script>
+<script src="js/moveis.js?v=4"></script>
+<script src="js/quarto.js?v=4"></script>
+<script src="mundos/mundos.js?v=4"></script>
+<script src="mundos/mundo1.js?v=4"></script>
+<script src="mundos/mundo2.js?v=4"></script>
+<script src="js/motor.js?v=4"></script>
 </body>
 </html>
