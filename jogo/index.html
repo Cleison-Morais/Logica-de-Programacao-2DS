@@ -78,7 +78,7 @@ select.inp{cursor:pointer}
 .banner{font-family:var(--px);text-align:center;padding:14px 10px;color:#000;box-shadow:0 0 0 4px #000;font-size:13px;position:relative}
 .banner small{display:block;font-family:var(--txt);font-size:22px;margin-top:6px;color:#000}
 .trilha{position:relative;margin:0 auto}
-.trilha svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.trilha > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .no{position:absolute;width:74px;height:74px;transform:translate(-50%,-50%);border:none;cursor:pointer;font-family:var(--px);font-size:18px;color:#fff;
   box-shadow:0 0 0 4px #000,inset -6px -6px 0 rgba(0,0,0,.35),inset 6px 6px 0 rgba(255,255,255,.3)}
 .no.lock{background:#2b2b4f;color:#55557a;cursor:not-allowed}
@@ -88,7 +88,7 @@ select.inp{cursor:pointer}
 .no .stars{position:absolute;left:50%;bottom:-26px;transform:translateX(-50%);font-size:12px;color:var(--yellow);white-space:nowrap;text-shadow:2px 2px 0 #000}
 .no .tt{position:absolute;left:calc(100% + 12px);top:50%;transform:translateY(-50%);font-family:var(--txt);font-size:20px;white-space:nowrap;color:var(--white);text-shadow:2px 2px 0 #000;text-align:left;pointer-events:none}
 .no.esq .tt{left:auto;right:calc(100% + 12px);text-align:right}
-.eu{position:absolute;transform:translate(-50%,-100%);pointer-events:none;animation:bob 1s steps(2) infinite;z-index:3}
+.eu{position:absolute;pointer-events:none;animation:bob 1s steps(2) infinite;z-index:3}
 
 /* ---------- fase ---------- */
 .fhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 8px 6px}
@@ -212,6 +212,46 @@ select.inp{cursor:pointer}
 .modal .box{max-width:520px;text-align:center}
 .center{text-align:center}
 .mt{margin-top:16px}
+
+/* ================= VISUAL 2.0 (mapa com cenário, molduras, ícones) ================= */
+.pxi{vertical-align:-2px;image-rendering:pixelated}
+.box{border-radius:6px;box-shadow:0 0 0 3px #000,0 0 0 6px #4a4aa0,0 0 0 9px #000,inset 0 0 0 2px #2a2a6a;
+  background-color:var(--panel);
+  background-image:radial-gradient(circle at 9px 9px,#7a7ad0 0 2px,#000 2px 3px,transparent 3px),radial-gradient(circle at calc(100% - 9px) 9px,#7a7ad0 0 2px,#000 2px 3px,transparent 3px),
+    radial-gradient(circle at 9px calc(100% - 9px),#7a7ad0 0 2px,#000 2px 3px,transparent 3px),radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),#7a7ad0 0 2px,#000 2px 3px,transparent 3px);
+  margin:16px 10px}
+select.inp{appearance:none;-webkit-appearance:none;padding-right:44px;background:#05051a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 4' shape-rendering='crispEdges'%3E%3Cpath fill='%23ffd23f' d='M0 0h7v1H0zM1 1h5v1H1zM2 2h3v1H2zM3 3h1v1H3z'/%3E%3C/svg%3E") no-repeat right 14px center/22px 13px}
+.moldura{padding:6px;background:#141436;border-radius:4px;box-shadow:0 0 0 3px #000,0 0 0 6px #4a4aa0,0 0 0 9px #000;
+  background-image:radial-gradient(circle at 5px 5px,#7a7ad0 0 2px,transparent 2px),radial-gradient(circle at calc(100% - 5px) 5px,#7a7ad0 0 2px,transparent 2px),radial-gradient(circle at 5px calc(100% - 5px),#7a7ad0 0 2px,transparent 2px),radial-gradient(circle at calc(100% - 5px) calc(100% - 5px),#7a7ad0 0 2px,transparent 2px)}
+.sprites{gap:26px;margin:10px 0 18px}
+.sprites .moldura{animation:bob 1.2s steps(2) infinite}.sprites .moldura:nth-child(2){animation-delay:.3s}.sprites .moldura:nth-child(3){animation-delay:.6s}
+.sprites canvas{animation:none;display:block}
+.hud .who canvas{height:46px;width:auto}
+.stat .pxi{vertical-align:-1px}
+
+.mundo{max-width:none;margin:24px auto 10px}
+.trilha{position:relative;margin:0 auto;box-shadow:0 0 0 4px #000,0 0 0 8px var(--line);border-radius:4px;overflow:hidden}
+.trilha canvas.cenario{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
+.trilha > svg{z-index:1}
+.trilha .banner{position:absolute;top:26px;left:50%;transform:translateX(-50%);width:min(640px,88%);z-index:3;box-shadow:0 0 0 4px #000,6px 6px 0 4px rgba(0,0,0,.35)}
+.no{z-index:2;border-radius:3px;width:78px;height:78px}
+.no .num{font-family:var(--px);font-size:20px;text-shadow:3px 3px 0 #000}
+.no.livre{background:#4a4ad0;box-shadow:0 0 0 4px #000,inset -7px -7px 0 #2c2c8a,inset 7px 7px 0 #7f7ff0}
+.no.feito{background:var(--cor,#ff2a4d);box-shadow:0 0 0 4px #000,inset -7px -7px 0 rgba(0,0,0,.35),inset 7px 7px 0 rgba(255,255,255,.35)}
+.no.lock{cursor:not-allowed}
+.no.caixote{background:repeating-linear-gradient(0deg,#a06838 0 15px,#7a4a24 15px 18px);box-shadow:0 0 0 4px #000,inset 0 0 0 6px #6b3f1d,inset 0 0 0 9px #c08048}
+.no.pedra{background:#7e8296;box-shadow:0 0 0 4px #000,inset -7px -7px 0 #545868,inset 7px 7px 0 #a8acc0,inset 0 0 0 11px #6e7286}
+.no .cad{display:block;line-height:0;filter:drop-shadow(2px 2px 0 #000)}
+.no.atual{animation:pulse 1s steps(2) infinite}
+.no.boss{width:100px;height:100px}
+.no .stars{bottom:-22px;display:flex;gap:2px;filter:drop-shadow(2px 2px 0 #000)}
+.no .tt{font-size:22px;color:#fff;text-shadow:2px 0 0 #000,-2px 0 0 #000,0 2px 0 #000,0 -2px 0 #000,2px 2px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000}
+.eu{z-index:4;filter:drop-shadow(3px 3px 0 rgba(0,0,0,.4))}
+.it{width:128px}
+.it .lk{top:26px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px}
+.prev canvas{border-radius:4px}
+@media(max-width:760px){.no .tt{display:none}.no{width:64px;height:64px}.no.boss{width:84px;height:84px}}
+
 @media(max-width:760px){
   .logo h1{font-size:24px}.logo h1 span{font-size:13px}
   .ops,.ordem{grid-template-columns:1fr}
@@ -417,8 +457,8 @@ async function sincronizar() {
   const db = lerLocal();
   if (db.ultimo) { sel.value = db.ultimo.turma; $("#lNome").value = db.ultimo.nome; }
   const sp = $("#spritesInicio");
-  [{ pele: 0, cabelo: "espetado", corCabelo: 6, camiseta: 2, fundo: 0 }, NPC, { pele: 4, cabelo: "cacheado", corCabelo: 0, camiseta: 3, cabeca: "fone", fundo: 3 }]
-    .forEach(a => sp.appendChild(canvasAv(a, 5)));
+  [{ pele: 0, cabelo: "espetado", corCabelo: 6, camiseta: 2, fundo: 0 }, { pele: 2, cabelo: "curto", camiseta: 0, calca: 3, cabeca: "bone", rosto: "oculos", fundo: 1 }, { pele: 4, cabelo: "afro", corCabelo: 0, camiseta: 3, fundo: 3 }]
+    .forEach(a => { const fr = document.createElement("div"); fr.className = "moldura"; fr.appendChild(canvasAv(a, 5)); sp.appendChild(fr); });
   $("#modoTxt").textContent = URL_SRV ? "● ONLINE: O PROGRESSO VAI PARA A PLANILHA DO PROFESSOR" : "● MODO OFFLINE: O PROGRESSO FICA SALVO NESTE COMPUTADOR";
   $("#lPin").addEventListener("input", e => e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4));
   ["#lNome", "#lPin"].forEach(s => $(s).addEventListener("keydown", e => { if (e.key === "Enter") entrar(false); }));
@@ -488,7 +528,7 @@ document.querySelectorAll("[data-go]").forEach(b => b.onclick = () => ir(b.datas
 function atualizarHud() {
   AVATAR.desenhar($("#hudAv"), J.avatar, 2);
   $("#hudNome").innerHTML = `${esc(J.nome)}<small>${esc(J.turma)}</small>`;
-  $("#hudSt").textContent = `★ ${estrelasTotais()}/${TOTAL_EST}`;
+  $("#hudSt").innerHTML = `${ICONE.estrela("#00e5ff", 14)} ${estrelasTotais()}/${TOTAL_EST}`;
   $("#hudXp").textContent = `${xpTotal()} XP`;
 }
 
@@ -505,33 +545,133 @@ function renderMapa() {
   MUNDOS.forEach(m => {
     const fs = FASES.map((f, i) => ({ f, i })).filter(x => x.f.mundo === m.n);
     const sec = document.createElement("div"); sec.className = "mundo";
-    sec.innerHTML = `<div class="banner" style="background:${m.cor}">${m.nome}<small>${m.sub}</small></div>`;
+    const W = Math.min(940, (w.clientWidth || document.documentElement.clientWidth - 32) - 8), H = 150 + fs.length * 130;
+    const amp = W < 600 ? W * 0.2 : Math.min(170, W * 0.17);
+    const pts = fs.map((x, k) => [Math.round(W / 2 + Math.sin(k * 1.25 + m.n) * amp), 170 + k * 130]);
     const tr = document.createElement("div"); tr.className = "trilha";
-    const W = Math.min(640, (w.clientWidth || document.documentElement.clientWidth - 32) - 16), H = 60 + fs.length * 120;
     tr.style.width = W + "px"; tr.style.height = H + "px";
-    const pts = fs.map((x, k) => [W / 2 + Math.sin(k * 1.25 + m.n) * (W * 0.26), 70 + k * 120]);
-    tr.innerHTML = `<svg viewBox="0 0 ${W} ${H}"><polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="#000" stroke-width="16"/><polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="${m.cor}" stroke-width="8" stroke-dasharray="14 10" opacity=".7"/></svg>`;
+    const cen = document.createElement("canvas"); cen.className = "cenario";
+    pintarCenario(cen, m.n, W, H, [[W / 2 + Math.sin(m.n) * amp * 0.4, 0], ...pts, [pts[pts.length - 1][0], H]]);
+    tr.appendChild(cen);
+    tr.insertAdjacentHTML("beforeend", `<svg viewBox="0 0 ${W} ${H}"><polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="#000" stroke-width="12"/><polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="${m.cor}" stroke-width="6" stroke-dasharray="12 10"/></svg>
+      <div class="banner" style="background:${m.cor}">${m.nome}<small>${m.sub}</small></div>`);
     fs.forEach(({ f, i }, k) => {
       const pr = J.progresso[f.id] || {}, ok = pr.estrelas > 0, lib = liberada(i);
       const b = document.createElement("button");
-      b.className = "no" + (f.chefe ? " boss" : "") + (lib ? "" : " lock") + (i === atual ? " atual" : "") + (pts[k][0] > W / 2 ? " esq" : "");
+      const tipoBloq = (i % 2 ? "caixote" : "pedra");
+      b.className = "no" + (f.chefe ? " boss" : "") + (lib ? (ok ? " feito" : " livre") : " lock " + tipoBloq) + (i === atual ? " atual" : "") + (pts[k][0] > W / 2 ? " esq" : "");
       b.style.left = pts[k][0] + "px"; b.style.top = pts[k][1] + "px";
-      b.style.background = lib ? (ok ? m.cor : "#3a3a8a") : "";
-      b.innerHTML = (lib ? (f.chefe ? "☠" : (i + 1)) : "🔒") +
-        (ok ? `<span class="stars">${"★".repeat(pr.estrelas)}${"☆".repeat(3 - pr.estrelas)}</span>` : "") +
+      if (lib && ok) b.style.setProperty("--cor", m.cor);
+      b.innerHTML = (lib ? `<span class="num">${f.chefe ? "☠" : (i + 1)}</span>` : ICONE.cadeado) +
+        (ok ? `<span class="stars">${[1, 2, 3].map(n => ICONE.estrela(n <= pr.estrelas ? "#ffd23f" : "#3a3a5a", 16)).join("")}</span>` : "") +
         `<span class="tt">${f.chefe ? "" : "FASE " + (i + 1) + "<br>"}${esc(f.titulo)}</span>`;
-      b.onclick = () => { if (lib) abrirFase(i); else { SOM.erro(); modal(`<p class="px" style="font-size:11px">🔒 FASE BLOQUEADA</p><p class="mt">Vença a fase anterior para liberar.</p><button class="btn mt" onclick="fecharModal()">OK</button>`); } };
+      b.onclick = () => { if (lib) abrirFase(i); else { SOM.erro(); modal(`<p class="px" style="font-size:11px">FASE BLOQUEADA</p><p class="mt">Vença a fase anterior para liberar.</p><button class="btn mt" onclick="fecharModal()">OK</button>`); } };
       tr.appendChild(b);
-      if (i === atual) { const eu = canvasAv(J.avatar, 3, false); eu.className = "eu"; eu.style.left = pts[k][0] + "px"; eu.style.top = (pts[k][1] - 40) + "px"; tr.appendChild(eu); }
+      if (i === atual) { const eu = canvasAv(J.avatar, 2, false); eu.className = "eu"; eu.style.left = (pts[k][0] - 26) + "px"; eu.style.top = (pts[k][1] - (f.chefe ? 50 : 39) - 58) + "px"; tr.appendChild(eu); }
     });
     sec.appendChild(tr); w.appendChild(sec);
   });
   if (atual === -1) {
     const fim = document.createElement("div"); fim.className = "box center mt";
-    fim.innerHTML = `<p class="px" style="color:var(--yellow);font-size:12px">🏆 VOCÊ ZEROU O JOGO!</p><p class="mt">Agora tente fazer 3 estrelas em todas as fases para liberar todos os itens.</p><button class="btn yl mt" onclick="ir('certificado')">VER CERTIFICADO</button>`;
+    fim.innerHTML = `<p class="px" style="color:var(--yellow);font-size:12px">VOCÊ ZEROU O JOGO!</p><p class="mt">Agora tente fazer 3 estrelas em todas as fases para liberar todos os itens.</p><button class="btn yl mt" onclick="ir('certificado')">VER CERTIFICADO</button>`;
     w.appendChild(fim);
   }
 }
+
+/* ---------- ícones em pixel art (SVG) ---------- */
+const ICONE = {
+  estrela(cor, px) {
+    const m = ["....#....", "...###...", "...###...", "#########", ".#######.", "..#####..", "..##.##..", ".##...##.", "##.....##"];
+    return pixelSvg(m, { "#": cor || "#00e5ff" }, px || 14);
+  },
+  get cadeado() {
+    const m = ["..####..", ".#....#.", ".#....#.", "########", "##YYYY##", "##YkkY##", "##YkkY##", "##YYYY##", "########"];
+    return `<span class="cad">${pixelSvg(m, { "#": "#3a2a00", "Y": "#ffd23f", "k": "#3a2a00" }, 28)}</span>`;
+  }
+};
+function pixelSvg(m, cores, px) {
+  const h = m.length, wd = m[0].length; let r = "";
+  m.forEach((l, y) => [...l].forEach((ch, x) => { if (cores[ch]) r += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${cores[ch]}"/>`; }));
+  return `<svg class="pxi" viewBox="0 0 ${wd} ${h}" width="${px}" height="${Math.round(px * h / wd)}" shape-rendering="crispEdges">${r}</svg>`;
+}
+
+/* ---------- cenário do mapa em pixel art ---------- */
+function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+function distSeg(px, py, ax, ay, bx, by) {
+  const dx = bx - ax, dy = by - ay, l = dx * dx + dy * dy;
+  let t = l ? ((px - ax) * dx + (py - ay) * dy) / l : 0; t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - ax - t * dx, py - ay - t * dy);
+}
+function pintarCenario(cv, mundo, W, H, ptsBrutos) {
+  const P = 4, w = Math.ceil(W / P), h = Math.ceil(H / P);
+  const low = document.createElement("canvas"); low.width = w; low.height = h;
+  const c = low.getContext("2d"), R = rng(mundo * 7919 + 13);
+  const pts = ptsBrutos.map(([x, y]) => [x / P, y / P]);
+  const dist = (x, y) => { let d = 1e9; for (let i = 1; i < pts.length; i++) d = Math.min(d, distSeg(x, y, pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1])); return d; };
+  const px = (x, y, cor) => { c.fillStyle = cor; c.fillRect(Math.round(x), Math.round(y), 1, 1); };
+  const disco = (cx, cy, r, cor) => { c.fillStyle = cor; for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) if (x * x + y * y <= r * r + r * 0.6) c.fillRect(Math.round(cx + x), Math.round(cy + y), 1, 1); };
+  const bloq = [];
+  for (let y = 0; y < h; y++) { bloq[y] = []; for (let x = 0; x < w; x++) bloq[y][x] = dist(x, y); }
+  const longe = (x, y, d) => x >= 0 && y >= 0 && x < w && y < h && bloq[Math.floor(y)][Math.floor(x)] > d;
+
+  if (mundo === 1) {
+    // grama
+    const verdes = ["#5cb83c", "#63c043", "#56ad37", "#6bc84a"];
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) px(x, y, verdes[(R() * 100 | 0) % 7 === 0 ? 2 + (R() * 2 | 0) : (R() * 2 | 0)]);
+    // trilha de terra
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const d = bloq[y][x];
+      if (d < 9.5) px(x, y, d > 8.3 ? "#9c6a3c" : (R() < 0.08 ? "#c48a55" : (R() < 0.5 ? "#dcaa6e" : "#d6a165")));
+      else if (d < 10.6 && R() < 0.5) px(x, y, "#4e9c32");
+    }
+    for (let k = 0; k < w * h / 260; k++) { const x = R() * w, y = R() * h; if (bloq[y | 0][x | 0] < 7) { px(x, y, "#b88450"); px(x + 1, y, "#e9c08a"); } }
+    // tufos de grama
+    for (let k = 0; k < w * h / 70; k++) { const x = R() * w | 0, y = R() * h | 0; if (!longe(x, y, 11)) continue; const cor = R() < 0.5 ? "#3f8f2a" : "#8be06a"; px(x, y, cor); px(x - 1, y - 1, cor); px(x + 1, y - 1, cor); }
+    // flores
+    const fl = ["#ff4b5c", "#ffd23f", "#4fa8ff", "#ffffff", "#ff8a3d"];
+    for (let k = 0; k < w * h / 240; k++) { const x = R() * w | 0, y = R() * h | 0; if (!longe(x, y, 12)) continue; const cor = fl[R() * fl.length | 0]; px(x - 1, y, cor); px(x + 1, y, cor); px(x, y - 1, cor); px(x, y + 1, cor); px(x, y, "#ffe680"); px(x, y + 2, "#3f8f2a"); }
+    // árvores (de cima para baixo para sobrepor certo)
+    const arv = [];
+    for (let k = 0; k < 600 && arv.length < w * h / 650; k++) { const x = R() * w, y = R() * h; const r = 7 + (R() * 5 | 0); if (longe(x, y, r + 16) && !arv.some(a => Math.hypot(a.x - x, a.y - y) < (a.r + r) * 0.9)) arv.push({ x, y, r }); }
+    arv.sort((a, b) => a.y - b.y).forEach(({ x, y, r }) => {
+      c.fillStyle = "rgba(20,60,10,.45)"; for (let i = -r; i <= r; i++) c.fillRect(Math.round(x + i), Math.round(y + r + 2), 1, 2);
+      c.fillStyle = "#6b3f1d"; c.fillRect(Math.round(x - 1), Math.round(y + r - 3), 3, 6); c.fillStyle = "#8a5a2e"; c.fillRect(Math.round(x - 1), Math.round(y + r - 3), 1, 6);
+      disco(x, y, r, "#1f5e22"); disco(x - 1, y - 1, r - 1, "#2f7d32"); disco(x - r * 0.3, y - r * 0.3, Math.max(2, r - 4), "#45a03c"); disco(x - r * 0.4, y - r * 0.45, Math.max(1, r - 7), "#6cc855");
+      for (let i = 0; i < r; i++) { const a = R() * 6.28, d = R() * r * 0.8; px(x + Math.cos(a) * d, y + Math.sin(a) * d, R() < 0.5 ? "#1f5e22" : "#58b84a"); }
+    });
+    // arbustos perto da trilha
+    for (let k = 0; k < 18; k++) { const x = R() * w, y = R() * h; if (longe(x, y, 13) && !longe(x, y, 22)) { disco(x, y, 3, "#2f7d32"); disco(x - 1, y - 1, 2, "#45a03c"); px(x - 1, y - 2, "#6cc855"); } }
+  } else {
+    // placa de circuito (memória)
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) px(x, y, (x % 8 === 0 && y % 8 === 0) ? "#1b6a4a" : (R() < 0.5 ? "#0f4a33" : "#0d4430"));
+    // trilhas douradas
+    for (let k = 0; k < w * h / 300; k++) {
+      let x = R() * w | 0, y = R() * h | 0; if (!longe(x, y, 13)) continue;
+      const passos = 8 + (R() * 30 | 0); let horiz = R() < 0.5;
+      for (let s = 0; s < passos; s++) { if (!longe(x, y, 12)) break; px(x, y, "#c9a23a"); px(x + (horiz ? 0 : 1), y + (horiz ? 1 : 0), "#7a5f1c"); if (horiz) x++; else y++; if (R() < 0.08) horiz = !horiz; }
+      if (longe(x, y, 12)) { px(x - 1, y, "#e8c35a"); px(x + 1, y, "#e8c35a"); px(x, y - 1, "#e8c35a"); px(x, y + 1, "#e8c35a"); px(x, y, "#0b2a1e"); }
+    }
+    // chips de memória
+    for (let k = 0; k < w * h / 1400; k++) {
+      const cw = 10 + (R() * 10 | 0), ch = 6 + (R() * 5 | 0), x = R() * (w - cw) | 0, y = R() * (h - ch) | 0;
+      if (!longe(x, y, 14) || !longe(x + cw, y + ch, 14) || !longe(x + cw, y, 14) || !longe(x, y + ch, 14)) continue;
+      c.fillStyle = "#0b0b14"; c.fillRect(x, y, cw, ch); c.fillStyle = "#24243a"; c.fillRect(x + 1, y + 1, cw - 2, 1);
+      c.fillStyle = "#b8b8c8"; for (let i = 1; i < cw - 1; i += 2) { c.fillRect(x + i, y - 1, 1, 1); c.fillRect(x + i, y + ch, 1, 1); }
+      px(x + 2, y + ch - 2, "#5a5a7a");
+    }
+    // LEDs
+    for (let k = 0; k < w * h / 500; k++) { const x = R() * w | 0, y = R() * h | 0; if (!longe(x, y, 12)) continue; const cor = R() < 0.6 ? "#00e5ff" : "#ff2a4d"; c.fillStyle = cor + "55"; c.fillRect(x - 1, y - 1, 4, 4); c.fillStyle = cor; c.fillRect(x, y, 2, 2); }
+    // barramento (caminho)
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const d = bloq[y][x];
+      if (d < 9.5) px(x, y, d > 8.3 ? "#1a2430" : d > 7.3 ? "#8aa0b8" : ((x + y) % 6 === 0 ? "#556a80" : "#4a5d70"));
+    }
+    for (let i = 1; i < pts.length; i++) { const [ax, ay] = pts[i - 1], [bx, by] = pts[i], n = Math.hypot(bx - ax, by - ay); for (let s = 0; s < n; s += 6) px(ax + (bx - ax) * s / n, ay + (by - ay) * s / n, "#00e5ff"); }
+  }
+  cv.width = W; cv.height = H;
+  const g = cv.getContext("2d"); g.imageSmoothingEnabled = false; g.drawImage(low, 0, 0, w * P, h * P);
+}
+
 window.addEventListener("resize", () => { if ($("#tMapa").classList.contains("on")) renderMapa(); });
 
 /* =================================================================
@@ -547,7 +687,7 @@ function abrirFase(i) {
     <div class="fhead"><span class="tag" style="background:${m.cor}">${f.chefe ? "CHEFÃO" : "FASE " + (i + 1)}</span><h2>${esc(f.titulo)}</h2></div>
     <div class="box dialogo" id="dlg"><div id="npc"></div><div class="fala"><div class="quem">DONA CÉLIA · DONA DA PAPELARIA</div><div id="falaTxt"></div></div></div>
     <div class="center"><button class="btn" id="bCont">CONTINUAR ▶</button></div>`;
-  $("#npc").appendChild(canvasAv(NPC, 6));
+  $("#npc").appendChild(canvasAv(NPC, 4));
   mostrar("tFase");
   digitar($("#falaTxt"), f.historia);
   $("#bCont").onclick = () => { SOM.clique(); mostrarAprenda(); };
@@ -682,16 +822,16 @@ function terminarFase() {
     <p class="px" style="font-size:12px;color:var(--green)">+${F.xp + 50} XP  ·  ${F.erros} ERRO(S)</p>
     ${!primeira && est <= (prev.estrelas || 0) ? `<p class="mt" style="color:var(--gray)">Seu recorde nesta fase continua: ${"★".repeat(prev.estrelas)}</p>` : ""}
     ${est < 3 ? `<p class="mt" style="color:var(--gray)">Jogue de novo sem errar para fazer 3 estrelas!</p>` : ""}
-    <div class="box unl"><div class="ic">💾</div><div><div class="px">${primeira ? "NOVA FUNÇÃO NO SEU SISTEMA" : "FUNÇÃO DO SEU SISTEMA"}</div>${esc(f.sistema)}</div></div>
+    <div class="box unl"><div class="ic">${ICONE.estrela("#00e5ff", 40)}</div><div><div class="px">${primeira ? "NOVA FUNÇÃO NO SEU SISTEMA" : "FUNÇÃO DO SEU SISTEMA"}</div>${esc(f.sistema)}</div></div>
     ${novosItens.map(it => `<div class="box unl"><div class="ic" data-item="${it.id}"></div><div><div class="px" style="color:var(--yellow)">ITEM DESBLOQUEADO!</div>${esc(it.nome)} para o seu avatar.</div></div>`).join("")}
     <div class="mt">
       <button class="btn gr" onclick="ir('sistema')">▶ TESTAR NO TERMINAL</button>
       ${novosItens.length ? `<button class="btn yl" onclick="ir('avatar')">VESTIR ITEM</button>` : ""}
       <button class="btn dk" onclick="abrirFase(${F.i})">JOGAR DE NOVO</button>
-      ${prox ? `<button class="btn" onclick="abrirFase(${F.i + 1})">PRÓXIMA FASE ▶</button>` : `<button class="btn yl" onclick="ir('certificado')">🏆 CERTIFICADO</button>`}
+      ${prox ? `<button class="btn" onclick="abrirFase(${F.i + 1})">PRÓXIMA FASE ▶</button>` : `<button class="btn yl" onclick="ir('certificado')">CERTIFICADO</button>`}
       <button class="btn cy" onclick="ir('mapa')">MAPA</button>
     </div></div>`;
-  w.querySelectorAll("[data-item]").forEach(el => { const a = Object.assign({}, J.avatar); const it = AVATAR.ITENS.find(x => x.id === el.dataset.item); if (it.slot === "fundo") a.fundo = 4; else a[it.slot] = it.id; el.appendChild(canvasAv(a, 3)); });
+  w.querySelectorAll("[data-item]").forEach(el => { const a = Object.assign({}, J.avatar); const it = AVATAR.ITENS.find(x => x.id === el.dataset.item); if (it.slot === "fundo") a.fundo = 4; else a[it.slot] = it.id; el.appendChild(canvasAv(a, 2)); });
   mostrar("tResultado");
   est === 3 ? SOM.fim() : SOM.estrela();
 }
@@ -700,19 +840,19 @@ function terminarFase() {
    EDITOR DE AVATAR
    ================================================================= */
 let AV = null, abaAv = "pele", primeiroAv = false;
-const ABAS = [["pele", "PELE"], ["cabelo", "CABELO"], ["corCabelo", "COR DO CABELO"], ["camiseta", "CAMISETA"], ["calca", "CALÇA"], ["fundo", "FUNDO"], ["itens", "ITENS ★"]];
+const ABAS = [["pele", "PELE"], ["cabelo", "CABELO"], ["corCabelo", "COR DO CABELO"], ["camiseta", "CAMISETA"], ["calca", "CALÇA"], ["fundo", "FUNDO"], ["itens", "ITENS"]];
 function abrirAvatar(primeiro) {
   primeiroAv = primeiro; AV = Object.assign({}, J.avatar);
   $("#avTitulo").textContent = primeiro ? "CRIE SEU PERSONAGEM!" : "EDITAR PERSONAGEM";
-  $("#avTabs").innerHTML = ABAS.map(([k, n]) => `<button class="btn dk" data-aba="${k}">${n}</button>`).join("");
+  $("#avTabs").innerHTML = ABAS.map(([k, n]) => `<button class="btn dk" data-aba="${k}">${n}${k === "itens" ? " " + ICONE.estrela("#00e5ff", 12) : ""}</button>`).join("");
   $("#avTabs").querySelectorAll("button").forEach(b => b.onclick = () => { SOM.clique(); abaAv = b.dataset.aba; renderAv(); });
   renderAv(); mostrar("tAvatar");
 }
 function renderAv() {
-  AVATAR.desenhar($("#avPrev"), AV, 14);
+  AVATAR.desenhar($("#avPrev"), AV, 9);
   const est = estrelasTotais();
   const prox = AVATAR.ITENS.find(it => it.estrelas > est);
-  $("#avEstrelas").innerHTML = `★ ${est}/${TOTAL_EST}<br><br>${prox ? `PRÓXIMO ITEM: ${esc(prox.nome).toUpperCase()} (${prox.estrelas}★)` : "TODOS OS ITENS LIBERADOS!"}`;
+  $("#avEstrelas").innerHTML = `${ICONE.estrela("#00e5ff", 16)} ${est}/${TOTAL_EST}<br><br>${prox ? `PRÓXIMO ITEM: ${esc(prox.nome).toUpperCase()} (${prox.estrelas}${ICONE.estrela("#ffd23f", 10)})` : "TODOS OS ITENS LIBERADOS!"}`;
   $("#avTabs").querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.aba === abaAv));
   const g = $("#avGrade"); g.innerHTML = "";
   const P = AVATAR.PALETA;
@@ -737,7 +877,7 @@ function renderAv() {
     const b = document.createElement("button"); b.className = "it" + (usando ? " on" : "") + (lib ? "" : " lock");
     const a = Object.assign({}, AV); if (it.slot === "fundo") a.fundo = 4; else a[it.slot] = it.id;
     b.appendChild(canvasAv(a, 4)); b.append(it.nome);
-    if (!lib) { const l = document.createElement("div"); l.className = "lk"; l.textContent = "🔒 " + it.estrelas + "★"; b.appendChild(l); }
+    if (!lib) { const l = document.createElement("div"); l.className = "lk"; l.innerHTML = ICONE.cadeado + `<span>${it.estrelas} ${ICONE.estrela("#ffd23f", 11)}</span>`; b.appendChild(l); }
     b.onclick = () => {
       if (!lib) { SOM.erro(); return; }
       SOM.clique();
@@ -776,7 +916,7 @@ async function abrirRanking() {
     const eu = semAcento(p.nome).toLowerCase() === semAcento(J.nome).toLowerCase();
     el.className = "rk" + (eu ? " eu2" : "");
     el.innerHTML = `<div class="pos ${k < 3 ? "p" + (k + 1) : ""}">${k < 3 ? ["1º", "2º", "3º"][k] : (k + 1) + "º"}</div>`;
-    el.appendChild(canvasAv(p.avatar, 3));
+    el.appendChild(canvasAv(p.avatar, 2));
     el.insertAdjacentHTML("beforeend", `<div class="info">${esc(p.nome)}${eu ? " (você)" : ""}<small>${p.fases}/${FASES.length} fases</small></div><div class="pts">★ ${p.estrelas}<br><span>${p.xp} XP</span></div>`);
     box.appendChild(el);
   });
@@ -791,7 +931,7 @@ const pyF = n => Number.isInteger(n) ? n.toFixed(1) : String(n);
 class PyErr extends Error {}
 function toFloat(s) { const t = s.trim(); if (t === "" || isNaN(Number(t))) throw new PyErr(`ValueError: could not convert string to float: '${s}'`); return Number(t); }
 function abrirSistema() {
-  $("#feats").innerHTML = FEATS.map(([id, n]) => `<span class="feat ${tem(id) ? "on" : ""}">${tem(id) ? "✔" : "🔒"} ${n}</span>`).join("");
+  $("#feats").innerHTML = FEATS.map(([id, n]) => `<span class="feat ${tem(id) ? "on" : ""}">${tem(id) ? "✔" : "✖"} ${n}</span>`).join("");
   $("#termBody").innerHTML = `<span class="fim">Clique em ▶ EXECUTAR para rodar o seu papelaria.py</span>`;
   mostrar("tSistema");
 }
@@ -871,7 +1011,7 @@ function abrirCertificado() {
   const w = $("#certWrap");
   const feitas = fasesFeitas(), est = estrelasTotais(), xp = xpTotal();
   if (feitas < FASES.length) {
-    w.innerHTML = `<div class="cert"><h2>🔒 CERTIFICADO BLOQUEADO</h2><p class="mt">Você completou <b>${feitas} de ${FASES.length}</b> fases. Derrote o CHEFÃO para liberar o seu certificado!</p><button class="btn mt" onclick="ir('mapa')">VOLTAR AO MAPA</button></div>`;
+    w.innerHTML = `<div class="cert"><h2>CERTIFICADO BLOQUEADO</h2><p class="mt">Você completou <b>${feitas} de ${FASES.length}</b> fases. Derrote o CHEFÃO para liberar o seu certificado!</p><button class="btn mt" onclick="ir('mapa')">VOLTAR AO MAPA</button></div>`;
     mostrar("tCertificado"); return;
   }
   const cod = codigoVerif(J.turma, J.nome, est, xp);
@@ -883,13 +1023,13 @@ function abrirCertificado() {
     <div class="nome">${esc(J.nome)}</div>
     <p style="color:var(--gray)">${esc(J.turma)}</p>
     <p class="mt">construiu o sistema da Papelaria Ponto Certo em Python: menu, funções, validação, repetição, listas em memória, cadastro, consulta e listagem.</p>
-    <table><tr><td>Fases</td><td>${feitas}/${FASES.length}</td></tr><tr><td>Estrelas</td><td>★ ${est}/${TOTAL_EST}</td></tr><tr><td>XP</td><td>${xp}</td></tr><tr><td>Data</td><td>${data}</td></tr></table>
+    <table><tr><td>Fases</td><td>${feitas}/${FASES.length}</td></tr><tr><td>Estrelas</td><td>${ICONE.estrela("#ffd23f", 16)} ${est}/${TOTAL_EST}</td></tr><tr><td>XP</td><td>${xp}</td></tr><tr><td>Data</td><td>${data}</td></tr></table>
     <div class="cod">${cod}</div>
     <p style="font-size:20px;color:var(--gray)">Código de verificação: copie e envie no AVA.</p>
     <div class="mt"><button class="btn gr" id="bCopiar">COPIAR PARA O AVA</button><button class="btn cy" onclick="ir('mapa')">MAPA</button></div>
     <p class="mt" id="copOk" style="color:var(--green)"></p>
   </div>`;
-  $("#certAv").appendChild(canvasAv(J.avatar, 10));
+  $("#certAv").appendChild(canvasAv(J.avatar, 8));
   $("#bCopiar").onclick = () => {
     const t = `PONTO CERTO ARCADE – Certificado de conclusão\nAluno(a): ${J.nome}\nTurma: ${J.turma}\nFases: ${feitas}/${FASES.length}\nEstrelas: ${est}/${TOTAL_EST}\nXP: ${xp}\nData: ${data}\nCódigo de verificação: ${cod}`;
     const ok = () => { $("#copOk").textContent = "✔ Copiado! Agora é só colar no AVA."; SOM.ok(); };
