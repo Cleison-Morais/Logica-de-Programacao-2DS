@@ -9,6 +9,7 @@ Aqui ficam os materiais das aulas de Lógica e Linguagem de Programação do 2DS
 | Semana | Tema | Material |
 |---|---|---|
 | 21 | Programando com menu no terminal (caixa eletrônico e Papelaria Ponto Certo) | [Abrir pasta](semana-21/) |
+| 21 e 22 | 🎮 **Ponto Certo Arcade**: jogo com as Semanas 21 e 22 (menu, listas e cadastro em memória) | [Jogar](https://cleison-morais.github.io/Logica-de-Programacao-2DS/jogo/) · [Pasta](jogo/) |
 
 ## Como baixar um material (não precisa de login)
 

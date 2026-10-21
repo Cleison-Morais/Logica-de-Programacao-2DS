@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel do Professor – Ponto Certo Arcade</title>
+<style>
+@font-face{font-family:"Press Start 2P";src:url(fontes/press-start-2p.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"VT323";src:url(fontes/vt323.woff2) format("woff2");font-display:swap}
+</style>
+<style>
+:root{--bg:#0b0b1f;--panel:#1b1b45;--line:#2e2e6e;--red:#ff2a4d;--cyan:#00e5ff;--yellow:#ffd23f;--green:#39ff6a;--white:#f4f4ff;--gray:#8a8ab0;--px:"Press Start 2P",monospace;--txt:"VT323",monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--white);font-family:var(--txt);font-size:22px;padding:16px}
+h1{font-family:var(--px);font-size:16px;color:var(--yellow);text-shadow:3px 3px 0 var(--red);line-height:1.6}
+.px{font-family:var(--px)}
+canvas{image-rendering:pixelated}
+.box{background:var(--panel);box-shadow:0 0 0 4px #000,0 0 0 8px var(--line);padding:16px;margin:16px 8px}
+.btn{font-family:var(--px);font-size:10px;border:none;cursor:pointer;color:#fff;background:var(--red);padding:10px 14px;box-shadow:inset -3px -3px 0 #b3001e,0 0 0 3px #000;margin:3px}
+.btn.cy{background:#0094b3;box-shadow:inset -3px -3px 0 #005a6e,0 0 0 3px #000}
+.btn.dk{background:#2e2e6e;box-shadow:inset -3px -3px 0 #1b1b45,0 0 0 3px #000}
+.inp{font-family:var(--txt);font-size:24px;background:#05051a;color:var(--yellow);border:none;box-shadow:inset 0 0 0 3px var(--line);padding:6px 10px;outline:none}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+.card{background:#22224a;box-shadow:0 0 0 3px #000;padding:12px;text-align:center}
+.card b{display:block;font-family:var(--px);font-size:20px;color:var(--yellow);margin-bottom:6px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:900px}
+th{font-family:var(--px);font-size:9px;color:var(--cyan);text-align:left;padding:8px 6px;border-bottom:3px solid var(--line);cursor:pointer;white-space:nowrap}
+td{padding:4px 6px;border-bottom:1px solid #2a2a5a;white-space:nowrap}
+tr:hover td{background:#22224a}
+.f{display:inline-block;width:26px;text-align:center;font-size:18px;margin-right:2px;background:#05051a}
+.f.s0{color:#33335a}.f.s1{color:#e0884a}.f.s2{color:#d8d8e8}.f.s3{color:var(--yellow)}
+.cod{color:var(--green)}
+.msg{color:var(--yellow);margin-top:10px}
+.err{color:#ff8095}
+.tag{color:#000;background:var(--yellow);font-family:var(--px);font-size:8px;padding:3px 5px}
+</style>
+</head>
+<body>
+<h1>PAINEL DO PROFESSOR · PONTO CERTO ARCADE</h1>
+
+<div class="box" id="login">
+  <div class="row">
+    <span>Senha do professor:</span>
+    <input class="inp" id="senha" type="password" autocomplete="off">
+    <button class="btn" id="bEntrar">ENTRAR</button>
+  </div>
+  <div class="msg" id="lMsg"></div>
+</div>
+
+<div id="painel" style="display:none">
+  <div class="box">
+    <div class="row">
+      <span>Turma:</span><select class="inp" id="fTurma"></select>
+      <span>Buscar aluno:</span><input class="inp" id="fBusca" placeholder="nome...">
+      <button class="btn cy" id="bAtualizar">↻ ATUALIZAR</button>
+      <button class="btn dk" id="bCsv">⬇ BAIXAR CSV</button>
+    </div>
+  </div>
+  <div class="box cards" id="cards"></div>
+  <div class="box">
+    <p style="color:var(--gray);margin-bottom:10px">Clique no título de uma coluna para ordenar. Em cada fase: <span class="f s3">3</span> = 3 estrelas · <span class="f s0">·</span> = não fez. Código de verificação = o mesmo que o aluno envia no AVA.</p>
+    <div class="tw"><table id="tab"></table></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="avatar.js"></script>
+<script src="fases.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const URL_SRV = (window.CONFIG.URL_SERVIDOR || "").trim();
+const esc = s => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+let LISTA = [], ordem = { k: "estrelas", dir: -1 };
+
+async function api(acao, dados) {
+  const r = await fetch(URL_SRV, { method: "POST", body: JSON.stringify(Object.assign({ acao }, dados)) });
+  return r.json();
+}
+function senha() { return $("#senha").value; }
+
+$("#bEntrar").onclick = carregar;
+$("#senha").addEventListener("keydown", e => { if (e.key === "Enter") carregar(); });
+$("#bAtualizar").onclick = carregar;
+$("#fTurma").onchange = desenhar; $("#fBusca").oninput = desenhar;
+try { const s = sessionStorage.getItem("pc_senha"); if (s) { $("#senha").value = s; } } catch (e) {}
+
+if (!URL_SRV) $("#lMsg").innerHTML = '<span class="err">O endereço da planilha ainda não foi colocado no arquivo config.js (URL_SERVIDOR).</span>';
+
+async function carregar() {
+  if (!URL_SRV) return;
+  $("#lMsg").textContent = "Carregando...";
+  try {
+    const r = await api("admin_listar", { senha: senha() });
+    if (!r.ok) { $("#lMsg").innerHTML = `<span class="err">${r.erro === "senha" ? "Senha errada." : "Erro: " + esc(r.erro)}</span>`; return; }
+    try { sessionStorage.setItem("pc_senha", senha()); } catch (e) {}
+    LISTA = r.lista;
+    $("#login").style.display = "none"; $("#painel").style.display = "block";
+    const turmas = [...new Set([...(window.CONFIG.TURMAS || []), ...LISTA.map(a => a.turma)])];
+    const atual = $("#fTurma").value;
+    $("#fTurma").innerHTML = `<option value="">Todas</option>` + turmas.map(t => `<option>${esc(t)}</option>`).join("");
+    $("#fTurma").value = atual;
+    desenhar();
+  } catch (e) { $("#lMsg").innerHTML = `<span class="err">Não consegui falar com a planilha. Confira a internet e o endereço no config.js.</span>`; }
+}
+
+function filtrados() {
+  const t = $("#fTurma").value, b = $("#fBusca").value.trim().toLowerCase();
+  return LISTA.filter(a => (!t || a.turma === t) && (!b || a.nome.toLowerCase().includes(b)));
+}
+
+function desenhar() {
+  const L = filtrados().slice().sort((a, b) => {
+    const va = a[ordem.k], vb = b[ordem.k];
+    return (typeof va === "string" ? va.localeCompare(vb) : (va - vb)) * ordem.dir;
+  });
+  const total = FASES.length, max = total * 3;
+  const concl = L.filter(a => a.fases >= total).length;
+  const media = L.length ? (L.reduce((s, a) => s + a.estrelas, 0) / L.length).toFixed(1) : 0;
+  const mediaF = L.length ? (L.reduce((s, a) => s + a.fases, 0) / L.length).toFixed(1) : 0;
+  $("#cards").innerHTML = `
+    <div class="card"><b>${L.length}</b>alunos</div>
+    <div class="card"><b>${concl}</b>zeraram o jogo</div>
+    <div class="card"><b>${mediaF}</b>fases em média (de ${total})</div>
+    <div class="card"><b>${media}</b>estrelas em média (de ${max})</div>`;
+  const cols = [["", ""], ["nome", "ALUNO"], ["turma", "TURMA"], ["estrelas", "★"], ["xp", "XP"], ["fases", "FASES"], ["", "POR FASE"], ["ultimo", "ÚLTIMO ACESSO"], ["codigo", "CÓDIGO"], ["", "PIN"]];
+  const tab = $("#tab");
+  tab.innerHTML = `<tr>${cols.map(([k, n]) => `<th data-k="${k}">${n}${ordem.k === k && k ? (ordem.dir > 0 ? " ▲" : " ▼") : ""}</th>`).join("")}</tr>`;
+  L.forEach(a => {
+    const tr = document.createElement("tr");
+    const fs = FASES.map(f => { const s = (a.progresso[f.id] || {}).estrelas || 0; return `<span class="f s${s}" title="${f.id} – ${esc(f.titulo)}">${s || "·"}</span>`; }).join("");
+    tr.innerHTML = `<td></td><td>${esc(a.nome)}</td><td>${esc(a.turma)}</td><td style="color:var(--yellow)">${a.estrelas}</td><td style="color:var(--green)">${a.xp}</td><td>${a.fases}/${total}</td><td>${fs}</td><td>${esc(a.ultimo)}</td><td class="cod">${esc(a.codigo)}</td>
+      <td>${a.semPin ? '<span class="tag">RESETADO</span>' : '<button class="btn dk">RESETAR PIN</button>'}</td>`;
+    const c = document.createElement("canvas"); AVATAR.desenhar(c, a.avatar, 2); tr.firstChild.appendChild(c);
+    const b = tr.querySelector("button");
+    if (b) b.onclick = async () => {
+      if (!confirm(`Resetar o PIN de ${a.nome}?\nNo próximo acesso, o PIN que ele digitar passa a valer.`)) return;
+      b.disabled = true; b.textContent = "...";
+      try { const r = await api("admin_resetar", { senha: senha(), turma: a.turma, nome: a.nome }); if (r.ok) { a.semPin = true; desenhar(); } else alert("Erro: " + r.erro); } catch (e) { alert("Sem conexão."); }
+    };
+    tab.appendChild(tr);
+  });
+  tab.querySelectorAll("th").forEach(th => th.onclick = () => { const k = th.dataset.k; if (!k) return; ordem = { k, dir: ordem.k === k ? -ordem.dir : (k === "nome" || k === "turma" ? 1 : -1) }; desenhar(); });
+}
+
+$("#bCsv").onclick = () => {
+  const L = filtrados();
+  const linhas = [["Turma", "Aluno", "Estrelas", "XP", "Fases", ...FASES.map(f => f.id), "Último acesso", "Código"]];
+  L.forEach(a => linhas.push([a.turma, a.nome, a.estrelas, a.xp, a.fases, ...FASES.map(f => (a.progresso[f.id] || {}).estrelas || 0), a.ultimo, a.codigo]));
+  const csv = "﻿" + linhas.map(l => l.map(v => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\n");
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+  const el = document.createElement("a"); el.href = url; el.download = "ponto-certo-arcade.csv"; el.click(); URL.revokeObjectURL(url);
+};
+</script>
+</body>
+</html>
