@@ -9,6 +9,7 @@ Aqui ficam os materiais das aulas de Lógica e Linguagem de Programação do 2DS
 | Semana | Tema | Material |
 |---|---|---|
 | 21 | Programando com menu no terminal (caixa eletrônico e Papelaria Ponto Certo) | [Abrir pasta](semana-21/) |
+| 22 | Agenda e cadastros em memória (listas: cadastrar, consultar e listar produtos) | [Abrir](https://cleison-morais.github.io/Logica-de-Programacao-2DS/semana-22/) · [Pasta](semana-22/) |
 | Jogo | 🎮 **Código Arcade**: jogo de fases para aprender lógica e Python (Mundo 1: algoritmos e fluxogramas · Mundo 2: print, input e variáveis), com avatar, quarto e ranking da turma | [Jogar](https://cleison-morais.github.io/Logica-de-Programacao-2DS/jogo/) · [Pasta](jogo/) |
 
 ## Como baixar um material (não precisa de login)

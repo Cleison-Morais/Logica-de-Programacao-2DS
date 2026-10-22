@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 22 – Cadastros em Memória</title>
+<style>
+:root{
+  --red:#E30613; --red-d:#B00410; --black:#1A1A1A; --pink:#FBEAF0; --pink-d:#F5D3E0;
+  --gray:#5b5b5b; --line:#e7d6dd; --bg:#fffafc;
+  --vs-bg:#1e1e1e; --vs-side:#252526; --vs-bar:#323233; --vs-tab:#2d2d2d;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--black);line-height:1.6;font-size:17px}
+h1,h2,h3{font-family:"Bookman Old Style","Bookman",Georgia,serif;line-height:1.25}
+code,.mono{font-family:Consolas,"Cascadia Code","Courier New",monospace}
+p code,li code,td code{background:var(--pink);color:var(--red-d);padding:1px 6px;border-radius:5px;font-size:.92em}
+
+/* ---------- NAV ---------- */
+nav{position:sticky;top:0;z-index:50;background:var(--black);display:flex;gap:6px;padding:10px 16px;overflow-x:auto;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+nav .brand{color:#fff;font-weight:700;margin-right:10px;white-space:nowrap;display:flex;align-items:center;gap:8px}
+nav .brand span{background:var(--red);border-radius:50%;width:30px;height:30px;display:grid;place-items:center;font-size:14px}
+nav button{background:transparent;color:#ddd;border:2px solid #444;border-radius:999px;padding:7px 16px;font-size:15px;cursor:pointer;white-space:nowrap;font-weight:600;transition:.2s}
+nav button:hover{border-color:var(--red);color:#fff}
+nav button.on{background:var(--red);border-color:var(--red);color:#fff}
+
+.page{display:none;animation:fade .5s ease}
+.page.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.wrap{max-width:1100px;margin:0 auto;padding:0 18px}
+
+/* ---------- HERO ---------- */
+.hero{background:radial-gradient(circle at 75% 40%,#3a0a10 0%,var(--black) 60%);color:#fff;padding:50px 0 60px;overflow:hidden;position:relative}
+.hero .wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:30px;align-items:center}
+.tag{display:inline-block;background:var(--red);color:#fff;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:999px}
+.hero h1{font-size:44px;margin:14px 0 12px}
+.hero h1 em{color:var(--red);font-style:normal}
+.hero p{color:#ddd;font-size:18px;max-width:520px}
+.hero .hint{margin-top:18px;background:rgba(255,255,255,.08);border-left:4px solid var(--red);padding:12px 14px;border-radius:8px;font-size:15px}
+.cubes span{position:absolute;width:40px;height:40px;border:2px solid rgba(227,6,19,.45);animation:drift 14s linear infinite;transform-style:preserve-3d}
+@keyframes drift{0%{transform:translateY(0) rotateX(0) rotateY(0)}100%{transform:translateY(-520px) rotateX(360deg) rotateY(360deg);opacity:0}}
+
+/* ---------- ATM 3D ---------- */
+.stage{perspective:1200px;display:flex;justify-content:center;padding:20px 0}
+.atm{position:relative;width:260px;height:400px;transform-style:preserve-3d;transform:rotateX(-6deg) rotateY(-24deg);transition:transform .25s ease-out;animation:float 5s ease-in-out infinite}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -12px}}
+.face{position:absolute;backface-visibility:hidden}
+.f-front{width:260px;height:400px;left:0;top:0;transform:translateZ(60px);background:linear-gradient(160deg,#f2f2f2,#cfcfcf);border-radius:10px;padding:16px;box-shadow:inset 0 0 0 3px #b8b8b8}
+.f-back{width:260px;height:400px;left:0;top:0;transform:rotateY(180deg) translateZ(60px);background:#8f8f8f;border-radius:10px}
+.f-right{width:120px;height:400px;left:70px;top:0;transform:rotateY(90deg) translateZ(130px);background:linear-gradient(90deg,#a9a9a9,#8b8b8b)}
+.f-left{width:120px;height:400px;left:70px;top:0;transform:rotateY(-90deg) translateZ(130px);background:linear-gradient(90deg,#8b8b8b,#a9a9a9)}
+.f-top{width:260px;height:120px;left:0;top:140px;transform:rotateX(90deg) translateZ(200px);background:var(--red)}
+.f-bottom{width:260px;height:120px;left:0;top:140px;transform:rotateX(-90deg) translateZ(200px);background:#555}
+.atm-head{background:var(--red);color:#fff;text-align:center;font-weight:800;font-size:13px;border-radius:6px;padding:4px;letter-spacing:.08em;margin-bottom:10px}
+.screen{background:#08261a;border:5px solid #333;border-radius:6px;height:130px;padding:8px 10px;color:#3dff9a;font-family:Consolas,monospace;font-size:12.5px;line-height:1.45;white-space:pre;overflow:hidden;text-shadow:0 0 6px rgba(61,255,154,.6);position:relative}
+.screen::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 2px,transparent 2px 4px);pointer-events:none}
+.slots{display:flex;justify-content:space-between;align-items:center;margin:10px 0 8px}
+.card-slot{width:70px;height:10px;background:#222;border-radius:4px;box-shadow:0 0 0 3px #999}
+.led{width:10px;height:10px;border-radius:50%;background:#3dff9a;box-shadow:0 0 8px #3dff9a;animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.25}}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:170px;margin:0 auto}
+.keypad button{height:30px;border:none;border-radius:6px;background:linear-gradient(#fdfdfd,#d9d9d9);box-shadow:0 3px 0 #8d8d8d;font-weight:800;font-size:15px;cursor:pointer;color:var(--black)}
+.keypad button:active{transform:translateY(3px);box-shadow:none}
+.keypad button.k0{grid-column:2}
+.cash{width:150px;height:12px;background:#222;margin:12px auto 0;border-radius:4px;box-shadow:0 0 0 3px #999}
+.counter{color:#fff;text-align:center;font-size:14px;margin-top:6px}
+.counter b{color:var(--red);font-size:18px}
+
+/* ---------- SECTIONS ---------- */
+section.block{padding:46px 0;border-bottom:1px solid var(--line)}
+section.block:nth-child(even){background:#fff}
+.sec-title{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.ico{flex:none;width:52px;height:52px;border-radius:50%;background:var(--red);display:grid;place-items:center;box-shadow:0 6px 14px rgba(227,6,19,.35)}
+.ico svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sec-title h2{font-size:28px}
+.sec-title small{display:block;font-family:"Segoe UI",Arial,sans-serif;color:var(--red);font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.lead{font-size:18.5px;max-width:860px}
+.lead+.lead{margin-top:12px}
+.q-big{margin-top:20px;background:var(--black);color:#fff;border-radius:14px;padding:18px 22px;font-size:19px;font-weight:600;display:flex;gap:14px;align-items:center}
+.q-big::before{content:"?";flex:none;width:40px;height:40px;border-radius:50%;background:var(--red);display:grid;place-items:center;font-size:22px;font-weight:800}
+.note{background:var(--pink);border-left:6px solid var(--red);border-radius:10px;padding:14px 18px;margin-top:18px}
+.note b{color:var(--red-d)}
+.warn{background:#fff4e5;border-left-color:#f08c00}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:center}
+.aula-hero{background:linear-gradient(120deg,var(--black) 0%,#2b0a0e 100%);color:#fff;padding:38px 0}
+.aula-hero h1{font-size:36px;margin:10px 0 6px}
+.aula-hero p{color:#ddd;max-width:760px}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.meta span{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:4px 12px;font-size:14px}
+
+/* ---------- ILLUSTRATION ---------- */
+.illus{background:#fff;border-radius:16px;border:2px solid var(--line);padding:14px}
+.illus svg{width:100%;height:auto;display:block}
+
+/* ---------- STAGE CARDS (Aula 1) ---------- */
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:22px;perspective:900px}
+.step{background:#fff;border:2px solid var(--line);border-radius:16px;padding:18px 14px;text-align:center;transition:transform .35s,box-shadow .35s;transform-style:preserve-3d;opacity:0;transform:rotateY(-70deg)}
+.show .step{opacity:1;transform:none;transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .7s}
+.show .step:nth-child(2){transition-delay:.12s}.show .step:nth-child(3){transition-delay:.24s}.show .step:nth-child(4){transition-delay:.36s}.show .step:nth-child(5){transition-delay:.48s}
+.step:hover{transform:translateY(-8px) rotateX(8deg)!important;box-shadow:0 18px 30px rgba(227,6,19,.18);border-color:var(--red)}
+.step .n{width:46px;height:46px;border-radius:50%;background:var(--red);color:#fff;font-weight:800;display:grid;place-items:center;margin:0 auto 8px;font-size:20px}
+.step h3{font-size:18px;margin-bottom:6px}
+.step p{font-size:14.5px;color:var(--gray)}
+.step .ex{margin-top:8px;font-size:13.5px;background:var(--pink);border-radius:8px;padding:6px}
+
+/* ---------- FLIP CARDS (Aula 2) ---------- */
+.flips{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px}
+.flip{perspective:900px;height:170px;cursor:pointer}
+.flip-in{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.3,.8,.3,1)}
+.flip:hover .flip-in,.flip.open .flip-in{transform:rotateY(180deg)}
+.flip-f,.flip-b{position:absolute;inset:0;border-radius:16px;backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:14px;text-align:center}
+.flip-f{background:var(--vs-bg);color:#dcdcaa;font-family:Consolas,monospace;font-size:17px;box-shadow:0 10px 22px rgba(0,0,0,.25)}
+.flip-f small{color:#888;font-family:"Segoe UI",sans-serif;font-size:12px;margin-top:10px}
+.flip-b{background:var(--red);color:#fff;transform:rotateY(180deg);font-size:15.5px}
+.flip-b b{font-size:17px;margin-bottom:6px}
+
+/* ---------- RING (Aula 3) ---------- */
+.ring-stage{perspective:1000px;height:300px;display:flex;align-items:center;justify-content:center;position:relative}
+.ring{width:160px;height:96px;position:relative;transform-style:preserve-3d;animation:spin 14s linear infinite}
+@keyframes spin{from{transform:rotateX(-12deg) rotateY(0)}to{transform:rotateX(-12deg) rotateY(-360deg)}}
+.ring div{position:absolute;inset:0;border-radius:14px;background:var(--black);color:#fff;display:grid;place-items:center;text-align:center;font-weight:700;padding:8px;border:3px solid var(--red);font-size:15px}
+.ring div:nth-child(1){transform:rotateY(0) translateZ(180px)}
+.ring div:nth-child(2){transform:rotateY(90deg) translateZ(180px)}
+.ring div:nth-child(3){transform:rotateY(180deg) translateZ(180px)}
+.ring div:nth-child(4){transform:rotateY(270deg) translateZ(180px)}
+.ring-center{position:absolute;font-family:Consolas,monospace;background:var(--pink);color:var(--red-d);font-weight:800;padding:8px 14px;border-radius:10px;border:2px dashed var(--red);font-size:16px}
+
+/* ---------- VALIDATION VISOR (Aula 4) ---------- */
+.visor-stage{perspective:800px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.visor{width:260px;height:120px;position:relative;transform-style:preserve-3d;transition:transform .6s}
+.visor .vf{position:absolute;inset:0;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;backface-visibility:hidden;font-family:Consolas,monospace}
+.visor .v1{background:var(--black);color:#fff;font-size:30px}
+.visor .v1 small{font-family:"Segoe UI";font-size:13px;color:#aaa}
+.visor .v2{transform:rotateX(180deg);font-size:20px;font-weight:800;color:#fff;text-align:center;padding:10px}
+.visor.flipped{transform:rotateX(180deg)}
+.lists{display:grid;gap:10px;margin-top:10px}
+.lrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lrow .lname{width:96px;font-family:Consolas,monospace;font-weight:700;font-size:15px}
+.cell{width:110px;text-align:center;border:2px solid var(--line);background:#fff;border-radius:10px;padding:8px 4px;font-family:Consolas,monospace;font-size:14.5px;transition:.25s;cursor:pointer}
+.cell i{display:block;font-style:normal;font-size:11px;color:var(--gray)}
+.cell.hl{background:var(--red);border-color:var(--red);color:#fff;transform:translateY(-4px) scale(1.04)}
+.cell.hl i{color:#ffd5d9}
+
+/* ---------- VS CODE ---------- */
+.vscode{background:var(--vs-bg);border-radius:12px;overflow:hidden;box-shadow:0 22px 50px rgba(0,0,0,.35);margin-top:20px;transform:perspective(1400px) rotateX(10deg) translateY(30px);opacity:0;transition:transform .9s cubic-bezier(.2,.8,.2,1),opacity .9s}
+.vscode.show{transform:none;opacity:1}
+.vs-top{background:var(--vs-bar);display:flex;align-items:center;gap:8px;padding:8px 12px;color:#ccc;font-size:13px}
+.vs-top i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.vs-top .t{margin-left:10px;flex:1;text-align:center}
+.vs-body{display:flex}
+.vs-side{width:46px;background:var(--vs-side);display:flex;flex-direction:column;align-items:center;gap:16px;padding-top:12px}
+.vs-side span{width:22px;height:22px;border:2px solid #858585;border-radius:4px;opacity:.7}
+.vs-side span:first-child{border-color:#fff;opacity:1}
+.vs-main{flex:1;min-width:0}
+.vs-tabs{display:flex;background:var(--vs-tab)}
+.vs-tabs div{padding:7px 16px;color:#fff;font-size:13px;background:var(--vs-bg);border-top:2px solid var(--red);display:flex;align-items:center;gap:6px}
+.vs-tabs div::before{content:"🐍";font-size:12px}
+.vs-code{padding:12px 0;overflow-x:auto;font-family:Consolas,"Cascadia Code",monospace;font-size:15px;line-height:1.65}
+.ln{display:flex;white-space:pre;opacity:0;transform:translateX(-10px)}
+.vscode.show .ln{opacity:1;transform:none;transition:opacity .35s,transform .35s;transition-delay:calc(var(--i) * 70ms)}
+.ln .num{width:44px;text-align:right;padding-right:16px;color:#858585;flex:none;user-select:none}
+.ln .c{color:#d4d4d4;padding-right:18px}
+.kw{color:#c586c0}.st{color:#ce9178}.cm{color:#6a9955;font-style:italic}.bi{color:#dcdcaa}.fn{color:#dcdcaa}.nm{color:#b5cea8}.df{color:#569cd6}
+.vs-status{background:var(--red);color:#fff;font-size:12px;padding:4px 12px;display:flex;justify-content:space-between}
+.vs-actions{display:flex;gap:10px;padding:10px 14px;background:var(--vs-side);border-top:1px solid #3c3c3c;flex-wrap:wrap}
+.btn{border:none;border-radius:8px;padding:9px 16px;font-weight:700;cursor:pointer;font-size:14.5px;display:inline-flex;gap:8px;align-items:center}
+.btn.run{background:#2ea043;color:#fff}
+.btn.run:hover{background:#3fb950}
+.btn.copy{background:#3c3c3c;color:#ddd}
+.btn.copy:hover{background:#505050}
+.terminal{background:#0c0c0c;border-top:1px solid #3c3c3c}
+.terminal .tt{color:#ccc;font-size:12px;padding:6px 14px;border-bottom:1px solid #2a2a2a;letter-spacing:.06em}
+.terminal .tt b{border-bottom:2px solid var(--red);padding-bottom:4px;color:#fff}
+.term-body{min-height:150px;max-height:320px;overflow-y:auto;padding:10px 14px;font-family:Consolas,monospace;font-size:15px;color:#e6e6e6;white-space:pre-wrap;cursor:text}
+.term-body .in-line{display:flex}
+.term-body input{flex:1;background:transparent;border:none;outline:none;color:#ffd866;font-family:inherit;font-size:inherit;caret-color:#ffd866}
+.term-body .typed{color:#ffd866}
+.term-body .end{color:#888;font-style:italic;margin-top:6px}
+.term-body .err{color:#ff6b6b}
+.term-body .ph{color:#777}
+
+/* ---------- ANATOMY ---------- */
+.anat{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;margin-top:18px;align-items:start}
+.anat-code{background:var(--vs-bg);border-radius:12px;padding:18px;font-family:Consolas,monospace;font-size:17px;color:#d4d4d4;line-height:1.9;white-space:pre}
+.anat-code .mk{border-radius:5px;padding:1px 3px;cursor:pointer;transition:.2s}
+.anat-code .mk:hover,.anat-code .mk.hl{background:var(--red);color:#fff}
+.anat-list li{list-style:none;background:#fff;border:2px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:.2s;font-size:15.5px}
+.anat-list li:hover,.anat-list li.hl{border-color:var(--red);background:var(--pink)}
+.anat-list b{color:var(--red-d)}
+
+/* ---------- TABLE ---------- */
+table.trace{border-collapse:collapse;width:100%;margin-top:16px;background:#fff;border-radius:12px;overflow:hidden;font-size:15.5px}
+.trace th{background:var(--black);color:#fff;padding:10px;text-align:left}
+.trace td{padding:10px;border-bottom:1px solid var(--line)}
+.trace tr:nth-child(even) td{background:var(--pink)}
+
+/* ---------- FLOW ---------- */
+.flow-box{background:#fff;border:2px solid var(--line);border-radius:16px;padding:16px;max-width:640px;margin:20px auto 0}
+.flow-box svg{width:100%;height:auto}
+.nd{fill:var(--black)}
+.nd.end{fill:var(--red)}
+.nd.bad{fill:#8a1c1c}
+.nd.dec{fill:#2f2f2f;stroke:var(--red);stroke-width:3}
+.nlabel{fill:#fff;font:600 15px "Segoe UI",Arial,sans-serif;text-anchor:middle}
+.elabel{fill:var(--red-d);font:800 15px "Segoe UI",Arial,sans-serif;text-anchor:middle}
+.edge{stroke-dasharray:6 6;animation:dash 1.2s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-24}}
+
+/* ---------- PRACTICE ---------- */
+.practice{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px;counter-reset:p}
+.practice div{background:#fff;border:2px solid var(--line);border-radius:14px;padding:16px 16px 16px 60px;position:relative;font-size:15.5px;counter-increment:p}
+.practice div::before{content:counter(p);position:absolute;left:14px;top:14px;width:34px;height:34px;border-radius:50%;background:var(--red);color:#fff;font-weight:800;display:grid;place-items:center}
+
+/* ---------- RESUMO ---------- */
+.resumo{background:var(--pink);border-radius:18px;padding:26px 30px;border:2px solid var(--pink-d);position:relative}
+.resumo::before{content:"";position:absolute;left:0;top:20px;bottom:20px;width:6px;background:var(--red);border-radius:0 6px 6px 0}
+.resumo p{font-family:Georgia,"Bookman Old Style",serif;font-size:18px;text-align:justify;margin-bottom:12px}
+.resumo p:last-child{margin-bottom:0}
+
+/* ---------- QUIZ ---------- */
+.quiz{display:grid;gap:16px;margin-top:10px}
+.qcard{background:#fff;border:2px solid var(--line);border-radius:16px;padding:18px}
+.qcard h3{font-family:"Segoe UI",Arial,sans-serif;font-size:17.5px;margin-bottom:12px;display:flex;gap:10px}
+.qcard h3 span{flex:none;background:var(--black);color:#fff;border-radius:8px;padding:0 9px;font-size:15px;height:26px;display:grid;place-items:center}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opts button{text-align:left;background:#fafafa;border:2px solid #ddd;border-radius:10px;padding:10px 12px;font-size:15.5px;cursor:pointer;display:flex;gap:10px;align-items:flex-start;transition:.15s;color:var(--black)}
+.opts button b{flex:none;width:26px;height:26px;border-radius:50%;background:#e8e8e8;display:grid;place-items:center;font-size:13px}
+.opts button:hover{border-color:var(--red)}
+.opts button.sel{border-color:var(--red);background:var(--pink)}
+.opts button.sel b{background:var(--red);color:#fff}
+.quiz-foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:6px;color:var(--gray);font-size:15px}
+.btn.clear{background:var(--black);color:#fff}
+
+/* ---------- HOME MAP ---------- */
+.map{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px;perspective:1000px}
+.mcard{background:#fff;border:2px solid var(--line);border-radius:18px;padding:20px;cursor:pointer;transition:transform .35s,box-shadow .35s,border-color .35s}
+.mcard:hover{transform:translateY(-10px) rotateX(10deg);box-shadow:0 20px 34px rgba(0,0,0,.14);border-color:var(--red)}
+.mcard .n{font-family:"Bookman Old Style",Georgia,serif;font-size:44px;color:var(--red);font-weight:700;line-height:1}
+.mcard h3{font-size:18px;margin:8px 0}
+.mcard p{font-size:14.5px;color:var(--gray)}
+.mcard .go{margin-top:10px;font-weight:700;color:var(--red);font-size:14px}
+.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:14px}
+.links a{display:block;background:#fff;border:2px solid var(--line);border-radius:12px;padding:14px;color:var(--black);text-decoration:none;font-size:15px}
+.links a:hover{border-color:var(--red)}
+.links a b{display:block;color:var(--red-d)}
+footer{background:var(--black);color:#aaa;text-align:center;padding:24px;font-size:14px}
+.next-btn{display:flex;justify-content:flex-end;padding:26px 0}
+.next-btn button{background:var(--red);color:#fff;border:none;border-radius:999px;padding:12px 24px;font-weight:700;font-size:16px;cursor:pointer}
+
+/* ---------- SWITCHES ---------- */
+.switches{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:20px;perspective:900px}
+.sw{background:#fff;border:2px solid var(--line);border-radius:18px;padding:20px;text-align:center;cursor:pointer;transition:transform .4s,border-color .3s,box-shadow .3s;user-select:none}
+.sw:hover{transform:translateY(-6px) rotateX(8deg);box-shadow:0 16px 28px rgba(0,0,0,.12)}
+.sw.pop{animation:pop .5s}
+@keyframes pop{50%{transform:rotateY(180deg) scale(.9)}}
+.sw-name{font-family:Consolas,monospace;font-weight:800;font-size:19px}
+.sw-toggle{width:84px;height:44px;border-radius:999px;background:#b9b9b9;margin:12px auto;position:relative;transition:.3s;box-shadow:inset 0 3px 6px rgba(0,0,0,.25)}
+.sw-toggle i{position:absolute;top:4px;left:4px;width:36px;height:36px;border-radius:50%;background:#fff;box-shadow:0 3px 6px rgba(0,0,0,.3);transition:.3s}
+.sw[data-on="1"]{border-color:#2e7d32}
+.sw[data-on="1"] .sw-toggle{background:#2e7d32}
+.sw[data-on="1"] .sw-toggle i{left:44px}
+.sw[data-on="0"]{border-color:var(--red)}
+.sw-val{font-family:Consolas,monospace;font-size:22px;font-weight:800}
+.sw[data-on="1"] .sw-val{color:#2e7d32}.sw[data-on="0"] .sw-val{color:var(--red)}
+.sw p{font-size:15.5px;margin:6px 0}
+.sw[data-on="1"] .sw-f,.sw[data-on="0"] .sw-t{display:none}
+.sw small{color:var(--gray);font-size:13px}
+
+/* ---------- SHELF / BUSCA ---------- */
+.shelf{display:flex;gap:16px;flex-wrap:wrap;margin-top:18px;perspective:800px}
+.tbox{width:150px;border-radius:14px;background:var(--black);color:#fff;padding:12px;text-align:center;transition:transform .4s,background .3s,opacity .3s,box-shadow .3s;border:3px solid transparent}
+.tbox .ix{font-family:Consolas,monospace;font-size:13px;color:#ffb3ba}
+.tbox .pn{font-size:18px;font-weight:800;margin:4px 0}
+.tbox .pr{font-family:Consolas,monospace;font-size:14px;color:#ffd866}
+.tbox .code{font-family:Consolas,monospace;font-size:11.5px;color:#aaa;margin-top:6px}
+.tbox.cur{transform:translateY(-12px) rotateX(14deg);border-color:#ffd866;box-shadow:0 18px 26px rgba(0,0,0,.3)}
+.tbox.hit{background:#2e7d32;border-color:#2e7d32;transform:translateY(-12px) scale(1.06)}
+.tbox.miss{opacity:.35}
+.searcher{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:18px;font-weight:700}
+.searcher select{font-size:16px;padding:8px 10px;border-radius:8px;border:2px solid var(--line);margin-left:6px}
+.trace-box{margin-top:14px;background:#0c0c0c;color:#e6e6e6;border-radius:12px;padding:14px 16px;font-family:Consolas,monospace;font-size:15px;min-height:120px;line-height:1.7}
+.trace-box .ph2{color:#888;font-family:"Segoe UI",sans-serif}
+.trace-box div{animation:fade .35s}
+.trace-box .ok{color:#7ee787}.trace-box .no{color:#ff7b72}.trace-box .y{color:#ffd866}
+
+/* ---------- REGISTRO ---------- */
+.reg{background:linear-gradient(180deg,#fff 0%,var(--pink) 100%)!important}
+.who{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-top:16px}
+.who label,.relato label{font-weight:700;font-size:15px;display:block}
+.who input{display:block;width:100%;margin-top:4px;font-size:16px;padding:10px 12px;border:2px solid var(--line);border-radius:10px}
+.progress{display:flex;align-items:center;gap:14px;margin:18px 0 6px;font-weight:700}
+.pbar{flex:1;height:16px;background:#eee;border-radius:999px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red),#ff5a66);transition:width .6s;border-radius:999px}
+.mission{background:#fff;border:3px solid var(--line);border-radius:20px;padding:22px;margin-top:20px;transition:border-color .4s,box-shadow .4s}
+.mission.done{border-color:#2e7d32;box-shadow:0 0 0 6px rgba(46,125,50,.12)}
+.m-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.m-num{width:46px;height:46px;border-radius:50%;background:var(--red);color:#fff;font-weight:800;font-size:20px;display:grid;place-items:center;flex:none;transition:.4s}
+.mission.done .m-num{background:#2e7d32}
+.m-head h3{font-size:21px}
+.m-head small{display:block;color:var(--red);font-family:"Segoe UI";font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.mini{background:var(--vs-bg);border-radius:12px;padding:12px 0;margin:12px 0;overflow-x:auto;font-family:Consolas,monospace;font-size:15px;line-height:1.65}
+.mini .ln{opacity:1;transform:none}
+.slot{display:inline-block;min-width:150px;border:2px dashed #ffd866;border-radius:6px;padding:0 8px;color:#ffd866;text-align:center;animation:pulse 1.4s infinite}
+@keyframes pulse{50%{background:rgba(255,216,102,.15)}}
+.slot.ok{border-style:solid;border-color:#3fb950;background:rgba(63,185,80,.18);color:#7ee787;animation:none}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{font-family:Consolas,monospace;font-size:15px;border:2px solid var(--black);background:#fff;border-radius:10px;padding:9px 14px;cursor:pointer;transition:.15s;box-shadow:0 4px 0 var(--black);color:var(--black)}
+.chip:hover{transform:translateY(-2px)}
+.chip:active{transform:translateY(3px);box-shadow:none}
+.chip.wrong{border-color:var(--red);color:var(--red);box-shadow:0 4px 0 var(--red);animation:shake .4s}
+.chip.right{background:#2e7d32;border-color:#2e7d32;color:#fff;box-shadow:0 4px 0 #1b5e20}
+.chip:disabled{cursor:default}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{margin-top:12px;border-radius:10px;padding:10px 14px;font-weight:600;display:none}
+.fb.show{display:block;animation:fade .4s}
+.fb.no{background:#fde7e9;color:var(--red-d)}
+.fb.yes{background:#e6f4ea;color:#1b5e20}
+.m-q{margin-top:16px;border-top:2px dashed var(--line);padding-top:14px}
+.m-q b{display:block;margin-bottom:6px}
+.m-q textarea,.relato textarea{width:100%;font-family:inherit;font-size:16px;padding:10px 12px;border:2px solid var(--line);border-radius:10px;resize:vertical;margin-top:4px}
+.m-q textarea:focus,.relato textarea:focus,.who input:focus{outline:none;border-color:var(--red)}
+.m-q details{margin-top:6px;color:var(--gray);font-size:14.5px}
+.m-q summary{cursor:pointer;color:var(--red-d);font-weight:700}
+.m-tests{margin-top:10px;font-size:15px;background:var(--pink);border-radius:10px;padding:10px 14px}
+.unlock{margin-top:24px}
+.lock-msg{background:var(--black);color:#fff;border-radius:14px;padding:18px;text-align:center;font-weight:700;font-size:17px}
+.mt{margin-top:28px;font-size:21px}
+.checklist{display:grid;gap:8px;margin-top:10px}
+.checklist label{background:#fff;border:2px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;gap:12px;align-items:center;cursor:pointer;font-size:16px}
+.checklist input{width:22px;height:22px;accent-color:#2e7d32}
+.checklist label:has(input:checked){border-color:#2e7d32;background:#e6f4ea}
+.relato{display:grid;gap:12px;margin-top:12px}
+.copy-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.btn.big{background:var(--red);color:#fff;font-size:17px;padding:14px 22px}
+.btn.big:hover{background:var(--red-d)}
+#copyOk{font-weight:700;color:#2e7d32}
+
+@media (max-width:860px){
+  .switches{grid-template-columns:1fr}
+  .hero .wrap,.two,.anat{grid-template-columns:1fr}
+  .hero h1{font-size:34px}
+  .steps{grid-template-columns:1fr 1fr}
+  .flips,.map{grid-template-columns:1fr 1fr}
+  .opts{grid-template-columns:1fr}
+  .stage{transform:scale(.85)}
+}
+@media (max-width:520px){
+  .steps,.flips,.map{grid-template-columns:1fr}
+  .vs-side{display:none}
+  .vs-code{font-size:13px}
+  .anat-code{font-size:14px}
+}
+
+/* =================== SEMANA 22 =================== */
+/* ---------- LISTA 3D (hero) ---------- */
+.mem{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:16px}
+.mem-head{display:flex;justify-content:space-between;align-items:center;color:#ddd;font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.mem-head b{color:#3dff9a;font-family:Consolas,monospace;text-transform:none;letter-spacing:0;font-size:14px}
+.mem-head b.off{color:#ff6b6b}
+.rack{perspective:900px;height:230px;display:flex;align-items:center;justify-content:center}
+.rack-in{display:flex;gap:14px;transform-style:preserve-3d;transform:rotateX(-18deg) rotateY(-28deg);transition:transform .3s;animation:float 5s ease-in-out infinite}
+.cube{position:relative;width:74px;height:74px;transform-style:preserve-3d;animation:cubeIn .6s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes cubeIn{from{transform:translateY(-160px) rotateX(180deg);opacity:0}to{transform:none;opacity:1}}
+.cube.bye{animation:cubeOut .7s forwards}
+@keyframes cubeOut{to{transform:translateY(120px) rotateX(-90deg) scale(.3);opacity:0}}
+.cube i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;backface-visibility:hidden;border:2px solid rgba(0,0,0,.35)}
+.cube .cf{transform:translateZ(37px);background:linear-gradient(160deg,#ff3b47,var(--red));color:#fff;font-weight:800;font-size:13px;text-align:center;padding:4px;line-height:1.2}
+.cube .ct{transform:rotateX(90deg) translateZ(37px);background:#ff7a83}
+.cube .cr{transform:rotateY(90deg) translateZ(37px);background:var(--red-d)}
+.cube .cl{transform:rotateY(-90deg) translateZ(37px);background:#8a0410}
+.cube .cb{transform:rotateY(180deg) translateZ(37px);background:#8a0410}
+.cube .ix{position:absolute;left:0;right:0;top:-34px;text-align:center;font-family:Consolas,monospace;font-size:13px;color:#ffd866;transform:translateZ(37px)}
+.rack-empty{color:#888;font-family:Consolas,monospace;font-size:15px;text-align:center}
+.mem-ctrl{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.mem-ctrl input{flex:1;min-width:120px;font-size:15px;padding:9px 12px;border-radius:8px;border:2px solid #444;background:#111;color:#fff}
+.mem-ctrl .btn{font-size:14px}
+.btn.ap{background:#2ea043;color:#fff}.btn.pr{background:#3c3c3c;color:#fff}.btn.off{background:var(--red);color:#fff}
+.mem-out{margin-top:10px;background:#0c0c0c;border-radius:10px;padding:10px 12px;font-family:Consolas,monospace;font-size:14px;color:#e6e6e6;min-height:44px;white-space:pre-wrap}
+.mem-out .g{color:#7ee787}.mem-out .r{color:#ff7b72}.mem-out .y{color:#ffd866}
+
+/* ---------- JANELA ANÔNIMA (Aula 1) ---------- */
+.browser{background:#2b2a33;border-radius:14px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.3);transition:transform .5s,opacity .5s}
+.browser.closing{transform:scale(.6) rotateX(30deg);opacity:0}
+.b-bar{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#1c1b22;color:#ddd;font-size:13px}
+.b-bar .mask{background:#7542e5;color:#fff;border-radius:999px;padding:3px 10px;font-weight:700}
+.b-bar .x{margin-left:auto;background:var(--red);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-weight:700;cursor:pointer}
+.b-body{padding:16px;color:#fff}
+.b-search{display:flex;gap:8px}
+.b-search input{flex:1;padding:10px 12px;border-radius:999px;border:none;font-size:15px}
+.b-search button{border:none;border-radius:999px;padding:0 16px;background:#7542e5;color:#fff;font-weight:700;cursor:pointer}
+.b-hist{margin-top:14px;font-size:14px}
+.b-hist h4{font-family:"Segoe UI";font-size:12.5px;color:#bbb;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.b-hist div{background:rgba(255,255,255,.08);border-radius:8px;padding:6px 10px;margin-bottom:6px;animation:fade .3s}
+.b-msg{text-align:center;padding:30px 10px;color:#3a3a3a;font-weight:700;font-size:17px}
+.b-msg button{margin-top:12px}
+
+/* ---------- MEMÓRIA × ARQUIVO ---------- */
+.vs-cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}
+.vcard{background:#fff;border:2px solid var(--line);border-radius:18px;padding:20px}
+.vcard h3{font-size:20px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.vcard .em{font-size:30px}
+.vcard ul{margin:8px 0 0 20px}
+.vcard li{margin-bottom:4px}
+.vcard.ram{border-color:var(--red)}
+
+/* ---------- ÍNDICES ---------- */
+.idx-grid{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.idx{width:130px;border-radius:14px;overflow:hidden;border:2px solid var(--black);cursor:pointer;transition:transform .3s,box-shadow .3s;background:#fff}
+.idx:hover,.idx.on{transform:translateY(-8px) rotateX(10deg);box-shadow:0 14px 22px rgba(0,0,0,.18)}
+.idx.on{border-color:var(--red)}
+.idx .i{background:var(--black);color:#ffd866;font-family:Consolas,monospace;text-align:center;padding:4px;font-size:14px}
+.idx.on .i{background:var(--red);color:#fff}
+.idx .v{text-align:center;padding:14px 6px;font-weight:800;font-size:17px}
+.idx .v small{display:block;font-family:Consolas,monospace;font-weight:400;color:var(--gray);font-size:13px}
+.idx-out{margin-top:14px;background:var(--vs-bg);color:#d4d4d4;border-radius:12px;padding:14px 16px;font-family:Consolas,monospace;font-size:16px;line-height:1.8;min-height:60px}
+.idx-out .y{color:#ffd866}.idx-out .g{color:#7ee787}.idx-out .c{color:#6a9955}
+
+/* ---------- OPERAÇÕES (Aula 2) ---------- */
+.ops3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px;perspective:900px}
+.op3{background:#fff;border:2px solid var(--line);border-radius:18px;padding:20px;text-align:center;transition:transform .35s,box-shadow .35s,border-color .35s}
+.op3:hover{transform:translateY(-8px) rotateX(8deg);box-shadow:0 18px 30px rgba(227,6,19,.16);border-color:var(--red)}
+.op3 .em{font-size:38px}
+.op3 h3{font-size:20px;margin:6px 0}
+.op3 p{font-size:15px;color:var(--gray)}
+.op3 code{display:inline-block;margin-top:8px}
+.lab{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;margin-top:20px;align-items:start}
+.lab-list{background:#fff;border:2px solid var(--line);border-radius:16px;padding:16px;min-height:220px}
+.lab-list h4,.lab-ctrl h4{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--red);margin-bottom:10px}
+.chipbox{display:flex;flex-wrap:wrap;gap:10px}
+.pitem{background:var(--black);color:#fff;border-radius:12px;padding:8px 12px;font-weight:700;transition:.3s;animation:fade .35s;border:3px solid transparent}
+.pitem small{display:block;font-family:Consolas,monospace;font-weight:400;font-size:12px;color:#ffb3ba}
+.pitem.hit{background:#2e7d32;transform:translateY(-6px) scale(1.06)}
+.pitem.cur{border-color:#ffd866;transform:translateY(-6px)}
+.pitem.list{background:#1f3a8a}
+.lab-ctrl{background:var(--vs-bg);border-radius:16px;padding:16px;color:#ddd}
+.lab-ctrl .row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.lab-ctrl input{flex:1;min-width:120px;font-size:15px;padding:9px 12px;border-radius:8px;border:2px solid #444;background:#111;color:#fff}
+.lab-ctrl .btn{font-size:14px}
+.btn.b1{background:#2ea043;color:#fff}.btn.b2{background:#d29922;color:#111}.btn.b3{background:#1f6feb;color:#fff}
+.lab-log{margin-top:6px;background:#0c0c0c;border-radius:10px;padding:10px 12px;font-family:Consolas,monospace;font-size:14px;min-height:140px;max-height:260px;overflow-y:auto;white-space:pre-wrap;line-height:1.6}
+.lab-log .py{color:#c586c0}.lab-log .o{color:#e6e6e6}.lab-log .g{color:#7ee787}.lab-log .r{color:#ff7b72}
+
+/* ---------- DESAFIOS / MELHORIAS ---------- */
+.melhorias{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+.mbox{background:#fff;border:2px solid var(--line);border-radius:16px;padding:18px}
+.mbox h3{font-size:18px;margin-bottom:6px}
+.mbox .tag{margin-bottom:8px}
+.mbox pre{background:var(--vs-bg);color:#d4d4d4;border-radius:10px;padding:12px 14px;font-family:Consolas,monospace;font-size:14.5px;overflow-x:auto;margin-top:10px;line-height:1.6}
+.mbox details{margin-top:10px}
+.mbox summary{cursor:pointer;color:var(--red-d);font-weight:700}
+.dl-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.btn.dl{background:#1f6feb;color:#fff;font-size:16px;padding:12px 20px}
+.btn.dl:hover{background:#388bfd}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-weight:700;cursor:pointer}
+.toggle input{width:20px;height:20px;accent-color:var(--red)}
+
+@media (max-width:860px){
+  .vs-cards,.ops3,.lab,.melhorias{grid-template-columns:1fr}
+  .rack{transform:scale(.8)}
+}
+.idx-out{white-space:pre-wrap}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand"><span>22</span>Semana 22</div>
+  <button data-go="inicio" class="on">Início</button>
+  <button data-go="a1">Aula 1 · Dados na memória</button>
+  <button data-go="a2">Aula 2 · Incluir, consultar e listar</button>
+  <button data-go="a3">Aula 3 · Cadastro e consulta no projeto</button>
+  <button data-go="a4">Aula 4 · Listagem + Registro</button>
+</nav>
+
+<!-- =====================================================  INÍCIO  ===================================================== -->
+<div class="page on" id="inicio">
+  <header class="hero">
+    <div class="cubes" aria-hidden="true">
+      <span style="left:6%;top:90%;animation-delay:0s"></span>
+      <span style="left:22%;top:100%;animation-delay:4s;width:26px;height:26px"></span>
+      <span style="left:48%;top:95%;animation-delay:8s"></span>
+      <span style="left:88%;top:100%;animation-delay:2s;width:30px;height:30px"></span>
+      <span style="left:66%;top:100%;animation-delay:10s;width:20px;height:20px"></span>
+    </div>
+    <div class="wrap">
+      <div>
+        <span class="tag">Lógica e Linguagem de Programação · 2º DS</span>
+        <h1>Agenda e cadastros em <em>memória</em></h1>
+        <p>A agenda do celular, a lista de compras, o estoque da papelaria: todo sistema precisa guardar vários dados juntos. Nesta semana, vamos usar as <b>listas</b> do Python para cadastrar, consultar e listar produtos enquanto o programa está aberto.</p>
+        <div class="hint">👉 <b>Teste a memória ao lado:</b> digite produtos e clique em <b>append()</b>. Repare no número de cada caixinha. Depois clique em <b>Fechar o programa</b> e veja o que acontece com tudo o que você guardou.</div>
+      </div>
+      <div class="mem">
+        <div class="mem-head"><span>Memória do computador</span><b id="memStatus">● programa aberto</b></div>
+        <div class="rack"><div class="rack-in" id="rack"></div></div>
+        <div class="mem-ctrl">
+          <input id="memIn" maxlength="10" placeholder="Ex.: Caneta" value="Caneta">
+          <button class="btn ap" id="memAdd">+ append()</button>
+          <button class="btn pr" id="memPrint">print(produtos)</button>
+          <button class="btn off" id="memOff">⏻ Fechar o programa</button>
+        </div>
+        <div class="mem-out" id="memOut">produtos = []</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg></div>
+        <h2><small>Mapa da semana</small>Da janela anônima até o sistema da Papelaria Ponto Certo</h2></div>
+      <p class="lead">Em quatro aulas, o sistema da Papelaria Ponto Certo, que já tem menu, funções e validação, vai ganhar uma lista para guardar produtos e as três operações de todo cadastro: <b>cadastrar</b>, <b>consultar</b> e <b>listar</b>. Clique em uma aula para começar.</p>
+      <div class="map">
+        <div class="mcard" data-go="a1"><div class="n">01</div><h3>Dados na memória</h3><p>Onde ficam os dados quando não existe arquivo? A lista e as posições (índices).</p><div class="go">Abrir aula →</div></div>
+        <div class="mcard" data-go="a2"><div class="n">02</div><h3>Incluir, consultar e listar</h3><p>As três operações de um cadastro e a lógica por trás de cada uma.</p><div class="go">Abrir aula →</div></div>
+        <div class="mcard" data-go="a3"><div class="n">03</div><h3>Cadastro e consulta no projeto</h3><p>Produtos com nome e preço, a busca na lista e duas melhorias no sistema.</p><div class="go">Abrir aula →</div></div>
+        <div class="mcard" data-go="a4"><div class="n">04</div><h3>Listagem + Registro</h3><p>A opção “Listar produtos” fecha a primeira versão do sistema. Vale como Atividade de Registro.</p><div class="go">Abrir aula →</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V3H6.5A2.5 2.5 0 004 5.5z"/><path d="M4 19.5A2.5 2.5 0 006.5 22H20v-5"/></svg></div>
+        <h2><small>Saiba mais</small>Para estudar em casa</h2></div>
+      <div class="links">
+        <a href="https://docs.python.org/pt-br/3/tutorial/datastructures.html" target="_blank"><b>Documentação do Python</b>Listas: como adicionar, remover e acessar elementos.</a>
+        <a href="https://developers.google.com/edu/python/lists?hl=pt-BR" target="_blank"><b>Listas do Python (Google)</b>Como as listas são usadas para guardar, consultar e percorrer dados.</a>
+        <a href="https://pythontutor.com/visualize.html" target="_blank"><b>Python Tutor</b>Cole o seu programa e veja, passo a passo, a lista crescendo na memória.</a>
+        <a href="https://developers.google.com/edu/python?hl=pt-BR" target="_blank"><b>Aula de Python do Google</b>Exemplos para treinar com pequenos testes e mudanças.</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- =====================================================  AULA 1  ===================================================== -->
+<div class="page" id="a1">
+  <div class="aula-hero"><div class="wrap">
+    <span class="tag">Aula 1 · SISANO1C1B4S22A1</span>
+    <h1>Como guardar dados sem usar arquivo</h1>
+    <p>Objetivo: compreender como as listas podem guardar um conjunto de dados em um programa que não salva nada em arquivo.</p>
+    <div class="meta"><span>⏱ 50 minutos</span><span>👤 Prática individual</span><span>🧠 Tema: memória e listas</span></div>
+  </div></div>
+
+  <section class="block"><div class="wrap two">
+    <div>
+      <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div><h2><small>Ponto de partida</small>Navegação sem deixar rastro</h2></div>
+      <p class="lead">Quando você abre uma <b>janela anônima</b> (navegação privativa), tudo o que pesquisa fica disponível só enquanto ela está aberta. Quando a janela fecha, essas informações desaparecem.</p>
+      <p class="lead">Segundo a Mozilla, empresa que faz o Firefox, esse tipo de navegação guarda os dados <b>temporariamente na memória</b> do computador e os descarta no final. Teste na janela ao lado: pesquise algumas coisas e depois feche a janela.</p>
+      <div class="q-big">Se essas informações não são gravadas em arquivo, onde elas ficam enquanto o navegador está aberto? E o que acontece com elas quando a janela fecha?</div>
+    </div>
+    <div id="browserBox">
+      <div class="browser" id="browser">
+        <div class="b-bar"><span class="mask">🕶 Navegação privativa</span><button class="x" id="bClose">✕ Fechar janela</button></div>
+        <div class="b-body">
+          <div class="b-search"><input id="bIn" placeholder="Pesquise algo..." value="preço de caderno"><button id="bGo">Buscar</button></div>
+          <div class="b-hist"><h4>Guardado na memória (só enquanto a janela está aberta)</h4><div id="bHist"></div></div>
+        </div>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9zM9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg></div><h2><small>Construindo o conceito</small>Guardando dados na memória</h2></div>
+    <p class="lead">Enquanto um programa está rodando, ele pode guardar informações na <b>memória</b> do computador (a memória RAM). Esses dados existem só enquanto o programa está aberto. Se o programa for encerrado sem salvar em um <b>arquivo</b>, tudo é perdido.</p>
+    <div class="vs-cards">
+      <div class="vcard ram"><h3><span class="em">🧠</span> Memória (o que usamos nesta semana)</h3>
+        <ul><li>É rápida: o programa guarda e pega os dados na hora.</li><li>É temporária: fechou o programa, os dados somem.</li><li>Exemplo: a janela anônima e o nosso cadastro em lista.</li></ul></div>
+      <div class="vcard"><h3><span class="em">💾</span> Arquivo (assunto para depois)</h3>
+        <ul><li>Fica gravado no disco ou na nuvem.</li><li>É permanente: os dados continuam lá depois de fechar.</li><li>Exemplo: um documento salvo, uma foto, um banco de dados.</li></ul></div>
+    </div>
+    <div class="note"><b>Exemplo:</b> um programa de agenda pode guardar os nomes dos contatos apenas enquanto está sendo usado. Ao fechar o programa sem salvar, todos esses contatos deixam de existir.</div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></div><h2><small>Construindo o conceito</small>Uma lista guarda vários dados juntos</h2></div>
+    <p class="lead">Uma <b>lista</b> guarda vários valores com <b>um único nome</b>. Em vez de criar uma variável para cada contato (<code>contato1</code>, <code>contato2</code>, <code>contato3</code>...), o programa guarda todos na mesma lista. A lista é criada com colchetes <code>[]</code> e novos elementos entram no final com <code>append()</code>.</p>
+    <div class="vscode" data-code="c1" data-file="agenda.py" data-prog="p1"></div>
+    <div class="q-big">Com suas palavras: por que foi usada uma lista em vez de criar uma variável para cada contato?</div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></div><h2><small>Construindo o conceito</small>Cada dado tem uma posição: o índice</h2></div>
+    <p class="lead">Cada elemento da lista ocupa uma posição chamada <b>índice</b>. Atenção: a contagem começa no <b>zero</b>. O primeiro elemento está na posição <code>0</code>, o segundo na posição <code>1</code>, e assim por diante. Para pegar um elemento, usamos o nome da lista e o índice entre colchetes. <b>Clique em cada caixinha:</b></p>
+    <div class="idx-grid" id="idxA1"></div>
+    <div class="idx-out" id="idxA1out"><span class="c"># clique em uma caixinha para ver o código</span></div>
+    <div class="note"><b>Para lembrar:</b> se a lista tem 3 elementos, os índices vão de <code>0</code> a <code>2</code>. O último índice é sempre <b>um a menos</b> que o tamanho da lista. O tamanho é dado por <code>len(contatos)</code>.</div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M18.36 6.64A9 9 0 115.64 6.64M12 2v10"/></svg></div><h2><small>Construindo o conceito</small>Sem arquivo, os dados não sobrevivem</h2></div>
+    <p class="lead">As listas criadas durante a execução existem <b>apenas na memória</b>. Ao encerrar o programa, todos os dados da lista são perdidos. Para usar essas informações de novo, será preciso cadastrar tudo outra vez ou gravar em um arquivo, assunto que vamos estudar mais adiante.</p>
+    <div class="q-big">Para refletir: se você cadastrasse dez produtos em um programa e o computador fosse desligado antes de salvá-los, o que aconteceria com esse cadastro?</div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.5 2.5-2.5-2.5z"/></svg></div><h2><small>Colocando em prática · individual</small>Criando a lista de produtos</h2></div>
+    <p class="lead">O sistema da Papelaria Ponto Certo já tem um menu com as opções de cadastro e consulta. Agora ele precisa <b>guardar os produtos em uma lista</b> enquanto o programa estiver aberto. Rode o código abaixo e siga os passos.</p>
+    <div class="vscode" data-code="c1b" data-file="produtos.py" data-prog="p1b"></div>
+    <div class="practice">
+      <div>Digite o código <code>produtos.py</code> e execute o programa.</div>
+      <div>Adicione um <b>quarto produto</b> à lista com mais um <code>append()</code>.</div>
+      <div>Execute novamente o programa.</div>
+      <div>Mude a <b>ordem</b> das linhas com <code>append()</code> e observe o resultado.</div>
+      <div><b>Remova</b> uma das linhas com <code>append()</code> e execute de novo.</div>
+    </div>
+    <h3 class="mt">✍️ Depois, responda no caderno:</h3>
+    <div class="checklist">
+      <label>1. Quantos produtos foram exibidos na primeira execução?</label>
+      <label>2. Qual é o índice do primeiro produto?</label>
+      <label>3. Depois de incluir o quarto produto, qual passou a ser o índice do último?</label>
+      <label>4. O que aconteceu quando um dos comandos append() foi removido?</label>
+      <label>5. O que mudou quando você alterou a ordem dos produtos?</label>
+    </div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></div><h2><small>Resumo para o caderno</small>O que aprendemos hoje</h2></div>
+    <div class="resumo">
+      <p>Enquanto um programa está em execução, ele pode guardar informações na memória do computador. Esses dados ficam disponíveis apenas enquanto o programa está aberto, como acontece na navegação privativa do navegador: quando a janela é fechada, tudo o que estava guardado desaparece. Para que os dados continuem existindo depois que o programa termina, eles precisam ser gravados em um arquivo.</p>
+      <p>Para guardar vários dados juntos, usamos uma <b>lista</b>. A lista tem um único nome e armazena muitos valores, em vez de precisarmos criar uma variável para cada um. Em Python, criamos uma lista vazia com <code>produtos = []</code> e adicionamos elementos no final com <code>produtos.append("Caderno")</code>.</p>
+      <p>Cada elemento ocupa uma posição chamada <b>índice</b>, e a contagem começa no zero: o primeiro elemento está na posição 0, o segundo na posição 1, e assim por diante. Para acessar um elemento, escrevemos o nome da lista com o índice entre colchetes, como em <code>produtos[0]</code>. A função <code>len()</code> informa quantos elementos a lista tem.</p>
+    </div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><h2><small>Quiz da Aula 1</small>Pause e responda</h2></div>
+    <div class="quiz" data-quiz="q1"></div>
+    <div class="next-btn"><button data-go="a2">Ir para a Aula 2 →</button></div>
+  </div></section>
+</div>
+
+<!-- =====================================================  AULA 2  ===================================================== -->
+<div class="page" id="a2">
+  <div class="aula-hero"><div class="wrap">
+    <span class="tag">Aula 2 · SISANO1C1B4S22A2</span>
+    <h1>Incluir, consultar e listar: a lógica por trás</h1>
+    <p>Objetivo: entender as regras de cada operação de um cadastro em memória: cadastrar, consultar e listar dados.</p>
+    <div class="meta"><span>⏱ 50 minutos</span><span>👤 Prática individual</span><span>📒 Papelaria Ponto Certo</span></div>
+  </div></div>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div><h2><small>Construindo o conceito</small>As 3 operações de um cadastro em memória</h2></div>
+    <p class="lead">Depois que os dados estão guardados na lista, o programa pode fazer diferentes <b>operações</b> com eles. Pense na agenda do celular: você <b>salva</b> um contato novo, <b>procura</b> um nome e <b>rola</b> a lista inteira. Um cadastro funciona do mesmo jeito.</p>
+    <div class="ops3">
+      <div class="op3"><div class="em">➕</div><h3>Cadastrar</h3><p>Adicionar um dado novo na lista.</p><code>produtos.append(nome)</code></div>
+      <div class="op3"><div class="em">🔎</div><h3>Consultar</h3><p>Procurar um dado específico. Ele está na lista ou não?</p><code>if nome in produtos:</code></div>
+      <div class="op3"><div class="em">📋</div><h3>Listar</h3><p>Mostrar todos os dados guardados, um de cada vez.</p><code>for produto in produtos:</code></div>
+    </div>
+    <div class="q-big">Com suas palavras: em qual situação você usaria a operação de consultar um produto? E em qual precisaria listar todos os produtos cadastrados?</div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M10 2v7.31M14 9.3V1.99M8.5 2h7M14 9.3a6.5 6.5 0 11-4 0"/></svg></div><h2><small>Laboratório</small>Teste as 3 operações</h2></div>
+    <p class="lead">A lista começa com três produtos. Use os botões e veja, ao mesmo tempo, <b>a linha de Python</b> que faz cada operação e <b>o que aparece no terminal</b>.</p>
+    <div class="lab">
+      <div class="lab-list"><h4>produtos (na memória)</h4><div class="chipbox" id="labList"></div></div>
+      <div class="lab-ctrl">
+        <h4>Operações</h4>
+        <div class="row"><input id="labIn" placeholder="Nome do produto" value="Lápis"><button class="btn b1" id="labAdd">➕ Cadastrar</button></div>
+        <div class="row"><input id="labBusca" placeholder="Produto para consultar" value="Caderno"><button class="btn b2" id="labFind">🔎 Consultar</button></div>
+        <div class="row"><button class="btn b3" id="labList3">📋 Listar todos</button><button class="btn copy" id="labReset">↺ Recomeçar</button></div>
+        <div class="lab-log" id="labLog"></div>
+      </div>
+    </div>
+    <div class="note warn"><b>Atenção:</b> para o Python, <code>"caderno"</code> e <code>"Caderno"</code> são textos <b>diferentes</b>. Faça o teste: consulte <code>caderno</code> com letra minúscula. Na Aula 3 vamos resolver isso.</div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/></svg></div><h2><small>Código no VS Code</small>Cadastro, consulta e listagem</h2></div>
+    <p class="lead">Este programa faz as três operações, uma depois da outra. Clique em <b>▶ Executar</b>, cadastre um produto e depois consulte um que existe ou um que não existe.</p>
+    <div class="vscode" data-code="c2" data-file="operacoes.py" data-prog="p2"></div>
+    <div class="anat">
+<div class="anat-code"><span class="mk" data-a="1">produtos.append(novo)</span>
+
+<span class="mk" data-a="2">if busca in produtos:</span>
+<span class="mk" data-a="2">    print(busca, "está cadastrado.")</span>
+<span class="mk" data-a="3">else:</span>
+<span class="mk" data-a="3">    print(busca, "não foi encontrado.")</span>
+
+<span class="mk" data-a="4">for produto in produtos:</span>
+<span class="mk" data-a="5">    print(produto)</span></div>
+      <ul class="anat-list">
+        <li data-a="1"><b>Cadastrar:</b> o <code>append()</code> coloca o produto novo no <b>final</b> da lista.</li>
+        <li data-a="2"><b>Consultar:</b> o <code>in</code> pergunta se o produto <b>está dentro</b> da lista. Se estiver, a condição é verdadeira.</li>
+        <li data-a="3"><b>Se não estiver</b>, o programa avisa que não encontrou. Um bom sistema sempre dá uma resposta.</li>
+        <li data-a="4"><b>Listar:</b> o <code>for</code> passa pela lista inteira. A cada volta, a variável <code>produto</code> recebe um elemento.</li>
+        <li data-a="5"><b>Mostra um por vez</b>, cada produto em uma linha.</li>
+      </ul>
+    </div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="5" rx="1"/><rect x="14" y="16" width="7" height="5" rx="1"/><path d="M6.5 8v4h11v4"/></svg></div><h2><small>Fluxograma</small>A lógica da consulta</h2></div>
+    <div class="flow-box"><svg id="flow2"></svg></div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.5 2.5-2.5-2.5z"/></svg></div><h2><small>Colocando em prática · individual</small>Testando as operações de um cadastro</h2></div>
+    <p class="lead">Use o código abaixo como ponto de partida. Complete as partes marcadas e execute o programa depois de cada missão, observando como cada operação muda ou usa os dados da lista.</p>
+    <div class="mini"><div class="ln"><span class="num">1</span><span class="c" id="pratA2"></span></div></div>
+    <div class="practice">
+      <div><b>Missão 1:</b> complete o cadastro adicionando um novo produto com <code>append()</code>.</div>
+      <div><b>Missão 2:</b> faça uma consulta de um produto que <b>existe</b> e outra de um que <b>não existe</b>.</div>
+      <div><b>Missão 3:</b> liste todos os produtos cadastrados com o <code>for</code>.</div>
+      <div><b>Missão 4:</b> adicione mais dois produtos e veja como a listagem se atualiza.</div>
+    </div>
+    <div class="note"><b>Ao terminar, salve o arquivo:</b> ele será usado na próxima aula.</div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></div><h2><small>Resumo para o caderno</small>O que aprendemos hoje</h2></div>
+    <div class="resumo">
+      <p>Um cadastro em memória mantém os dados disponíveis apenas enquanto o programa está em execução. Depois que os dados estão guardados em uma lista, o programa pode fazer três operações principais com eles: cadastrar, consultar e listar.</p>
+      <p><b>Cadastrar</b> é adicionar um novo dado, o que fazemos com <code>append()</code>, que coloca o elemento no final da lista. <b>Consultar</b> é procurar um dado específico: o operador <code>in</code> verifica se um valor está dentro da lista e, junto com o <code>if</code> e o <code>else</code>, permite avisar o usuário se o produto foi encontrado ou não. <b>Listar</b> é mostrar todos os dados guardados, um de cada vez, o que fazemos com o <code>for</code>, que percorre a lista do primeiro ao último elemento.</p>
+      <p>Usamos a consulta quando queremos saber sobre um item específico, como conferir se a papelaria tem caderno. Usamos a listagem quando queremos ver tudo o que está cadastrado, como conferir o estoque inteiro. É importante lembrar que o Python diferencia letras maiúsculas de minúsculas: "caderno" e "Caderno" são textos diferentes.</p>
+    </div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><h2><small>Quiz da Aula 2</small>Pause e responda</h2></div>
+    <div class="quiz" data-quiz="q2"></div>
+    <div class="next-btn"><button data-go="a3">Ir para a Aula 3 →</button></div>
+  </div></section>
+</div>
+
+<!-- =====================================================  AULA 3  ===================================================== -->
+<div class="page" id="a3">
+  <div class="aula-hero"><div class="wrap">
+    <span class="tag">Aula 3 · SISANO1C1B4S22A3</span>
+    <h1>Cadastrando e consultando no projeto</h1>
+    <p>Objetivo: implementar no projeto da Papelaria Ponto Certo o cadastro e a consulta de produtos usando uma lista em memória.</p>
+    <div class="meta"><span>⏱ 50 minutos</span><span>👤 Prática individual</span><span>📒 Papelaria Ponto Certo</span></div>
+  </div></div>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div><h2><small>Ponto de partida</small>O sistema da papelaria evoluiu</h2></div>
+    <p class="lead">Na Semana 21, o sistema ganhou menu, funções e validação do preço. Agora ele vai virar um <b>cadastro de verdade</b>: cada produto fica guardado na lista <code>produtos</code> com o seu <b>nome</b> e o seu <b>preço</b>. Rode o programa: cadastre três produtos e faça algumas consultas.</p>
+    <div class="vscode" data-code="c3" data-file="papelaria.py" data-prog="p3"></div>
+    <div class="note warn"><b>Atenção ao digitar o preço:</b> em Python, os centavos usam <b>ponto</b>: <code>2.50</code>. Se digitar <code>2,50</code>, o programa para com o erro <code>ValueError</code>.</div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></div><h2><small>Missão 2 do roteiro</small>Explorando os dados guardados</h2></div>
+    <p class="lead">Cada produto é guardado como um <b>par</b>: <code>(nome, preço)</code>. Por isso usamos <b>dois índices</b>: o primeiro escolhe o produto e o segundo escolhe a informação dentro dele (<code>0</code> = nome, <code>1</code> = preço). <b>Clique em cada produto:</b></p>
+    <div class="idx-grid" id="idxA3"></div>
+    <div class="idx-out" id="idxA3out"><span class="c"># clique em um produto para ver produtos[i], produtos[i][0] e produtos[i][1]</span></div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg></div><h2><small>Construindo o conceito · Missão 3 do roteiro</small>A consulta passo a passo</h2></div>
+    <p class="lead">A função <code>consultar_produto</code> olha a lista <b>produto por produto</b>, usando o contador <code>i</code>, e compara cada nome com o que foi digitado. Escolha um nome e clique em <b>Procurar passo a passo</b>. Teste um produto que existe, um que não existe e um com letras <b>maiúsculas e minúsculas diferentes</b>.</p>
+    <div class="shelf" id="shelf"></div>
+    <div class="searcher">
+      <label>Procurar: <select id="busca"><option>Caneta</option><option selected>Caderno</option><option>caderno</option><option>Mochila</option></select></label>
+      <label class="toggle"><input type="checkbox" id="lowerOn"> Usar a melhoria <code>.lower()</code></label>
+      <button class="btn run" id="buscaGo">▶ Procurar passo a passo</button>
+    </div>
+    <div class="trace-box" id="traceBox"><div class="ph2">Escolha um produto e clique em “Procurar passo a passo”.</div></div>
+    <div class="q-big">Pause e responda: a consulta percorre a lista comparando cada item. Se a repetição terminar sem encontrar o produto, o que o programa deverá fazer?</div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.5 2.5-2.5-2.5z"/></svg></div><h2><small>Colocando em prática · individual · Missões do roteiro</small>Implementando o cadastro e a consulta de produtos</h2></div>
+    <div class="practice">
+      <div><b>1. Validando o cadastro.</b> Cadastre três produtos. Veja se o contador do menu aumenta. Confira a lista com <code>print(produtos)</code>.</div>
+      <div><b>2. Explorando os dados.</b> Depois de cadastrar, teste <code>print(produtos[0])</code>, <code>print(produtos[0][0])</code> e <code>print(produtos[0][1])</code>.</div>
+      <div><b>3. Testando a consulta.</b> Consulte um produto que existe, um que não existe e um com maiúsculas e minúsculas diferentes.</div>
+      <div><b>4. Melhorando o sistema.</b> Faça as duas melhorias abaixo e teste de novo.</div>
+    </div>
+    <div class="melhorias">
+      <div class="mbox"><span class="tag">Melhoria A</span><h3>Consulta sem ligar para maiúsculas</h3>
+        <p>O método <code>.lower()</code> deixa o texto todo em letras minúsculas. Se os <b>dois lados</b> da comparação forem para minúsculas, “Caderno”, “caderno” e “CADERNO” passam a ser iguais.</p>
+        <pre id="melhA"></pre></div>
+      <div class="mbox"><span class="tag">Melhoria B</span><h3>Mostrar o total depois do cadastro</h3>
+        <p>No final da função <code>cadastrar_produto</code>, mostre quantos produtos a lista tem. A função <code>len()</code> conta os elementos.</p>
+        <pre id="melhB"></pre></div>
+    </div>
+    <div class="mbox" style="margin-top:16px"><span class="tag">Desafio</span><h3>Inserir um produto na primeira posição</h3>
+      <p>O <code>append()</code> sempre coloca no <b>final</b>. Pesquise a função <code>insert()</code> e altere o programa para colocar o produto na <b>primeira posição</b> da lista. Execute de novo e observe o que mudou nos índices.</p>
+      <details><summary>Ver uma dica</summary><pre id="desafioA3"></pre></details></div>
+    <div class="note"><b>Ao terminar:</b> salve o arquivo, porque ele será usado na Aula 4, e compartilhe o resultado do jeito que o professor pedir.</div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></div><h2><small>Resumo para o caderno</small>O que aprendemos hoje</h2></div>
+    <div class="resumo">
+      <p>Nesta aula, o sistema da Papelaria Ponto Certo passou a guardar os produtos em uma lista chamada <code>produtos</code>. Cada produto é guardado como um par com o nome e o preço, criado com <code>produtos.append((nome, preco))</code>. Por isso usamos dois índices: <code>produtos[0]</code> é o primeiro produto inteiro, <code>produtos[0][0]</code> é o nome dele e <code>produtos[0][1]</code> é o preço.</p>
+      <p>A consulta percorre a lista com um contador <code>i</code>, que começa em zero e aumenta a cada volta do <code>while</code>, comparando o nome de cada produto com o nome digitado. A variável <code>encontrado</code> começa como <code>False</code> e vira <code>True</code> quando o produto aparece. Se a repetição terminar e ela continuar <code>False</code>, o programa informa que o produto não foi encontrado.</p>
+      <p>Também vimos que o Python diferencia letras maiúsculas de minúsculas. Para a consulta funcionar com "Caderno" ou "caderno", usamos o método <code>.lower()</code> nos dois lados da comparação. E, com a função <code>len()</code>, o sistema mostra quantos produtos estão cadastrados.</p>
+    </div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><h2><small>Quiz da Aula 3</small>Pause e responda</h2></div>
+    <div class="quiz" data-quiz="q3"></div>
+    <div class="next-btn"><button data-go="a4">Ir para a Aula 4 →</button></div>
+  </div></section>
+</div>
+
+<!-- =====================================================  AULA 4  ===================================================== -->
+<div class="page" id="a4">
+  <div class="aula-hero"><div class="wrap">
+    <span class="tag">Aula 4 · SISANO1C1B4S22A4</span>
+    <h1>Ampliando o cadastro com listagem</h1>
+    <p>Objetivo: ampliar o mesmo cadastro com a listagem dos produtos guardados na memória, sem usar arquivos, e fechar a primeira versão do sistema.</p>
+    <div class="meta"><span>⏱ 50 minutos</span><span>👥 Em duplas</span><span>📒 Papelaria Ponto Certo</span><span>📝 Vale como Atividade de Registro</span></div>
+  </div></div>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></div><h2><small>Construindo o conceito</small>A listagem caprichada</h2></div>
+    <p class="lead">A papelaria precisa ver <b>todos os produtos</b> de uma vez, de um jeito organizado. A listagem tem três cuidados: <b>numerar</b> cada produto, avisar quando a lista está <b>vazia</b> e mostrar o <b>total</b> no final. Clique em cada parte da função:</p>
+    <div class="anat">
+<div class="anat-code"><span class="mk" data-b="1">def listar_produtos(produtos):</span>
+<span class="mk" data-b="2">    if len(produtos) == 0:</span>
+<span class="mk" data-b="2">        print("Nenhum produto cadastrado.")</span>
+<span class="mk" data-b="3">    else:</span>
+<span class="mk" data-b="3">        print("=== Produtos cadastrados ===")</span>
+<span class="mk" data-b="4">        numero = 1</span>
+<span class="mk" data-b="5">        for produto in produtos:</span>
+<span class="mk" data-b="6">            preco = f"{produto[1]:.2f}".replace(".", ",")</span>
+<span class="mk" data-b="6">            print(f"{numero}. {produto[0] + ' ':.&lt;18} R$ {preco}")</span>
+<span class="mk" data-b="4">            numero += 1</span>
+<span class="mk" data-b="7">        print(f"Total de produtos: {len(produtos)}")</span></div>
+      <ul class="anat-list">
+        <li data-b="1"><b>Uma função nova</b>, que recebe a lista. O resto do sistema não muda.</li>
+        <li data-b="2"><b>Lista vazia?</b> Se o tamanho é zero, avisa e não tenta mostrar nada.</li>
+        <li data-b="3"><b>Senão</b>, mostra o título da listagem.</li>
+        <li data-b="4"><b>Contador</b> que começa em 1 e aumenta a cada produto, para numerar a lista (1, 2, 3...).</li>
+        <li data-b="5"><b>O for</b> passa por todos os produtos, do primeiro ao último.</li>
+        <li data-b="6"><b>Formata a linha:</b> o preço com 2 casas e vírgula, e o nome completado com pontinhos até 18 letras (<code>:.&lt;18</code>).</li>
+        <li data-b="7"><b>Resumo do estoque:</b> o total de produtos, com <code>len()</code>.</li>
+      </ul>
+    </div>
+    <div class="note"><b>Resultado no terminal:</b><pre style="font-family:Consolas,monospace;margin-top:6px">=== Produtos cadastrados ===
+1. Caneta ........... R$ 2,50
+2. Caderno .......... R$ 18,90
+3. Borracha ......... R$ 3,00
+Total de produtos: 3</pre></div>
+  </div></section>
+
+  <!-- =================== ATIVIDADE DE REGISTRO =================== -->
+  <section class="block reg" id="registro"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/></svg></div><h2><small>Atividade de Registro · em duplas</small>Finalizando a primeira versão do sistema</h2></div>
+    <p class="lead">São <b>4 missões</b>. Em cada uma, falta um pedaço do código. <b>Clique na peça certa</b> para completar. Depois responda a pergunta usando o começo de frase que já está pronto. No final, <b>baixe o arquivo <code>papelaria.py</code></b> e envie pelo AVA.</p>
+    <div class="who">
+      <label>Nome da dupla <input type="text" id="regNome" placeholder="Ex.: Ana e João"></label>
+      <label>Turma <input type="text" id="regTurma" placeholder="Ex.: 2º DS"></label>
+    </div>
+    <div class="progress"><div class="pbar"><i id="pfill"></i></div><span id="ptext">0 de 4 missões concluídas</span></div>
+    <div id="missions"></div>
+
+    <div class="unlock" id="unlock">
+      <div class="lock-msg" id="lockMsg">🔒 Complete as 4 missões para liberar o programa completo.</div>
+      <div id="fullCode" style="display:none">
+        <h3 class="mt">🎉 Programa completo liberado! Agora teste no terminal:</h3>
+        <div class="vscode" data-code="c4" data-file="papelaria.py" data-prog="p4"></div>
+        <table class="trace">
+          <tr><th>Teste</th><th>O que digitar</th><th>O que deve acontecer</th></tr>
+          <tr><td>1</td><td>3 (com a lista vazia)</td><td>“Nenhum produto cadastrado.”</td></tr>
+          <tr><td>2</td><td>1 → Caneta → 2.5</td><td>“Produto cadastrado com sucesso!” e “Total de produtos: 1”</td></tr>
+          <tr><td>3</td><td>1 → Caderno → -1, depois 18.9</td><td>Avisa “Preço inválido” e cadastra com 18.9</td></tr>
+          <tr><td>4</td><td>2 → caneta (minúsculo)</td><td>“Produto encontrado: Caneta - R$ 2.50”</td></tr>
+          <tr><td>5</td><td>3</td><td>A lista numerada, com pontinhos, preços com vírgula e o total</td></tr>
+          <tr><td>6</td><td>0</td><td>“Encerrando o sistema...” e o programa termina</td></tr>
+        </table>
+        <div class="dl-row"><button class="btn dl" id="dlPy">⬇ Baixar papelaria.py</button><span style="color:var(--gray)">Abra no VS Code, teste e envie este arquivo pelo AVA.</span></div>
+      </div>
+    </div>
+
+    <h3 class="mt">✅ Checklist: o programa de vocês...</h3>
+    <div class="checklist" id="checklist">
+      <label><input type="checkbox"> tem a opção “3 - Listar produtos” no menu.</label>
+      <label><input type="checkbox"> mostra os produtos numerados, com o preço formatado.</label>
+      <label><input type="checkbox"> avisa “Nenhum produto cadastrado.” quando a lista está vazia.</label>
+      <label><input type="checkbox"> mostra o total de produtos depois da listagem.</label>
+      <label><input type="checkbox"> continua cadastrando e consultando como antes.</label>
+    </div>
+
+    <h3 class="mt">🚀 Desafio de evolução (escolham uma melhoria)</h3>
+    <div class="melhorias" id="desafios"></div>
+
+    <h3 class="mt">📝 Registro no AVA: relato da semana</h3>
+    <p class="lead">Complete cada frase com as suas palavras. No final, clique em <b>Copiar tudo</b> e cole no AVA junto com o arquivo <code>papelaria.py</code>.</p>
+    <div class="relato">
+      <label>1. Sobre a memória…<textarea rows="2" data-rel>Nesta semana, aprendemos que os dados guardados em uma lista </textarea></label>
+      <label>2. Sobre as operações…<textarea rows="2" data-rel>Um cadastro tem três operações principais: </textarea></label>
+      <label>3. Sobre a consulta…<textarea rows="2" data-rel>Para consultar um produto, o programa </textarea></label>
+      <label>4. No final…<textarea rows="2" data-rel>No final, o sistema da Papelaria Ponto Certo consegue </textarea></label>
+    </div>
+    <div class="copy-row"><button class="btn big" id="copyAll">⧉ Copiar tudo (respostas + relato) para o AVA</button><span id="copyOk"></span></div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="5" rx="1"/><rect x="14" y="16" width="7" height="5" rx="1"/><path d="M6.5 8v4h11v4"/></svg></div><h2><small>Fluxograma</small>A primeira versão do sistema completo</h2></div>
+    <div class="flow-box"><svg id="flow4"></svg></div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></div><h2><small>Resumo para o caderno</small>O que aprendemos hoje</h2></div>
+    <div class="resumo">
+      <p>Nesta aula, o sistema da Papelaria Ponto Certo ganhou a opção de listar os produtos e chegou à sua primeira versão completa: ele cadastra, consulta e lista produtos guardados em uma lista na memória, sem usar arquivos. Para isso, criamos a função <code>listar_produtos</code> e ligamos essa função à opção 3 do menu, sem precisar mudar o resto do programa.</p>
+      <p>A listagem usa o <code>for</code> para passar por todos os produtos, um de cada vez. Para deixar a tela organizada, cada produto aparece numerado, com o nome completado por pontinhos e o preço com duas casas decimais e vírgula. Antes de listar, o programa verifica com <code>len(produtos) == 0</code> se a lista está vazia e, nesse caso, mostra a mensagem "Nenhum produto cadastrado.". No final, mostra o total de produtos.</p>
+      <p>Tratar situações especiais, como a lista vazia ou um produto que não existe, é um cuidado comum em sistemas reais: o programa nunca fica sem resposta. Mesmo assim, tudo o que foi cadastrado continua existindo só enquanto o programa está aberto. Guardar os dados em arquivo será o próximo passo.</p>
+    </div>
+  </div></section>
+
+  <section class="block"><div class="wrap">
+    <div class="sec-title"><div class="ico"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><h2><small>Quiz da Aula 4</small>Pause e responda</h2></div>
+    <div class="quiz" data-quiz="q4"></div>
+  </div></section>
+</div>
+
+<footer>Educação Profissional Paulista · Técnico em Desenvolvimento de Sistemas · Semana 22 — Agenda e cadastros em memória<br>Material adaptado pelo Prof. Cleison de Morais Mello</footer>
+<script>
+/* =============================== CÓDIGOS =============================== */
+const CODES = {
+c1:`contatos = []
+
+contatos.append("Ana")
+contatos.append("Bruno")
+contatos.append("Carla")
+
+print(contatos)
+print("Total de contatos:", len(contatos))`,
+
+c1b:`produtos = []
+
+produtos.append("Caderno")
+produtos.append("Caneta")
+produtos.append("Borracha")
+
+print(produtos)`,
+
+c2:`produtos = ["Caneta", "Caderno", "Borracha"]
+
+# Cadastro
+novo = input("Nome do novo produto: ")
+produtos.append(novo)
+print(novo, "cadastrado!")
+
+# Consulta
+busca = input("Qual produto você procura? ")
+if busca in produtos:
+    print(busca, "está cadastrado.")
+else:
+    print(busca, "não foi encontrado.")
+
+# Listagem
+print("=== Lista de produtos ===")
+for produto in produtos:
+    print(produto)`,
+
+c3:`def mostrar_menu(qtd_produtos):
+    print("\\n--- Menu ---")
+    print(f"Produtos cadastrados: {qtd_produtos}")
+    print("1 - Cadastrar produto")
+    print("2 - Consultar produto")
+    print("0 - Sair")
+
+def cadastrar_produto(produtos):
+    nome = input("Nome do produto: ")
+    preco_valido = False
+
+    while not preco_valido:
+        preco = float(input("Preço do produto (maior que zero): "))
+        if preco > 0:
+            preco_valido = True
+        else:
+            print("Preço inválido. Digite um valor maior que zero.")
+
+    produtos.append((nome, preco))
+    print("Produto cadastrado com sucesso!")
+
+def consultar_produto(produtos):
+    nome_busca = input("Digite o nome do produto: ")
+    encontrado = False
+    i = 0
+
+    while i < len(produtos):
+        if produtos[i][0] == nome_busca:
+            print(f"Produto encontrado: {produtos[i][0]} - R$ {produtos[i][1]:.2f}")
+            encontrado = True
+        i += 1
+
+    if not encontrado:
+        print("Produto não encontrado.")
+
+produtos = []
+continuar = True
+
+while continuar:
+    mostrar_menu(len(produtos))
+    opcao = input("Escolha uma opção: ")
+
+    if opcao == "1":
+        cadastrar_produto(produtos)
+    elif opcao == "2":
+        consultar_produto(produtos)
+    elif opcao == "0":
+        continuar = False
+    else:
+        print("Opção inválida.")`,
+
+c4:`def mostrar_menu(qtd_produtos):
+    print("\\n--- Menu ---")
+    print(f"Produtos cadastrados: {qtd_produtos}")
+    print("1 - Cadastrar produto")
+    print("2 - Consultar produto")
+    print("3 - Listar produtos")
+    print("0 - Sair")
+
+def cadastrar_produto(produtos):
+    nome = input("Nome do produto: ")
+    preco_valido = False
+
+    while not preco_valido:
+        preco = float(input("Preço do produto (maior que zero): "))
+        if preco > 0:
+            preco_valido = True
+        else:
+            print("Preço inválido. Digite um valor maior que zero.")
+
+    produtos.append((nome, preco))
+    print("Produto cadastrado com sucesso!")
+    print(f"Total de produtos: {len(produtos)}")
+
+def consultar_produto(produtos):
+    nome_busca = input("Digite o nome do produto: ")
+    encontrado = False
+    i = 0
+
+    while i < len(produtos):
+        if produtos[i][0].lower() == nome_busca.lower():
+            print(f"Produto encontrado: {produtos[i][0]} - R$ {produtos[i][1]:.2f}")
+            encontrado = True
+        i += 1
+
+    if not encontrado:
+        print("Produto não encontrado.")
+
+def listar_produtos(produtos):
+    if len(produtos) == 0:
+        print("Nenhum produto cadastrado.")
+    else:
+        print("=== Produtos cadastrados ===")
+        numero = 1
+        for produto in produtos:
+            preco = f"{produto[1]:.2f}".replace(".", ",")
+            print(f"{numero}. {produto[0] + ' ':.<18} R$ {preco}")
+            numero += 1
+        print(f"Total de produtos: {len(produtos)}")
+
+produtos = []
+continuar = True
+
+while continuar:
+    mostrar_menu(len(produtos))
+    opcao = input("Escolha uma opção: ")
+
+    if opcao == "1":
+        cadastrar_produto(produtos)
+    elif opcao == "2":
+        consultar_produto(produtos)
+    elif opcao == "3":
+        listar_produtos(produtos)
+    elif opcao == "0":
+        continuar = False
+        print("Encerrando o sistema...")
+    else:
+        print("Opção inválida.")`
+};
+
+/* =============================== AJUDANTES DE PYTHON =============================== */
+const pyFloat = n => Number.isInteger(n) ? n.toFixed(1) : String(n);
+function pyRepr(v){
+  if (Array.isArray(v)) return v.tuple ? "(" + v.map(pyRepr).join(", ") + (v.length === 1 ? "," : "") + ")" : "[" + v.map(pyRepr).join(", ") + "]";
+  if (typeof v === "number") return pyFloat(v);
+  return (v.includes("'") && !v.includes('"')) ? '"' + v + '"' : "'" + v.replace(/'/g, "\\'") + "'";
+}
+const tupla = (...a) => { a.tuple = true; return a; };
+class PyErr extends Error{}
+function toFloat(s){
+  const t = s.trim();
+  if (t === '' || isNaN(Number(t))) throw new PyErr(`ValueError: could not convert string to float: '${s}'`);
+  return Number(t);
+}
+const precoBR = p => p.toFixed(2).replace(".", ",");
+const linhaLista = (n, prod) => `${n}. ${(prod[0] + " ").padEnd(18, ".")} R$ ${precoBR(prod[1])}`;
+
+/* =============================== PROGRAMAS SIMULADOS =============================== */
+function menuSim(t, qtd, comListar){
+  t.print(""); t.print("--- Menu ---"); t.print("Produtos cadastrados: " + qtd);
+  t.print("1 - Cadastrar produto"); t.print("2 - Consultar produto"); if (comListar) t.print("3 - Listar produtos"); t.print("0 - Sair");
+}
+async function cadastrarSim(t, produtos, mostraTotal){
+  const nome = await t.input("Nome do produto: "); let ok = false, preco;
+  while (!ok){ preco = toFloat(await t.input("Preço do produto (maior que zero): ")); if (preco > 0) ok = true; else t.print("Preço inválido. Digite um valor maior que zero."); }
+  produtos.push(tupla(nome, preco)); t.print("Produto cadastrado com sucesso!");
+  if (mostraTotal) t.print("Total de produtos: " + produtos.length);
+}
+async function consultarSim(t, produtos, lower){
+  const busca = await t.input("Digite o nome do produto: "); let achou = false;
+  const igual = (a, b) => lower ? a.toLowerCase() === b.toLowerCase() : a === b;
+  for (let i = 0; i < produtos.length; i++) if (igual(produtos[i][0], busca)){ t.print(`Produto encontrado: ${produtos[i][0]} - R$ ${produtos[i][1].toFixed(2)}`); achou = true; }
+  if (!achou) t.print("Produto não encontrado.");
+}
+function listarSim(t, produtos){
+  if (produtos.length === 0) { t.print("Nenhum produto cadastrado."); return; }
+  t.print("=== Produtos cadastrados ===");
+  produtos.forEach((p, k) => t.print(linhaLista(k + 1, p)));
+  t.print("Total de produtos: " + produtos.length);
+}
+const PROGS = {
+  p1: async t => { const c = ["Ana", "Bruno", "Carla"]; t.print(pyRepr(c)); t.print("Total de contatos: " + c.length); },
+  p1b: async t => { t.print(pyRepr(["Caderno", "Caneta", "Borracha"])); },
+  p2: async t => {
+    const produtos = ["Caneta", "Caderno", "Borracha"];
+    const novo = await t.input("Nome do novo produto: "); produtos.push(novo); t.print(novo + " cadastrado!");
+    const busca = await t.input("Qual produto você procura? ");
+    t.print(produtos.includes(busca) ? busca + " está cadastrado." : busca + " não foi encontrado.");
+    t.print("=== Lista de produtos ==="); produtos.forEach(p => t.print(p));
+  },
+  p3: async t => {
+    const produtos = []; let continuar = true;
+    while (continuar){
+      menuSim(t, produtos.length, false);
+      const op = await t.input("Escolha uma opção: ");
+      if (op === "1") await cadastrarSim(t, produtos, false);
+      else if (op === "2") await consultarSim(t, produtos, false);
+      else if (op === "0") continuar = false;
+      else t.print("Opção inválida.");
+    }
+  },
+  p4: async t => {
+    const produtos = []; let continuar = true;
+    while (continuar){
+      menuSim(t, produtos.length, true);
+      const op = await t.input("Escolha uma opção: ");
+      if (op === "1") await cadastrarSim(t, produtos, true);
+      else if (op === "2") await consultarSim(t, produtos, true);
+      else if (op === "3") listarSim(t, produtos);
+      else if (op === "0"){ continuar = false; t.print("Encerrando o sistema..."); }
+      else t.print("Opção inválida.");
+    }
+  }
+};
+
+/* =============================== SYNTAX HIGHLIGHT =============================== */
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function hl(line){
+  const re=/(#.*$)|(f?"[^"]*"|'[^']*')|\b(def)\b|\b(while|if|elif|else|return|in|and|or|not|for|True|False)\b|\b(print|input|float|int|len|sorted)\b(?=\()|\b(\d+(?:\.\d+)?)\b|\b([a-z_][a-z0-9_]*)(?=\()/g;
+  let out='',last=0,m;
+  while((m=re.exec(line))){
+    out+=esc(line.slice(last,m.index));
+    const v=esc(m[0]);
+    out+= m[1]?`<span class="cm">${v}</span>`: m[2]?`<span class="st">${v}</span>`: m[3]?`<span class="df">${v}</span>`: m[4]?`<span class="kw">${v}</span>`: m[5]?`<span class="bi">${v}</span>`: m[6]?`<span class="nm">${v}</span>`:`<span class="fn">${v}</span>`;
+    last=re.lastIndex;
+  }
+  return out+esc(line.slice(last));
+}
+const hlBloco = code => code.split('\n').map(hl).join('\n');
+const linhasMini = code => code.split('\n').map((l,i)=>`<div class="ln"><span class="num">${i+1}</span><span class="c">${hl(l)||' '}</span></div>`).join('');
+
+/* =============================== VS CODE + TERMINAL =============================== */
+document.querySelectorAll('.vscode').forEach(box=>{
+  const code=CODES[box.dataset.code], file=box.dataset.file, prog=PROGS[box.dataset.prog];
+  const lines=code.split('\n').map((l,i)=>`<div class="ln" style="--i:${Math.min(i,18)}"><span class="num">${i+1}</span><span class="c">${hl(l)||' '}</span></div>`).join('');
+  box.innerHTML=`
+    <div class="vs-top"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="t">${file} — semana22 — Visual Studio Code</span></div>
+    <div class="vs-body"><div class="vs-side"><span></span><span></span><span></span><span></span></div>
+      <div class="vs-main"><div class="vs-tabs"><div>${file}</div></div><div class="vs-code">${lines}</div></div></div>
+    <div class="vs-actions"><button class="btn run">▶ Executar</button><button class="btn copy">⧉ Copiar código</button></div>
+    <div class="terminal"><div class="tt"><b>TERMINAL</b></div><div class="term-body"><span class="ph">PS C:\\semana22&gt; Clique em ▶ Executar para rodar o ${file}</span></div></div>
+    <div class="vs-status"><span>⎇ main</span><span>Python 3 · UTF-8</span></div>`;
+  const body=box.querySelector('.term-body');
+  let run=0;
+  function start(){
+    run++; const my=run; body.innerHTML='';
+    const add=(txt,cls)=>{const d=document.createElement('div'); if(cls)d.className=cls; d.textContent=txt; body.appendChild(d); body.scrollTop=body.scrollHeight;};
+    add(`PS C:\\semana22> python ${file}`,'ph');
+    const t={
+      print:(s='')=>{ if(my===run) add(s===''?' ':s); },
+      input:p=>new Promise(res=>{
+        if(my!==run) return;
+        const d=document.createElement('div'); d.className='in-line';
+        const sp=document.createElement('span'); sp.textContent=p;
+        const inp=document.createElement('input'); inp.type='text'; inp.autocomplete='off'; inp.spellcheck=false;
+        d.append(sp,inp); body.appendChild(d); body.scrollTop=body.scrollHeight;
+        inp.focus({preventScroll:true});
+        inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const v=inp.value; const s2=document.createElement('span'); s2.className='typed'; s2.textContent=v; inp.replaceWith(s2); res(v);} });
+      })
+    };
+    prog(t).then(()=>{ if(my===run) add('>>> Programa encerrado. Repare: tudo o que estava na lista foi apagado da memória. Clique em ▶ Executar para rodar de novo.','end'); })
+      .catch(err=>{ if(my!==run) return; add('Traceback (most recent call last):','err'); add(err.message,'err'); add('>>> O programa parou por causa do erro. Lembre: use ponto nos centavos (2.50).','end'); });
+  }
+  box.querySelector('.run').onclick=start;
+  box.querySelector('.copy').onclick=e=>{
+    const b=e.currentTarget;
+    const done=()=>{b.textContent='✔ Copiado!'; setTimeout(()=>b.textContent='⧉ Copiar código',1600);};
+    copiar(code, done);
+  };
+  body.onclick=()=>{const i=body.querySelector('input'); if(i) i.focus({preventScroll:true});};
+});
+function copiar(texto, depois){
+  const fallback=()=>{const ta=document.createElement('textarea'); ta.value=texto; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(_){} ta.remove(); depois();};
+  if(navigator.clipboard) navigator.clipboard.writeText(texto).then(depois).catch(fallback); else fallback();
+}
+
+/* =============================== REVEAL + NAV =============================== */
+const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('show'); io.unobserve(e.target);} }),{threshold:.15});
+function observeAll(){ document.querySelectorAll('.page.on .vscode:not(.show), .page.on [data-reveal]:not(.show)').forEach(el=>io.observe(el)); }
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id===id));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===id));
+  window.scrollTo({top:0});
+  setTimeout(observeAll,60);
+}
+document.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.go)));
+
+/* =============================== MEMÓRIA 3D (INÍCIO) =============================== */
+(function(){
+  const rack=document.getElementById('rack'), out=document.getElementById('memOut'), st=document.getElementById('memStatus'), inp=document.getElementById('memIn');
+  const sugest=["Caderno","Borracha","Lápis","Régua","Cola","Mochila"]; let s=0, lista=[], fechando=false;
+  function desenhar(){
+    if(!lista.length){ rack.innerHTML='<div class="rack-empty">[ ] lista vazia</div>'; return; }
+    rack.querySelectorAll('.rack-empty').forEach(e=>e.remove());
+  }
+  function cubo(nome,i){ const c=document.createElement('div'); c.className='cube'; c.innerHTML=`<span class="ix">[${i}]</span><i class="cb"></i><i class="cl"></i><i class="cr"></i><i class="ct"></i><i class="cf">${esc(nome)}</i>`; return c; }
+  desenhar();
+  document.getElementById('memAdd').onclick=()=>{
+    if(fechando) return;
+    if(st.classList.contains('off')){ st.classList.remove('off'); st.textContent='● programa aberto'; }
+    const nome=(inp.value.trim()||sugest[s%sugest.length]).slice(0,10);
+    if(lista.length>=5){ out.innerHTML='<span class="y"># a demonstração cabe 5 produtos. Feche o programa para recomeçar.</span>'; return; }
+    lista.push(nome); desenhar(); rack.appendChild(cubo(nome,lista.length-1));
+    out.innerHTML=`produtos.append(<span class="y">"${esc(nome)}"</span>)  <span class="g"># entrou na posição ${lista.length-1}</span>`;
+    inp.value=sugest[s++%sugest.length];
+  };
+  document.getElementById('memPrint').onclick=()=>{ if(fechando) return; out.innerHTML=`&gt;&gt;&gt; print(produtos)\n${esc(pyRepr(lista))}`; };
+  document.getElementById('memOff').onclick=()=>{
+    if(fechando||!lista.length){ out.innerHTML='<span class="y"># adicione alguns produtos antes de fechar o programa</span>'; return; }
+    fechando=true; rack.querySelectorAll('.cube').forEach((c,k)=>setTimeout(()=>c.classList.add('bye'),k*120));
+    st.classList.add('off'); st.textContent='● programa fechado';
+    setTimeout(()=>{ rack.innerHTML=''; const n=lista.length; lista=[]; desenhar(); fechando=false;
+      out.innerHTML=`<span class="r">Programa encerrado. Os ${n} produtos estavam só na memória e foram apagados.</span>\nAo abrir de novo: produtos = []`; }, 900+lista.length*120);
+  };
+  const hero=document.querySelector('.hero'), rk=document.querySelector('.rack-in');
+  hero.addEventListener('mousemove',e=>{ const r=hero.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; rk.style.transform=`rotateX(${-18 - y*16}deg) rotateY(${-28 + x*36}deg)`; });
+  hero.addEventListener('mouseleave',()=>rk.style.transform='');
+})();
+
+/* =============================== JANELA ANÔNIMA (AULA 1) =============================== */
+(function(){
+  const box=document.getElementById('browserBox'); const html=box.innerHTML;
+  function ligar(){
+    const hist=document.getElementById('bHist'), inp=document.getElementById('bIn'); const sug=["tênis em promoção","letra de música","jogo grátis","receita de bolo"]; let k=0;
+    const buscar=()=>{ const v=inp.value.trim(); if(!v) return; const d=document.createElement('div'); d.textContent='🔎 '+v; hist.appendChild(d); inp.value=sug[k++%sug.length]; };
+    document.getElementById('bGo').onclick=buscar; inp.addEventListener('keydown',e=>{ if(e.key==='Enter') buscar(); });
+    document.getElementById('bClose').onclick=()=>{
+      const n=hist.children.length;
+      document.getElementById('browser').classList.add('closing');
+      setTimeout(()=>{ box.innerHTML=`<div class="b-msg">🗑 A janela foi fechada.<br>${n?`As ${n} pesquisas que estavam na memória sumiram.`:'Nada estava guardado.'}<br>Nada foi salvo em arquivo.<br><button class="btn run" id="bAbrir">Abrir nova janela anônima</button></div>`;
+        document.getElementById('bAbrir').onclick=()=>{ box.innerHTML=html; ligar(); }; },500);
+    };
+  }
+  ligar();
+})();
+
+/* =============================== ÍNDICES =============================== */
+(function(){
+  const nomes=["Ana","Bruno","Carla"], g=document.getElementById('idxA1'), out=document.getElementById('idxA1out');
+  g.innerHTML=nomes.map((n,i)=>`<div class="idx" data-i="${i}"><div class="i">índice ${i}</div><div class="v">${n}<small>contatos[${i}]</small></div></div>`).join('');
+  g.querySelectorAll('.idx').forEach(el=>el.onclick=()=>{
+    g.querySelectorAll('.idx').forEach(x=>x.classList.remove('on')); el.classList.add('on'); const i=+el.dataset.i;
+    out.innerHTML=`print(contatos[<span class="y">${i}</span>])  <span class="c"># ${['o 1º','o 2º','o 3º'][i]} contato fica na posição ${i}</span>\n<span class="g">${nomes[i]}</span>`;
+  });
+  const prods=[["Caneta",2.5],["Caderno",18.9],["Borracha",3.0]], g3=document.getElementById('idxA3'), o3=document.getElementById('idxA3out');
+  g3.innerHTML=prods.map((p,i)=>`<div class="idx" data-i="${i}"><div class="i">produtos[${i}]</div><div class="v">${p[0]}<small>R$ ${p[1].toFixed(2)}</small></div></div>`).join('');
+  g3.querySelectorAll('.idx').forEach(el=>el.onclick=()=>{
+    g3.querySelectorAll('.idx').forEach(x=>x.classList.remove('on')); el.classList.add('on'); const i=+el.dataset.i, p=prods[i];
+    o3.innerHTML=`print(produtos[<span class="y">${i}</span>])     → <span class="g">${esc(pyRepr(tupla(p[0],p[1])))}</span>   <span class="c"># o produto inteiro</span>\nprint(produtos[<span class="y">${i}</span>][<span class="y">0</span>])  → <span class="g">${p[0]}</span>   <span class="c"># o nome</span>\nprint(produtos[<span class="y">${i}</span>][<span class="y">1</span>])  → <span class="g">${pyFloat(p[1])}</span>   <span class="c"># o preço</span>`;
+  });
+})();
+
+/* =============================== LABORATÓRIO (AULA 2) =============================== */
+(function(){
+  const box=document.getElementById('labList'), log=document.getElementById('labLog'); let lista, tk=0;
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  function desenhar(cls){ box.innerHTML=lista.map((p,i)=>`<div class="pitem" data-i="${i}"><small>[${i}]</small>${esc(p)}</div>`).join('') || '<span style="color:var(--gray)">[ ] lista vazia</span>'; }
+  function escreve(h){ const d=document.createElement('div'); d.innerHTML=h; log.appendChild(d); log.scrollTop=log.scrollHeight; }
+  function reset(){ tk++; lista=["Caneta","Caderno","Borracha"]; log.innerHTML=''; desenhar(); escreve('<span class="py">produtos = ["Caneta", "Caderno", "Borracha"]</span>'); }
+  reset();
+  document.getElementById('labReset').onclick=reset;
+  document.getElementById('labAdd').onclick=()=>{ tk++; const v=document.getElementById('labIn').value.trim(); if(!v) return;
+    lista.push(v); desenhar(); box.lastElementChild.classList.add('hit'); setTimeout(()=>box.lastElementChild&&box.lastElementChild.classList.remove('hit'),900);
+    escreve(`<span class="py">produtos.append("${esc(v)}")</span>`); escreve(`<span class="g">${esc(v)} entrou na posição ${lista.length-1}. Agora a lista tem ${lista.length} produtos.</span>`); };
+  document.getElementById('labFind').onclick=async()=>{ const my=++tk; const v=document.getElementById('labBusca').value; desenhar();
+    escreve(`<span class="py">if "${esc(v)}" in produtos:</span>`);
+    const els=[...box.querySelectorAll('.pitem')];
+    for(let i=0;i<els.length;i++){ els.forEach(e=>e.classList.remove('cur')); els[i].classList.add('cur'); await sleep(380); if(my!==tk) return;
+      if(lista[i]===v){ els[i].classList.remove('cur'); els[i].classList.add('hit'); escreve(`<span class="g">${esc(v)} está cadastrado.</span>`); return; } }
+    els.forEach(e=>e.classList.remove('cur'));
+    escreve(`<span class="r">${esc(v)} não foi encontrado.</span>${lista.some(p=>p.toLowerCase()===v.toLowerCase())?' <span class="o">(repare nas letras maiúsculas e minúsculas!)</span>':''}`); };
+  document.getElementById('labList3').onclick=async()=>{ const my=++tk; desenhar(); escreve('<span class="py">for produto in produtos:</span><span class="py">\n    print(produto)</span>');
+    const els=[...box.querySelectorAll('.pitem')];
+    if(!els.length){ escreve('<span class="o">(a lista está vazia: o for não dá nenhuma volta)</span>'); return; }
+    for(let i=0;i<els.length;i++){ els[i].classList.add('list'); escreve(`<span class="o">${esc(lista[i])}</span>`); await sleep(350); if(my!==tk) return; } };
+})();
+
+/* =============================== CONSULTA PASSO A PASSO (AULA 3) =============================== */
+(function(){
+  const itens=[["Caneta",2.5],["Caderno",18.9],["Borracha",3.0]];
+  const shelf=document.getElementById('shelf'), box=document.getElementById('traceBox');
+  shelf.innerHTML=itens.map((p,i)=>`<div class="tbox" data-i="${i}"><div class="ix">posição ${i}</div><div class="pn">${p[0]}</div><div class="pr">R$ ${p[1].toFixed(2)}</div><div class="code">produtos[${i}][0] · produtos[${i}][1]</div></div>`).join('');
+  const boxes=[...shelf.children]; let token=0;
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  document.getElementById('buscaGo').addEventListener('click',async()=>{
+    const my=++token, alvo=document.getElementById('busca').value, low=document.getElementById('lowerOn').checked;
+    const say=h=>{ if(my!==token) return; const d=document.createElement('div'); d.innerHTML=h; box.appendChild(d); };
+    box.innerHTML=''; boxes.forEach(b=>b.className='tbox');
+    say(`nome_busca = <span class="y">"${alvo}"</span> · encontrado = <span class="no">False</span> · i = 0${low?' · <span class="ok">usando .lower()</span>':''}`);
+    let achou=false;
+    for(let i=0;;i++){
+      await sleep(1000); if(my!==token) return;
+      const c=i<itens.length;
+      say(`while <span class="y">${i} &lt; ${itens.length}</span> ${c?'<span class="ok">✔ continua</span>':'<span class="no">✘ a lista acabou</span>'}`);
+      if(!c) break;
+      boxes.forEach(b=>b.classList.remove('cur')); boxes[i].classList.add('cur');
+      await sleep(1000); if(my!==token) return;
+      const a=low?itens[i][0].toLowerCase():itens[i][0], b=low?alvo.toLowerCase():alvo;
+      const comp=low?`"${a}" == "${b}"`:`"${itens[i][0]}" == "${alvo}"`;
+      boxes[i].classList.remove('cur');
+      if(a===b){ achou=true; boxes[i].classList.add('hit'); say(`&nbsp;&nbsp;${comp} → <span class="ok">igual! Mostra o produto. encontrado = True</span>`); }
+      else { boxes[i].classList.add('miss'); say(`&nbsp;&nbsp;${comp} → <span class="no">diferente</span>`); }
+      say(`&nbsp;&nbsp;i += 1 → i passa a ${i+1}`);
+    }
+    if(achou){ const p=itens.find(x=>low?x[0].toLowerCase()===alvo.toLowerCase():x[0]===alvo); say(`<span class="ok">Produto encontrado: ${p[0]} - R$ ${p[1].toFixed(2)}</span>`); }
+    else say(`if not encontrado → <span class="no">Produto não encontrado.</span>${!low&&itens.some(x=>x[0].toLowerCase()===alvo.toLowerCase())?' <span class="y">Ele existe, mas com outras letras! Ligue a melhoria .lower() e teste de novo.</span>':''}`);
+  });
+})();
+
+/* =============================== TRECHOS DE CÓDIGO =============================== */
+document.getElementById('pratA2').closest('.mini').innerHTML=linhasMini(`produtos = ["Caneta", "Caderno", "Borracha"]
+
+# Cadastro
+___________________
+
+# Consulta
+___________________
+
+# Listagem
+___________________`);
+document.getElementById('melhA').innerHTML=hlBloco(`# antes:
+if produtos[i][0] == nome_busca:
+
+# depois (com a melhoria):
+if produtos[i][0].lower() == nome_busca.lower():
+
+# "Caderno".lower() vira "caderno"`);
+document.getElementById('melhB').innerHTML=hlBloco(`    produtos.append((nome, preco))
+    print("Produto cadastrado com sucesso!")
+    print(f"Total de produtos: {len(produtos)}")`);
+document.getElementById('desafioA3').innerHTML=hlBloco(`# no lugar do append, dentro de cadastrar_produto:
+produtos.insert(0, (nome, preco))   # 0 = primeira posição`);
+
+const DESAFIOS=[
+ ["Inserir no início","O produto novo aparece primeiro na lista, e todos os outros andam uma posição.",`produtos.insert(0, (nome, preco))`],
+ ["Remover um produto","Crie a opção 4 no menu e uma função que procura o produto e o tira da lista.",`def remover_produto(produtos):
+    nome = input("Produto para remover: ")
+    i = 0
+    while i < len(produtos):
+        if produtos[i][0].lower() == nome.lower():
+            produtos.pop(i)
+            print("Produto removido!")
+            return
+        i += 1
+    print("Produto não encontrado.")`],
+ ["Impedir nomes repetidos","Antes do append, confira se já existe um produto com o mesmo nome.",`for produto in produtos:
+    if produto[0].lower() == nome.lower():
+        print("Esse produto já está cadastrado!")
+        return`],
+ ["Ordenar pelo nome","Na listagem, use sorted() para mostrar os produtos em ordem alfabética.",`for produto in sorted(produtos):
+    # o resto da listagem continua igual`]
+];
+document.getElementById('desafios').innerHTML=DESAFIOS.map(d=>`<div class="mbox"><h3>${d[0]}</h3><p>${d[1]}</p><details><summary>Ver uma dica de código</summary><pre>${hlBloco(d[2])}</pre></details></div>`).join('');
+
+/* =============================== ANATOMIA =============================== */
+function anat(attr){
+  document.querySelectorAll(`[data-${attr}]`).forEach(el=>{
+    const on=()=>{ document.querySelectorAll(`[data-${attr}]`).forEach(x=>x.classList.toggle('hl',x.dataset[attr]===el.dataset[attr])); };
+    el.addEventListener('mouseenter',on); el.addEventListener('click',on);
+  });
+}
+anat('a'); anat('b');
+
+/* =============================== MISSÕES DA ATIVIDADE DE REGISTRO =============================== */
+const MISSIONS=[
+ {parte:"Parte 1",titulo:"Ligando a listagem ao menu",
+  pede:"O menu já mostra <code>3 - Listar produtos</code>. Complete o que acontece quando o usuário escolhe a <b>opção 3</b>.",
+  code:`    if opcao == "1":
+        cadastrar_produto(produtos)
+    elif opcao == "2":
+        consultar_produto(produtos)
+    elif opcao == "3":
+        @@
+    elif opcao == "0":
+        continuar = False`,
+  chips:["consultar_produto(produtos)","listar_produtos(produtos)","print(produtos)","continuar = False"], certo:1,
+  dicas:["Essa é a opção 2, a de consultar. A opção 3 é a de listar.","","Isso mostra a lista crua, com colchetes e parênteses. Chame a função que organiza a listagem!","Isso desligaria o menu. Esse é o trabalho da opção 0."],
+  ok:"Isso! Uma linha chamando a função e o menu ganhou uma opção nova.",
+  pergunta:"Como a nova função de listagem foi ligada ao sistema sem mudar o resto do menu?",
+  inicio:"Bastou criar mais um elif para a opção 3 e ",
+  ajuda:"chamar a função · listar_produtos · o resto continua igual · organizado em funções"},
+ {parte:"Parte 1",titulo:"Passando por todos os produtos",
+  pede:"Complete o <code>for</code> para a função passar por <b>todos os produtos</b> da lista, um de cada vez.",
+  code:`def listar_produtos(produtos):
+    for @@:
+        print(produto)`,
+  chips:["produto in produtos","produtos in produto","i < len(produtos)","produto = produtos"], certo:0,
+  dicas:["","Está ao contrário! A lista se chama produtos (plural). A cada volta, um produto (singular) sai dela.","Essa condição é do while. O for usa a palavra in.","O sinal = guarda valor. O for usa a palavra in."],
+  ok:"Isso! <b>for produto in produtos</b>: a cada volta, a variável <b>produto</b> recebe um elemento da lista.",
+  pergunta:"Como o for ajuda a mostrar todos os produtos cadastrados?",
+  inicio:"O for passa pela lista e, a cada volta, ",
+  ajuda:"um produto por vez · do primeiro ao último · print · não precisa de contador"},
+ {parte:"Parte 3",titulo:"Tratando a lista vazia",
+  pede:"Complete a condição para avisar quando <b>não há nenhum produto</b> cadastrado.",
+  code:`def listar_produtos(produtos):
+    if @@:
+        print("Nenhum produto cadastrado.")
+    else:
+        print("=== Produtos cadastrados ===")`,
+  chips:["len(produtos) > 0","len(produtos) == 0","produtos == 0","not encontrado"], certo:1,
+  dicas:["Com > 0 a mensagem apareceria justamente quando HÁ produtos. É o contrário!","","A lista nunca é igual ao número 0. Conte os elementos dela com len().","A variável encontrado é da consulta, não da listagem."],
+  ok:"Isso! Se o tamanho da lista é <b>zero</b>, não há o que listar.",
+  pergunta:"Por que é importante verificar se a lista está vazia antes de listar?",
+  inicio:"Porque, se ninguém cadastrou nada, o programa ",
+  ajuda:"avisar o usuário · não fica sem resposta · mensagem · sistemas reais"},
+ {parte:"Parte 4",titulo:"Resumo do estoque",
+  pede:"Complete para mostrar, no final da listagem, a <b>quantidade total</b> de produtos.",
+  code:`        for produto in produtos:
+            print(produto)
+        print(f"Total de produtos: {@@}")`,
+  chips:["produtos","numero","len(produtos)","len(produto)"], certo:2,
+  dicas:["Isso mostraria a lista inteira, e não a quantidade.","O numero é o contador das linhas. A função que conta os elementos é outra.","","Quase! Assim conta só um produto (o par nome e preço). Conte a lista inteira: produtos."],
+  ok:"Isso! <b>len(produtos)</b> conta quantos elementos a lista tem.",
+  pergunta:"O que a função len() informa sobre a lista de produtos?",
+  inicio:"A função len() informa ",
+  ajuda:"quantos produtos · tamanho da lista · total · contador do menu"}
+];
+(function(){
+  const host=document.getElementById('missions'), done=new Set(), N=MISSIONS.length;
+  host.innerHTML=MISSIONS.map((m,k)=>{
+    const lines=m.code.split('\n').map((l,i)=>`<div class="ln"><span class="num">${i+1}</span><span class="c">${hl(l).replace('@@','<span class="slot" data-k="'+k+'">?</span>')||' '}</span></div>`).join('');
+    return `<div class="mission" data-k="${k}">
+      <div class="m-head"><div class="m-num">${k+1}</div><h3><small>Missão ${k+1} · ${m.parte}</small>${m.titulo}</h3></div>
+      <p>${m.pede}</p>
+      <div class="mini">${lines}</div>
+      <div class="chips">${m.chips.map((c,j)=>`<button class="chip" data-j="${j}">${esc(c)}</button>`).join('')}</div>
+      <div class="fb"></div>
+      <div class="m-q"><b>✍️ ${m.pergunta}</b><textarea rows="3" data-ans="${k}">${esc(m.inicio)}</textarea>
+      <details><summary>Precisa de ajuda? Palavras que podem entrar na resposta</summary>${m.ajuda}</details></div>
+    </div>`;}).join('');
+  host.querySelectorAll('.mission').forEach(card=>{
+    const k=+card.dataset.k, m=MISSIONS[k], fb=card.querySelector('.fb'), slot=card.querySelector('.slot');
+    card.querySelectorAll('.chip').forEach(ch=>ch.addEventListener('click',()=>{
+      if(done.has(k)) return;
+      const j=+ch.dataset.j;
+      if(j===m.certo){
+        ch.classList.add('right'); slot.textContent=m.chips[j]; slot.classList.add('ok');
+        card.classList.add('done'); fb.className='fb show yes'; fb.innerHTML='✔ '+m.ok;
+        card.querySelectorAll('.chip').forEach(c=>c.disabled=true);
+        done.add(k); progress();
+      } else {
+        ch.classList.remove('wrong'); void ch.offsetWidth; ch.classList.add('wrong');
+        fb.className='fb show no'; fb.innerHTML='✘ Ainda não. '+m.dicas[j];
+      }
+    }));
+  });
+  function progress(){
+    const n=done.size;
+    document.getElementById('pfill').style.width=(n/N*100)+'%';
+    document.getElementById('ptext').textContent=`${n} de ${N} missões concluídas`;
+    if(n===N){ document.getElementById('lockMsg').style.display='none'; document.getElementById('fullCode').style.display='block'; observeAll(); }
+  }
+  window.__missionDone=done;
+})();
+
+/* =============================== BAIXAR O .PY =============================== */
+document.getElementById('dlPy').addEventListener('click',()=>{
+  const nome=document.getElementById('regNome').value.trim(), turma=document.getElementById('regTurma').value.trim();
+  const cab=`# Papelaria Ponto Certo - primeira versão do sistema\n# Semana 22 - Agenda e cadastros em memória\n# Dupla: ${nome||'(escreva aqui)'}  |  Turma: ${turma||'(escreva aqui)'}\n\n`;
+  const blob=new Blob([cab+CODES.c4+'\n'],{type:'text/x-python'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='papelaria.py'; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},500);
+});
+
+/* =============================== COPIAR PARA O AVA =============================== */
+document.getElementById('copyAll').addEventListener('click',()=>{
+  const v=id=>document.getElementById(id).value.trim();
+  const done=window.__missionDone;
+  let t=`ATIVIDADE DE REGISTRO – Semana 22 – Aula 4\nFinalizando a primeira versão do sistema da Papelaria Ponto Certo\nDupla: ${v('regNome')||'—'}   Turma: ${v('regTurma')||'—'}\n`;
+  MISSIONS.forEach((m,k)=>{
+    t+=`\n${m.parte} – ${m.titulo}\n`;
+    t+=`Código que completa: ${done.has(k)?m.chips[m.certo]:'(missão não concluída)'}\n`;
+    t+=`${m.pergunta}\nResposta: ${document.querySelector(`[data-ans="${k}"]`).value.trim()}\n`;
+  });
+  const checks=[...document.querySelectorAll('#checklist label')].map(l=>(l.querySelector('input').checked?'[x] ':'[ ] ')+'O programa '+l.textContent.trim());
+  t+=`\nChecklist:\n${checks.join('\n')}\n`;
+  t+=`\nRelato da semana:\n${[...document.querySelectorAll('[data-rel]')].map(x=>x.value.trim()).join(' ')}\n`;
+  const ok=document.getElementById('copyOk');
+  copiar(t,()=>{ok.textContent='✔ Copiado! Agora é só colar no AVA.'; setTimeout(()=>ok.textContent='',4000);});
+});
+
+/* =============================== FLUXOGRAMAS =============================== */
+function flow(id,W,H,nodes,edges,notes){
+  const s=document.getElementById(id); s.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  let h=`<defs><marker id="m-${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#1A1A1A"/></marker></defs>`;
+  edges.forEach(e=>{
+    h+=`<polyline points="${e.p.map(q=>q.join(',')).join(' ')}" fill="none" stroke="#1A1A1A" stroke-width="2.2" class="edge" ${e.na?'':`marker-end="url(#m-${id})"`}/>`;
+    if(e.l) h+=`<text x="${e.lx}" y="${e.ly}" class="elabel">${e.l}</text>`;
+  });
+  nodes.forEach(n=>{
+    if(n.t==='d') h+=`<polygon points="${n.x},${n.y-n.h/2} ${n.x+n.w/2},${n.y} ${n.x},${n.y+n.h/2} ${n.x-n.w/2},${n.y}" class="nd dec"/>`;
+    else h+=`<rect x="${n.x-n.w/2}" y="${n.y-n.h/2}" width="${n.w}" height="${n.h}" rx="12" class="nd ${n.c||''}"/>`;
+    h+=`<text x="${n.x}" y="${n.y+5}" class="nlabel">${n.l}</text>`;
+  });
+  (notes||[]).forEach(t=>h+=`<text x="${t.x}" y="${t.y}" class="elabel" style="font-size:14px">${t.l}</text>`);
+  s.innerHTML=h;
+}
+const R=(x,y,l,w=190,h=50,c)=>({x,y,l,w,h,c}), D=(x,y,l,w=170,h=110)=>({t:'d',x,y,l,w,h});
+flow('flow2',560,520,
+  [R(280,40,'Digitar o nome',190),R(280,130,'Procurar na lista',190),D(280,255,'Está na lista?',210,120),R(110,395,'“Está cadastrado”',190),R(450,395,'“Não encontrado”',190,50,'bad'),R(280,480,'Fim da consulta',190,50,'end')],
+  [{p:[[280,65],[280,105]]},{p:[[280,155],[280,195]]},
+   {p:[[175,255],[110,255],[110,370]],l:'Sim',lx:140,ly:245},{p:[[385,255],[450,255],[450,370]],l:'Não',lx:420,ly:245},
+   {p:[[110,420],[110,480],[185,480]]},{p:[[450,420],[450,480],[375,480]]}]);
+flow('flow4',680,510,
+  [R(340,40,'Exibir menu'),R(340,130,'Escolher opção'),D(340,250,'Opção',160,110),R(90,390,'Cadastrar',150),R(260,390,'Consultar',150),R(430,390,'Listar',150),R(590,390,'Encerrar',120,50,'end')],
+  [{p:[[340,65],[340,105]]},{p:[[340,155],[340,195]]},
+   {p:[[260,250],[90,250],[90,365]],l:'1',lx:170,ly:241},
+   {p:[[340,305],[340,330],[260,330],[260,365]],l:'2',lx:295,ly:322},
+   {p:[[340,330],[430,330],[430,365]],l:'3',lx:395,ly:322},
+   {p:[[420,250],[590,250],[590,365]],l:'0',lx:510,ly:241},
+   {p:[[90,415],[90,470]],na:true},{p:[[260,415],[260,470]],na:true},
+   {p:[[430,415],[430,470],[22,470],[22,40],[245,40]]}],
+  [{x:230,y:495,l:'↺ volta para o menu (while)'}]);
+
+/* =============================== QUIZ =============================== */
+const QUIZ={
+q1:[
+ ["O que acontece com uma lista criada apenas na memória quando o programa é encerrado?",["É salva.","É apagada.","É copiada.","É compartilhada."]],
+ ["Qual comando cria uma lista vazia chamada produtos?",["produtos = []","produtos = \"\"","produtos = 0","produtos()"]],
+ ["Na lista produtos = [\"Caderno\", \"Caneta\", \"Borracha\"], qual é o valor de produtos[1]?",["\"Caderno\"","\"Caneta\"","\"Borracha\"","Dá erro."]],
+ ["Qual comando adiciona \"Régua\" no final da lista produtos?",["produtos = \"Régua\"","print(\"Régua\")","produtos.append(\"Régua\")","append.produtos(\"Régua\")"]],
+ ["Uma lista tem 5 elementos. Qual é o índice do último elemento?",["5","4","0","6"]]
+],
+q2:[
+ ["Qual operação deve ser utilizada quando o usuário deseja visualizar todos os produtos cadastrados?",["Incluir.","Validar.","Consultar.","Listar."]],
+ ["O que a expressão  \"Caneta\" in produtos  verifica?",["Quantas canetas existem na lista.","Se \"Caneta\" está dentro da lista.","Coloca \"Caneta\" no final da lista.","Apaga \"Caneta\" da lista."]],
+ ["Em  for produto in produtos:  o que a variável produto recebe a cada volta?",["A lista inteira.","O tamanho da lista.","Um elemento da lista por vez.","Sempre o primeiro elemento."]],
+ ["A lista tem \"Caderno\". O usuário consulta \"caderno\" (com letra minúscula). O que o programa da Aula 2 responde?",["Que está cadastrado.","Que não foi encontrado.","Um erro.","Cadastra o produto de novo."]],
+ ["Na agenda do celular, procurar o contato de uma pessoa pelo nome é qual operação?",["Cadastrar.","Consultar.","Listar.","Encerrar."]]
+],
+q3:[
+ ["A consulta percorre a lista comparando cada item. Se a repetição terminar sem encontrar o produto, o que o programa deverá fazer?",["Criar automaticamente o produto na lista.","Repetir a busca desde o início.","Informar que o produto não foi encontrado.","Encerrar sem mostrar nenhuma mensagem."]],
+ ["Se produtos = [(\"Caneta\", 2.5), (\"Caderno\", 18.9)], o que é produtos[1][1]?",["\"Caneta\"","2.5","\"Caderno\"","18.9"]],
+ ["Na consulta, para que serve a variável encontrado?",["Guardar o preço do produto.","Guardar se o produto já apareceu na busca.","Contar quantos produtos existem.","Mostrar o menu na tela."]],
+ ["Por que usamos .lower() nos dois lados da comparação?",["Para o programa ficar mais rápido.","Para apagar o produto da lista.","Para \"Caderno\" e \"caderno\" serem considerados iguais.","Para mostrar o preço com vírgula."]],
+ ["Qual comando coloca um produto na PRIMEIRA posição da lista?",["produtos.append(produto)","produtos.insert(0, produto)","produtos[1] = produto","print(produto)"]]
+],
+q4:[
+ ["Qual estrutura percorre todos os produtos na função listar_produtos?",["for","if","def","input"]],
+ ["Para que serve o teste  if len(produtos) == 0:  na listagem?",["Cadastrar um produto novo.","Contar até zero.","Avisar que não há produtos cadastrados.","Encerrar o programa."]],
+ ["Para ligar a listagem à opção 3 do menu, o que escrevemos dentro do  elif opcao == \"3\":?",["def listar_produtos(produtos):","listar_produtos(produtos)","produtos.append(3)","print(\"3\")"]],
+ ["O programa da papelaria é fechado e aberto de novo. O que acontece com os produtos cadastrados?",["Continuam na lista.","Somem, porque estavam só na memória.","Ficam salvos em um arquivo.","Aparecem só os três primeiros."]],
+ ["O que o código  f\"{produto[1]:.2f}\"  mostra quando o preço é 3.0?",["3","3.0","3.00","R$ 3"]]
+]};
+document.querySelectorAll('[data-quiz]').forEach(box=>{
+  const qs=QUIZ[box.dataset.quiz], L='ABCD';
+  box.innerHTML=qs.map((q,i)=>`<div class="qcard"><h3><span>${i+1}</span>${esc(q[0])}</h3><div class="opts">${q[1].map((o,j)=>`<button><b>${L[j]}</b><span>${esc(o)}</span></button>`).join('')}</div></div>`).join('')+
+  `<div class="quiz-foot"><span>✏️ Marque suas respostas e anote no caderno. A correção será feita com o professor.</span><button class="btn clear">Limpar respostas</button></div>`;
+  box.querySelectorAll('.opts').forEach(o=>o.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ o.querySelectorAll('button').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); })));
+  box.querySelector('.clear').onclick=()=>box.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel'));
+});
+
+observeAll();
+</script>
+</body>
+</html>
