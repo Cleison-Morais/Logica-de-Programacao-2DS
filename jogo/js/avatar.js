@@ -94,6 +94,7 @@
     add("B", PALETA.calcado[av.corCalcado] ?? PALETA.calcado[0]);
     add("C", PALETA.roupa[av.corChapeu] ?? PALETA.roupa[0]);
     add("Z", "#f4f4f8", 0.55); add("G", "#22222e", 0.6); add("L", "#3a4a6a"); add("N", "#00d8f0"); add("K", "#ffd23f"); add("Q", "#a0662e"); add("A", "#5a3ad0"); add("D", "#2a2a3a", 0.6); add("R", "#e3263a");
+    m.O0 = "#1a1a1a";   // contorno de fora (silhueta)
     m.E0 = "#1c1630"; m.W0 = "#ffffff"; m.I0 = PALETA.olhos[av.corOlhos] ?? PALETA.olhos[0];
     m.M0 = "#7a2232"; m.m0 = "#ff8a9a"; m.r0 = "#e8607a"; m.k0 = "#ff2a4d"; m.j0 = "#2f9bff";
     return m;
@@ -117,6 +118,7 @@
         }
       },
       pinta(fn) { for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const k = p[y][x]; if (k) { const n = fn(x, y, k); if (n) p[y][x] = n; } } },
+      desloca(dy) { if (dy < 0) { for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) p[y][x] = y - dy < H ? p[y - dy][x] : null; } },
       apaga(fn) { for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (p[y][x] && fn(x, y)) p[y][x] = null; }
     };
     return L;
@@ -243,10 +245,14 @@
         for (let k = 0; k < 4; k++) s.set(b - 5 + k, YS + 1 + (k > 1 ? 1 : 0), "B0");
         s.ret(a, YS + 4, b + 1, YS + 5, "B1");
       }
+      // perna de trás: 2 px mais alta, para os pés seguirem a diagonal do losango do piso
+      if (!frente) { c.desloca(-2); s.desloca(-2); }
       compor(base, c); compor(base, s);
     };
-    perna(costas ? 30 : 19, costas ? 36 : 26, costas ? passo[1] : passo[1], false);
-    perna(costas ? 19 : 29, costas ? 26 : 36, passo[0], true);
+    // Em 3/4, o lado do corpo mais perto de quem olha é o da esquerda da tela (de frente)
+    // ou o da direita da tela (de costas). A perna desse lado vem por último, mais baixa.
+    perna(costas ? 19 : 29, costas ? 26 : 36, passo[1], false);
+    perna(costas ? 30 : 19, costas ? 36 : 26, passo[0], true);
     if (costas) {   // de costas, a perna da esquerda fica na frente
       // já desenhada na ordem certa: a da direita (atrás) primeiro
     }
@@ -285,7 +291,8 @@
       c.elipse(x0 + (aw - 1) / 2 + dx, Y0 + 14, fem ? 2.3 : 2.7, 2.4, "S", frente ? "0" : "1");
       compor(base, c);
     };
-    const braco1 = costas ? tx1 + 1 : tx0 - aw, braco2 = costas ? tx0 - aw : tx1;
+    // braço de trás: fica 2 px escondido atrás do tronco; braço da frente: inteiro, por cima
+    const braco1 = costas ? tx0 - aw + 2 : tx1 - 1, braco2 = costas ? tx1 + 1 : tx0 - aw;
     if (costasIt === "mochila" && !costas) { const k = camada(); k.forma((x, y) => y >= Y0 + 2 && y <= Y0 + 12 && x >= tx0 - 6 && x <= tx0 + 1 && !(y === Y0 + 2 && x === tx0 - 6), "C", (x, y) => (x <= tx0 - 5 ? "1" : y === Y0 + 2 ? "2" : y === Y0 + 7 ? "1" : "0")); compor(base, k); }
     braco(braco1, passo[3], false);
 
@@ -553,6 +560,16 @@
     return base.p;
   }
 
+  // ---------------- contorno de fora ----------------
+  // O contorno de cada peça usa um tom escuro da própria cor; na borda de fora do
+  // boneco (encostando no transparente) ele vira preto #1a1a1a, como nos móveis.
+  function silhueta(g) {
+    const vazio = (x, y) => x < 0 || y < 0 || x >= W || y >= H || !g[y][x];
+    const borda = [];
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const v = g[y][x]; if (v && v[1] === "3" && (vazio(x - 1, y) || vazio(x + 1, y) || vazio(x, y - 1) || vazio(x, y + 1))) borda.push([x, y]); }
+    borda.forEach(([x, y]) => { g[y][x] = "O0"; });
+  }
+
   // ---------------- pose sentada ----------------
   // Usa o boneco em pé, abaixa a parte de cima e desenha as pernas dobradas
   // para a frente (para a direita da grade; o espelho cuida do outro lado).
@@ -573,7 +590,7 @@
       if (av.calcado === "tenis" || av.calcado === "cano") c.ret(a, y0 + 4, b, y0 + 4, "Z" + t0); else c.ret(a, y0 + 4, b, y0 + 4, "B1");
       compor(base, c);
     };
-    perna(-2, -2, false);
+    perna(2, -2, false);
     perna(0, 0, true);
     const lim = curta ? YL + 6 : YL + 3;
     for (let y = 0; y <= lim; y++) for (let x = 0; x < W; x++) { const v = emPe[y][x]; if (v && y + DESCE < H) base.p[y + DESCE][x] = v; }
@@ -591,6 +608,7 @@
     const costas = dir === 2 || dir === 3, espelho = dir === 1 || dir === 2;
     let g = desenharGrade(av, costas, pose === "sentado" ? 0 : quadro, piscar);
     if (pose === "sentado") g = gradeSentada(g, av);
+    silhueta(g);
     const C = cores(av);
     const c = document.createElement("canvas"); c.width = W; c.height = H;
     const ctx = c.getContext("2d");
