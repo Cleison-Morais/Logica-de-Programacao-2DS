@@ -38,7 +38,7 @@ Jogo educacional **Código Arcade**: ensina lógica e Python para alunos do 2º 
 ## Como criar um mundo novo
 1. Em `mundos/mundos.js`, mude o mundo para `pronto: true`.
 2. Crie `mundos/mundoN.js` (copie a estrutura do `mundo1.js`).
-3. Adicione `<script src="mundos/mundoN.js?v=5"></script>` no `index.html` **e** no `professor.html`, depois do último mundo.
+3. Adicione `<script src="mundos/mundoN.js?v=6"></script>` no `index.html` **e** no `professor.html`, depois do último mundo.
 4. Sempre que mudar um arquivo `.js`, aumente o número do `?v=` nos dois HTML, para o navegador dos alunos baixar a versão nova.
 
 ## Formato de uma fase
@@ -87,7 +87,7 @@ Escreva sempre `dica` (ou `dicas` por alternativa): o aluno lê a dica quando er
 ## Plano dos mundos
 1. Vila da Lógica: algoritmos e fluxogramas ✅
 2. Praia do Print: `print`, `input`, variáveis, f-string ✅
-3. Deserto dos Cálculos: operadores, `int()`, `float()`
+3. Deserto dos Cálculos: operadores, `int()`, `float()` ✅
 4. Montanha das Decisões: `if`, `elif`, `else`
 5. Caverna do Loop: `while`, `for`
 6. Cidade das Listas: listas e índices
