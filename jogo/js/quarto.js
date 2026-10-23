@@ -23,6 +23,8 @@
   const ESCALA = 2;                          // 32×16 no desenho → 64×32 na tela
   const PORTA = { x: 0, y: 2 };              // ladrilho na frente da porta
   const VELOCIDADE = 0.0042;                 // ladrilhos por milissegundo
+  const ESPESSURA = 0.25;                    // grossura da parede (0.25 ladrilho = 8 px na tela)
+  const ALTURA_PORTA = 44;                   // altura do vão da porta
   const PISOS = [["#c8955a", "#b8854a", "madeira"], ["#a8aec0", "#9aa0b2", "xadrez"], ["#5aa86a", "#4e9c5e", "grama"], ["#e8e0d0", "#dcd2c0", "xadrez"], ["#6a5aa8", "#5e4e9c", "xadrez"], ["#2a2e40", "#3a3e52", "xadrez"],
     ["#b07a48", "#9a6a3c", "taco"], ["#d84a6a", "#b83a58", "carpete"], ["#3a8ad0", "#2f78bc", "carpete"], ["#ececf2", "#d4d4e0", "marmore"], ["#16102a", "#ff2a8a", "neon"], ["#16102a", "#3fd0ff", "neon"]];
   const PAREDES = ["#8ab4e8", "#e8a0b4", "#a0d8a0", "#e8d090", "#b0a0e0", "#d0d0d8", "#3a3a5a", "#ff9a5a", "#5ad0c0", "#f4f0e6", "#1e1e2e"];
@@ -102,8 +104,9 @@
       const r = this.cv.getBoundingClientRect();
       const lx = (e.clientX - r.left) * LW / r.width - OX, ly = (e.clientY - r.top) * LH / r.height - OY;
       const x = Math.floor((ly / (ISO.TH / 2) + lx / (ISO.TW / 2)) / 2), y = Math.floor((ly / (ISO.TH / 2) - lx / (ISO.TW / 2)) / 2);
-      const [ax, ay] = P(0, 2, 0), [bx, by] = P(0, 3, 0);
-      const naPorta = lx + OX >= ax - 2 && lx + OX <= bx + 2 && ly + OY <= by && ly + OY >= ay - 44 && x < 0;
+      // clique dentro do vão da porta (ou no ladrilho de entrada)?
+      const dentroDe = (pts, X, Y) => { let d = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, yi] = pts[i], [xj, yj] = pts[j]; if ((yi > Y) !== (yj > Y) && X < (xj - xi) * (Y - yi) / (yj - yi) + xi) d = !d; } return d; };
+      const naPorta = dentroDe(this.vaoPorta(), lx + OX, ly + OY) || (x === -1 && y === PORTA.y);
       // clicar no encosto de uma cadeira (que fica acima do chão) também conta como clicar nela
       let assento = null;
       if (!naPorta) for (const it of this.q.itens) {
@@ -155,7 +158,7 @@
       const e = this.eu;
       // se está no meio de um passo, termina esse passo e calcula a rota a partir do próximo ladrilho
       const meioDoPasso = this.caminho.length && (e.px !== e.x || e.py !== e.y), proximo = meioDoPasso ? this.caminho[0] : null;
-      if (!meioDoPasso && e.x === x && e.y === y) { if (sairDepois) this.sair(); else if (this.assentoEm(x, y)) this.sentar(); return; }
+      if (!meioDoPasso && e.x === x && e.y === y) { if (sairDepois) { this.caminho = [[-1, PORTA.y]]; this.destino = [-1, PORTA.y]; this.sairNoFim = true; } else if (this.assentoEm(x, y)) this.sentar(); return; }
       const cam = this.aEstrela(proximo || [e.x, e.y], [x, y]);
       if (!cam) { if (this.op.aoErro && !this.op.visita) this.op.aoErro("Não dá para chegar aí."); return; }
       this.levantar();
@@ -183,7 +186,7 @@
       const e = this.eu, nx = e.x + dx, ny = e.y + dy;
       this.levantar();
       e.dir8 = AVATAR.direcao8(dx, dy); e.dir = AVATAR.vista(e.dir8, e.dir);
-      if (e.x === PORTA.x && e.y === PORTA.y && dx === -1) { this.sair(); return; }
+      if (e.x === PORTA.x && e.y === PORTA.y && dx === -1) { this.caminho = [[-1, PORTA.y]]; this.destino = [-1, PORTA.y]; this.sairNoFim = true; return; }
       if (this.livre(nx, ny) || this.assentoEm(nx, ny)) { this.caminho = [[nx, ny]]; this.destino = [nx, ny]; }
     }
     dpad(dx, dy) { if (!this.caminho.length && !this.editando) this.passo(dx, dy); }
@@ -304,8 +307,8 @@
       const e = this.eu;
       if (!this.caminho.length) { if (!e.sentado) e.quadro = 0; e.t = 0; return; }
       let [tx, ty] = this.caminho[0];
-      // um móvel apareceu no caminho? recalcula a rota
-      if (!this.livre(tx, ty) && !(this.destino && tx === this.destino[0] && ty === this.destino[1] && this.assentoEm(tx, ty))) {
+      // um móvel apareceu no caminho? recalcula a rota (o ladrilho de entrada da porta fica fora da grade)
+      if (tx >= 0 && !this.livre(tx, ty) && !(this.destino && tx === this.destino[0] && ty === this.destino[1] && this.assentoEm(tx, ty))) {
         const d = this.destino; this.caminho = [];
         if (d && (e.px !== e.x || e.py !== e.y)) { e.px = e.x; e.py = e.y; }
         if (d) { const cam = this.aEstrela([e.x, e.y], d); if (cam && cam.length) this.caminho = cam; }
@@ -316,7 +319,8 @@
       if (dist <= v) {
         e.px = e.x = tx; e.py = e.y = ty; this.caminho.shift();
         if (!this.caminho.length) {
-          if (this.sairNoFim && e.x === PORTA.x && e.y === PORTA.y) { this.sairNoFim = false; this.sair(); return; }
+          if (this.sairNoFim && e.x === PORTA.x && e.y === PORTA.y) { this.caminho = [[-1, PORTA.y]]; this.destino = [-1, PORTA.y]; return; }   // entra no vão da porta
+          if (this.sairNoFim && e.x < 0) { this.sairNoFim = false; this.sair(); return; }
           if (this.assentoEm(e.x, e.y)) { this.sentar(); return; }
           const k = [...this.teclas].pop();
           if (k && TECLAS[k]) this.passo(...TECLAS[k]);
@@ -366,7 +370,7 @@
         if (tipo === 1) for (let u = 0.25; u < N; u += 0.5) Q(l, u, u + 0.22, 0, PAREDE, esc);
         if (tipo === 2) for (let v = 8, k = 0; v < PAREDE - 4; v += 10, k++) for (let u = (k % 2) * 0.25 + 0.12; u < N; u += 0.5) Q(l, u, u + 0.09, v, v + 2.5, cla);
         if (tipo === 3) for (let v = 6, k = 0; v < PAREDE; v += 6, k++) { Q(l, 0, N, v, v + 0.9, "rgba(0,0,0,.16)"); for (let u = (k % 2) * 0.3; u < N; u += 0.6) Q(l, u, u + 0.05, v - 5.1, v, "rgba(0,0,0,.14)"); }
-        if (tipo === 4) { Q(l, 0, N, 0, 28, l === "e" ? "#8a5a30" : "#a8743e"); for (let u = 0.33; u < N; u += 0.33) Q(l, u, u + 0.04, 3, 27, "rgba(0,0,0,.18)"); Q(l, 0, N, 27, 30, l === "e" ? "#5a3a1c" : "#6a4020"); Q(l, 0, N, 29.4, 30, "rgba(255,255,255,.25)"); }
+        if (tipo === 4) { Q(l, 0, N, 0, 28, l === "e" ? "#a8743e" : "#8a5a30"); for (let u = 0.33; u < N; u += 0.33) Q(l, u, u + 0.04, 3, 27, "rgba(0,0,0,.18)"); Q(l, 0, N, 27, 30, l === "e" ? "#6a4020" : "#5a3a1c"); Q(l, 0, N, 29.4, 30, "rgba(255,255,255,.25)"); }
         if (tipo === 5) for (let k = 0; k < 26; k++) { const u = sorte(k, l === "e" ? 1 : 2) * (N - 0.2) + 0.1, v = 6 + sorte(k, 7) * (PAREDE - 12); Q(l, u - 0.03, u + 0.03, v - 2, v + 2, "#ffd23f"); Q(l, u - 0.09, u + 0.09, v - 0.6, v + 0.6, "#ffd23f"); }
       });
     }
@@ -381,29 +385,58 @@
       const c = this.ctx, [a, b] = P(4.75, 0, 60), [a2, b2] = P(4.75, 0, 26); c.fillStyle = "rgba(20,12,28,.35)"; c.fillRect(Math.round(a) - 1, Math.round(b), 1, Math.round(b2 - b));
     }
 
+    // vão da porta (recorte na parede da esquerda) e o ladrilho de entrada atrás dele
+    vaoPorta() { const y0 = PORTA.y, y1 = PORTA.y + 1; return [P(0, y0, 0), P(0, y1, 0), P(0, y1, ALTURA_PORTA), P(0, y0, ALTURA_PORTA)]; }
+    desenharPorta(corPiso, destaque) {
+      const c = this.ctx, y0 = PORTA.y, y1 = PORTA.y + 1, vao = this.vaoPorta();
+      c.save(); c.beginPath(); vao.forEach(([a, b], k) => k ? c.lineTo(a, b) : c.moveTo(a, b)); c.closePath(); c.clip();
+      if (!destaque) {
+        ISO.poli(c, vao, "#07050f");                                                                 // escuro da passagem
+        ISO.poli(c, [P(-1, y0, 0), P(0, y0, 0), P(0, y1, 0), P(-1, y1, 0)], AVATAR.tom(corPiso, 0.85));   // ladrilho de entrada
+        ISO.poli(c, [P(-1, y0, 0), P(-0.55, y0, 0), P(-0.55, y1, 0), P(-1, y1, 0)], "rgba(7,5,15,.4)");     // vai escurecendo para dentro
+      } else {
+        c.fillStyle = destaque; c.beginPath(); [P(-1, y0, 0), P(0, y0, 0), P(0, y1, 0), P(-1, y1, 0)].forEach(([a, b], k) => k ? c.lineTo(a, b) : c.moveTo(a, b)); c.closePath(); c.fill();
+      }
+      c.restore();
+      if (destaque) return;
+      // batente (a grossura da parede aparece no lado do vão) e o degrau
+      ISO.poli(c, [P(0, y0, 0), P(-ESPESSURA, y0, 0), P(-ESPESSURA, y0, ALTURA_PORTA), P(0, y0, ALTURA_PORTA)], AVATAR.tom(PAREDES[this.q.parede] || PAREDES[0], 0.72));
+      ISO.poli(c, [P(0, y0, 2), P(0, y1, 2), P(0, y1, 0), P(0, y0, 0)], AVATAR.tom(corPiso, 1.12));          // degrau
+      ISO.poli(c, [P(0, y0, 2), P(0.12, y0, 2), P(0.12, y1, 2), P(0, y1, 2)], AVATAR.tom(corPiso, 1.25));
+      c.strokeStyle = "#140c1c"; c.lineWidth = 0.5; c.beginPath(); vao.forEach(([a, b], k) => k ? c.lineTo(a, b) : c.moveTo(a, b)); c.stroke();
+    }
     desenharCenario() {
       const c = this.ctx, q = this.q;
-      // paredes
-      const cp = PAREDES[q.parede] || PAREDES[0], cp1 = AVATAR.tom(cp, 0.82), cp2 = AVATAR.tom(cp, 0.68);
-      ISO.poli(c, [P(0, 0, PAREDE), P(0, N, PAREDE), P(0, N, 0), P(0, 0, 0)], cp1);
-      ISO.poli(c, [P(0, 0, PAREDE), P(N, 0, PAREDE), P(N, 0, 0), P(0, 0, 0)], cp);
-      c.fillStyle = "rgba(255,255,255,.08)";
+      // paredes: a da esquerda recebe mais luz; a da direita é 18% mais escura
+      const cp = PAREDES[q.parede] || PAREDES[0], cpE = cp, cpD = AVATAR.tom(cp, 0.82);
+      const [p0, p1, tipo] = PISOS[q.piso] || PISOS[0];
+      ISO.poli(c, [P(0, 0, PAREDE), P(0, N, PAREDE), P(0, N, 0), P(0, 0, 0)], cpE);
+      ISO.poli(c, [P(0, 0, PAREDE), P(N, 0, PAREDE), P(N, 0, 0), P(0, 0, 0)], cpD);
+      c.fillStyle = "rgba(0,0,0,.07)";
       for (let i = 1; i < N; i++) { const [a, b] = P(i, 0, PAREDE), [, d] = P(i, 0, 0); c.fillRect(Math.round(a), Math.round(b), 1, Math.round(d - b)); }
-      for (let i = 1; i < N; i++) { const [a, b] = P(0, i, PAREDE), [, d] = P(0, i, 0); c.fillStyle = "rgba(0,0,0,.08)"; c.fillRect(Math.round(a), Math.round(b), 1, Math.round(d - b)); }
-      ISO.poli(c, [P(0, 0, PAREDE), P(0, N, PAREDE), P(-0.25, N, PAREDE + 2), P(-0.25, -0.25, PAREDE + 2)], cp2);
-      ISO.poli(c, [P(0, 0, PAREDE), P(N, 0, PAREDE), P(N, -0.25, PAREDE + 2), P(-0.25, -0.25, PAREDE + 2)], AVATAR.tom(cp, 1.15));
+      c.fillStyle = "rgba(255,255,255,.07)";
+      for (let i = 1; i < N; i++) { const [a, b] = P(0, i, PAREDE), [, d] = P(0, i, 0); c.fillRect(Math.round(a), Math.round(b), 1, Math.round(d - b)); }
       this.papelDeParede(q.papel || 0, cp);
       this.janela();
       // rodapé
-      ISO.poli(c, [P(0, 0, 3), P(0, N, 3), P(0, N, 0), P(0, 0, 0)], AVATAR.tom(cp, 0.6));
-      ISO.poli(c, [P(0, 0, 3), P(N, 0, 3), P(N, 0, 0), P(0, 0, 0)], AVATAR.tom(cp, 0.7));
-      // porta
-      ISO.poli(c, [P(0, 2.08, 40), P(0, 2.92, 40), P(0, 2.92, 0), P(0, 2.08, 0)], "#5a3a20");
-      ISO.poli(c, [P(0, 2.16, 37), P(0, 2.84, 37), P(0, 2.84, 0), P(0, 2.16, 0)], "#140c1c");
-      const [px, py] = P(0, 2.75, 18); c.fillStyle = "#ffd23f"; c.fillRect(Math.round(px) - 1, Math.round(py), 2, 2);
-      if (!this.op.visita) { c.fillStyle = "#ffd23f"; c.font = "8px 'Press Start 2P', monospace"; const [tx, ty] = P(0, 2.5, 50); c.lineWidth = 2; c.strokeStyle = "#140c1c"; c.strokeText("SAIR", Math.round(tx) - 18, Math.round(ty)); c.fillText("SAIR", Math.round(tx) - 18, Math.round(ty)); }
+      ISO.poli(c, [P(0, 0, 3), P(0, N, 3), P(0, N, 0), P(0, 0, 0)], AVATAR.tom(cpE, 0.66));
+      ISO.poli(c, [P(0, 0, 3), P(N, 0, 3), P(N, 0, 0), P(0, 0, 0)], AVATAR.tom(cpD, 0.66));
+      // linha nítida no canto entre as duas paredes
+      { const [a, b] = P(0, 0, PAREDE), [, d] = P(0, 0, 0); c.fillStyle = AVATAR.tom(cp, 0.5); c.fillRect(Math.round(a) - 0.5, Math.round(b), 1, Math.round(d - b)); }
+      // porta: recorte na parede da esquerda com o ladrilho de entrada (-1, PORTA.y)
+      this.desenharPorta(p0);
+      // espessura 3D das paredes (8 px na tela): tampa em cima e laterais nas pontas
+      const E = ESPESSURA, base = -6, contorno = "#140c1c";
+      const tampa = AVATAR.tom(cp, 1.22);
+      ISO.poli(c, [P(0, 0, PAREDE), P(0, N, PAREDE), P(-E, N, PAREDE), P(-E, -E, PAREDE)], tampa);          // tampa da parede esquerda
+      ISO.poli(c, [P(0, 0, PAREDE), P(N, 0, PAREDE), P(N, -E, PAREDE), P(-E, -E, PAREDE)], AVATAR.tom(tampa, 0.94));   // tampa da parede direita
+      ISO.poli(c, [P(0, N, PAREDE), P(-E, N, PAREDE), P(-E, N, base), P(0, N, base)], AVATAR.tom(cpE, 0.7));   // ponta da parede esquerda
+      ISO.poli(c, [P(N, 0, PAREDE), P(N, -E, PAREDE), P(N, -E, base), P(N, 0, base)], AVATAR.tom(cpD, 0.62));  // ponta da parede direita
+      c.strokeStyle = contorno; c.lineWidth = 0.5; c.lineJoin = "miter";
+      c.beginPath(); [P(-E, N, base), P(-E, N, PAREDE), P(-E, -E, PAREDE), P(N, -E, PAREDE), P(N, -E, base)].forEach(([a, b], k) => k ? c.lineTo(a, b) : c.moveTo(a, b)); c.stroke();
+      c.beginPath(); [P(0, N, base), P(0, N, PAREDE), P(0, 0, PAREDE), P(N, 0, PAREDE), P(N, 0, base)].forEach(([a, b], k) => k ? c.lineTo(a, b) : c.moveTo(a, b)); c.stroke();
+      c.beginPath(); c.moveTo(...P(0, N, PAREDE)); c.lineTo(...P(-E, N, PAREDE)); c.moveTo(...P(N, 0, PAREDE)); c.lineTo(...P(N, -E, PAREDE)); c.stroke();
       // piso
-      const [p0, p1, tipo] = PISOS[q.piso] || PISOS[0];
       const lado = (x0, y0, x1, y1, cor, lw) => { c.strokeStyle = cor; c.lineWidth = lw || 0.6; c.beginPath(); c.moveTo(...P(x0, y0, 0)); c.lineTo(...P(x1, y1, 0)); c.stroke(); };
       for (let x = 0; x < N; x++) for (let y = 0; y < N; y++) {
         const cor = tipo === "madeira" ? ((x + Math.floor(y / 2)) % 2 ? p0 : p1) : tipo === "grama" ? ((x * 7 + y * 3) % 5 ? p0 : p1) : tipo === "taco" ? ((x + y) % 2 ? p0 : p1) : (tipo === "carpete" || tipo === "neon") ? p0 : ((x + y) % 2 ? p0 : p1);
@@ -426,7 +459,11 @@
     // destaque no ladrilho do mouse: branco = dá para andar, amarelo = dá para sentar
     desenharDestaque() {
       const c = this.ctx, losango = (x, y, w, d) => { c.beginPath(); c.moveTo(...P(x, y, 0)); c.lineTo(...P(x + w, y, 0)); c.lineTo(...P(x + w, y + d, 0)); c.lineTo(...P(x, y + d, 0)); c.closePath(); };
-      const marca = (x, y, w, d, cor, fundo) => { losango(x, y, w, d); if (fundo) { c.fillStyle = fundo; c.fill(); } c.strokeStyle = cor; c.lineWidth = 1.2; c.stroke(); };
+      const marca = (x, y, w, d, cor, fundo) => {
+        losango(x, y, w, d); if (fundo) { c.fillStyle = fundo; c.fill(); }
+        c.lineJoin = "round"; c.strokeStyle = cor.replace(/^#(..)(..)(..)$/, (m, r, g, b) => `rgba(${parseInt(r, 16)},${parseInt(g, 16)},${parseInt(b, 16)},.35)`); c.lineWidth = 2.4; c.stroke();   // brilho
+        c.strokeStyle = cor; c.lineWidth = 1; c.stroke();                                                                                                                                   // contorno
+      };
       const mo = this.mouse;
       if (this.editando) {
         if (this.selecionado && !this.pegando) { const m = ISO.achar(this.selecionado.m), [w, d] = ISO.pegada(m, this.selecionado.r); marca(this.selecionado.x, this.selecionado.y, w, d, "#ffd23f", "rgba(255,210,63,.15)"); }
@@ -437,9 +474,9 @@
         return;
       }
       if (!mo || this.op.visita) return;
-      if (mo.porta) { marca(PORTA.x, PORTA.y, 1, 1, "#ffd23f", "rgba(255,210,63,.18)"); return; }
+      if (mo.porta) { this.desenharPorta(null, "rgba(255,210,63,.35)"); marca(PORTA.x, PORTA.y, 1, 1, "#ffd23f", "rgba(255,210,63,.18)"); return; }
       if (mo.assento) { marca(mo.assento[0], mo.assento[1], 1, 1, "#ffd23f", "rgba(255,210,63,.22)"); return; }
-      if (dentro(mo.x, mo.y) && this.livre(mo.x, mo.y)) marca(mo.x, mo.y, 1, 1, "rgba(255,255,255,.75)", "rgba(255,255,255,.16)");
+      if (dentro(mo.x, mo.y) && this.livre(mo.x, mo.y)) marca(mo.x, mo.y, 1, 1, "#ffffff", "rgba(255,255,255,.14)");
     }
 
     // =========================================================
@@ -481,11 +518,12 @@
         if (this.caminho.length) prof = Math.max(prof, this.caminho[0][0] + this.caminho[0][1]);
         if (e.sentado) { const m = ISO.achar(e.sentado.item.m), [w, d] = ISO.pegada(m, e.sentado.item.r); prof = (e.sentado.item.x + w - 1) + (e.sentado.item.y + d - 1); }
         fila.push({ prof, camada: 2,
-          sombra: () => { const [sx, sy] = P(e.px + 0.5, e.py + 0.5, 0); c.fillStyle = "rgba(0,0,0,.24)"; c.beginPath(); c.ellipse(sx, sy, 9, 4, 0, 0, 7); c.fill(); },
+          sombra: () => { if (e.px < 0) return; const [sx, sy] = P(e.px + 0.5, e.py + 0.5, 0); c.fillStyle = "rgba(0,0,0,.24)"; c.beginPath(); c.ellipse(sx, sy, 9, 4, 0, 0, 7); c.fill(); },
           desenha: () => {
             const [sx, sy] = P(e.px + 0.5, e.py + 0.5, 0), pisc = (this.piscaT % 3200) < 150;
             const spr = AVATAR.sprite(av, e.dir, e.quadro, pisc, e.sentado ? "sentado" : "");
             c.save(); c.setTransform(1, 0, 0, 1, 0, 0);
+            if (e.px < 0) c.globalAlpha = Math.max(0, 1 + e.px * 1.6);   // some na escuridão da porta
             c.drawImage(spr, Math.round(sx * ESCALA - AVATAR.LARGURA / 2), Math.round(sy * ESCALA) - AVATAR.PES - 2 - (e.sentado ? e.sentado.dz : 0));
             c.restore();
           } });

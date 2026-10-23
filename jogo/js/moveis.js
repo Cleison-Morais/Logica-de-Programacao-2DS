@@ -47,7 +47,7 @@
     }
     if (tex === "listra") for (let k = 0.2; k < w; k += 0.4) poli(ctx, [P(x + k, y, z + h), P(x + k + 0.18, y, z + h), P(x + k + 0.18, y + d, z + h), P(x + k, y + d, z + h)], "rgba(255,255,255,.22)");
     // contorno escuro
-    ctx.strokeStyle = "rgba(20,12,28,.6)"; ctx.lineWidth = 0.8; ctx.lineJoin = "round";
+    ctx.strokeStyle = "#1a1028"; ctx.lineWidth = 0.5; ctx.lineJoin = "miter";   // contorno escuro de 1 px na tela
     ctx.beginPath(); [[P(x, y, z + h), P(x + w, y, z + h), P(x + w, y + d, z + h), P(x, y + d, z + h), P(x, y, z + h)], [P(x, y + d, z), P(x + w, y + d, z), P(x + w, y, z)]].forEach(l => { l.forEach(([a, b], i) => i ? ctx.lineTo(a, b) : ctx.moveTo(a, b)); });
     ctx.moveTo(...P(x, y + d, z + h)); ctx.lineTo(...P(x, y + d, z)); ctx.moveTo(...P(x + w, y + d, z + h)); ctx.lineTo(...P(x + w, y + d, z)); ctx.moveTo(...P(x + w, y, z + h)); ctx.lineTo(...P(x + w, y, z));
     ctx.stroke();
@@ -85,8 +85,9 @@
       partes: () => [[0.35, 0.35, 0.3, 0.3, 0, 2, c3(PRETO)], [0.47, 0.47, 0.06, 0.06, 2, 15, c3(METAL)], [0.3, 0.3, 0.4, 0.4, 16, 9, c3("#ffe070"), "listra"]],
       extra(ctx, cx, cy) { brilho(ctx, cx, cy - 20, 24, "rgba(255,230,120,.45)"); } },
     { id: "mesa_centro", nome: "Mesa de centro", preco: 55, w: 1, d: 1,
-      partes: () => [[0.15, 0.15, 0.08, 0.08, 0, 6, c3(MADE)], [0.77, 0.15, 0.08, 0.08, 0, 6, c3(MADE)], [0.15, 0.77, 0.08, 0.08, 0, 6, c3(MADE)], [0.77, 0.77, 0.08, 0.08, 0, 6, c3(MADE)],
-        [0.15, 0.15, 0.7, 0.7, 2, 1, c3(MAD), "veio"], [0.1, 0.1, 0.8, 0.8, 6, 1.5, VIDRO]],
+      // encaixa exatamente no ladrilho 1x1: tampo de borda a borda, pés nos 4 cantos
+      partes: () => [[0.04, 0.04, 0.1, 0.1, 0, 6, c3(MADE)], [0.86, 0.04, 0.1, 0.1, 0, 6, c3(MADE)], [0.04, 0.86, 0.1, 0.1, 0, 6, c3(MADE)], [0.86, 0.86, 0.1, 0.1, 0, 6, c3(MADE)],
+        [0.04, 0.04, 0.92, 0.92, 2, 1, c3(MAD), "veio"], [0, 0, 1, 1, 6, 1.5, VIDRO]],
       extra(ctx, cx, cy) { ctx.fillStyle = "#e3263a"; ctx.fillRect(cx - 5, cy - 11, 4, 3); ctx.fillStyle = "#fff"; ctx.fillRect(cx - 4, cy - 12, 2, 1); ctx.fillStyle = "#ffd23f"; ctx.fillRect(cx + 2, cy - 10, 5, 2); } },
     { id: "mesa", nome: "Mesa", preco: 60, w: 1, d: 1,
       partes: () => [[0.42, 0.42, 0.16, 0.16, 0, 12, c3(MADE), "veio"], [0.3, 0.3, 0.4, 0.4, 0, 1, c3(MADE)], [0.05, 0.05, 0.9, 0.9, 12, 2.5, c3(MAD), "veio"]] },
@@ -132,7 +133,8 @@
         ctx.fillStyle = "rgba(255,255,255,.6)"; ctx.fillRect(x, y - 26, 1, 22); ctx.fillStyle = "#ffd23f"; ctx.fillRect(x - 2, y - 29, 1, 1); ctx.fillRect(x + 2, y - 29, 1, 1);
       } },
     { id: "sofa", nome: "Sofá", preco: 120, w: 2, d: 1, sentavel: true, assento: 9, frente: [0, 1],
-      partes: () => { const c = c3("#e3263a"), l = c3("#ff5a6a"); return [[0.05, 0.1, 1.9, 0.8, 0, 6, c, "tecido"], [0.05, 0.1, 1.9, 0.2, 6, 11, c, "tecido"], [0.05, 0.1, 0.2, 0.8, 6, 5, c], [0.25, 0.3, 0.74, 0.58, 6, 3, l, "tecido"], [1.01, 0.3, 0.74, 0.58, 6, 3, l, "tecido"], [1.75, 0.1, 0.2, 0.8, 6, 5, c], [0.4, 0.15, 0.4, 0.15, 9, 7, c3("#ffd23f")]]; } },
+      // ocupa exatamente 2x1 ladrilhos; o encosto fica do lado y = 0 (encostado na parede da direita)
+      partes: () => { const c = c3("#e3263a"), l = c3("#ff5a6a"); return [[0, 0, 2, 1, 0, 6, c, "tecido"], [0, 0, 2, 0.24, 6, 11, c, "tecido"], [0, 0, 0.22, 1, 6, 5, c], [0.22, 0.24, 0.78, 0.76, 6, 3, l, "tecido"], [1, 0.24, 0.78, 0.76, 6, 3, l, "tecido"], [1.78, 0, 0.22, 1, 6, 5, c], [0.4, 0.26, 0.4, 0.15, 9, 7, c3("#ffd23f")]]; } },
     { id: "guarda_roupa", nome: "Guarda-roupa", preco: 130, w: 2, d: 1,
       partes: () => [[0.05, 0.1, 1.9, 0.8, 0, 44, c3(MAD), "veio"], [0.0, 0.05, 2.0, 0.9, 44, 2, c3(MADE)], [0.05, 0.1, 1.9, 0.8, 0, 2, c3(MADE)],
         [0.98, 0.9, 0.04, 0.02, 3, 39, c3(MADE)], [0.85, 0.9, 0.06, 0.04, 20, 6, c3("#ffd23f")], [1.09, 0.9, 0.06, 0.04, 20, 6, c3("#ffd23f")], [0.3, 0.9, 0.5, 0.02, 30, 10, ["#cfe8ff", "#a8d0f0", "#88b0d0"]]] },
