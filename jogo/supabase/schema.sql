@@ -97,7 +97,12 @@ insert into public.moveis (id, nome, preco) values
   ('planta', 'Planta', 30), ('pufe', 'Pufe', 35), ('cadeira', 'Cadeira', 40), ('tapete', 'Tapete', 40),
   ('abajur', 'Abajur', 50), ('mesa', 'Mesa', 60), ('estante', 'Estante de livros', 90), ('sofa', 'Sofá', 120),
   ('cama', 'Cama', 150), ('tv', 'TV', 160), ('mesa_pc', 'PC gamer', 200), ('aquario', 'Aquário', 220),
-  ('arcade', 'Fliperama', 300), ('trofeu', 'Troféu de ouro', 400)
+  ('arcade', 'Fliperama', 300), ('trofeu', 'Troféu de ouro', 400),
+  ('cacto', 'Cacto', 25), ('tapete_redondo', 'Tapete redondo', 45), ('mesa_centro', 'Mesa de centro', 55), ('lava', 'Luminária de lava', 70),
+  ('palmeira', 'Palmeira', 75), ('poltrona', 'Poltrona', 80), ('caixa_som', 'Caixa de som', 90), ('violao', 'Violão', 110),
+  ('guarda_roupa', 'Guarda-roupa', 130), ('cadeira_gamer', 'Cadeira gamer', 130), ('geladeira', 'Geladeira', 140), ('gato', 'Gatinho', 150),
+  ('cachorro', 'Cachorrinho', 180), ('cesta', 'Cesta de basquete', 180), ('pebolim', 'Pebolim', 250), ('refri', 'Máquina de refri', 280),
+  ('lareira', 'Lareira', 350)
 on conflict (id) do update set nome = excluded.nome, preco = excluded.preco;
 
 -- Remove funções da versão antiga (mudaram de assinatura)

@@ -25,18 +25,18 @@
   };
   const ESTILOS = {
     sexo:    ["m", "f"],
-    cabelo:  ["curto", "topete", "espetado", "moicano", "careca", "franja", "chanel", "longo", "rabo", "coque", "tranca", "cacheado", "afro"],
+    cabelo:  ["curto", "degrade", "topete", "espetado", "moicano", "careca", "franja", "lateral", "chanel", "longo", "rabo", "chiquinha", "coque", "tranca", "cacheado", "afro"],
     rosto:   ["normal", "feliz", "mal", "surpreso", "sono", "piscando", "lingua"],
-    roupa:   ["camiseta", "listrada", "polo", "xadrez", "moletom", "jaqueta", "social", "regata", "vestido"],
+    roupa:   ["camiseta", "estampa", "time", "listrada", "polo", "xadrez", "moletom", "jaqueta", "social", "jardineira", "regata", "vestido"],
     calca:   ["calca", "rasgada", "bermuda", "shorts", "saia"],
     calcado: ["tenis", "cano", "bota", "sapatilha", "chinelo"]
   };
   const NOMES = {
     m: "Masculino", f: "Feminino",
     curto: "Curto", topete: "Topete", espetado: "Espetado", moicano: "Moicano", careca: "Careca", franja: "Franja", chanel: "Chanel",
-    longo: "Longo", rabo: "Rabo de cavalo", coque: "Coque", tranca: "Trança", cacheado: "Cacheado", afro: "Black power",
+    degrade: "Degradê", lateral: "Franja de lado", chiquinha: "Maria-chiquinha", longo: "Longo", rabo: "Rabo de cavalo", coque: "Coque", tranca: "Trança", cacheado: "Cacheado", afro: "Black power",
     normal: "Normal", feliz: "Feliz", mal: "Cara de mal", surpreso: "Surpreso", sono: "Com sono", piscando: "Piscadinha", lingua: "Língua",
-    camiseta: "Camiseta", listrada: "Listrada", polo: "Polo", xadrez: "Xadrez", moletom: "Moletom", jaqueta: "Jaqueta", social: "Social + gravata", regata: "Regata", vestido: "Vestido",
+    camiseta: "Camiseta", estampa: "Camiseta estampada", time: "Camisa de time", jardineira: "Jardineira", listrada: "Listrada", polo: "Polo", xadrez: "Xadrez", moletom: "Moletom", jaqueta: "Jaqueta", social: "Social + gravata", regata: "Regata", vestido: "Vestido",
     calca: "Calça", rasgada: "Calça rasgada", bermuda: "Bermuda", shorts: "Shorts", saia: "Saia",
     tenis: "Tênis", cano: "Tênis cano alto", bota: "Bota", sapatilha: "Sapatilha", chinelo: "Chinelo"
   };
@@ -44,24 +44,33 @@
   const ITENS = [
     { id: "bone",    nome: "Boné",            slot: "chapeu", estrelas: 3 },
     { id: "laco",    nome: "Laço",            slot: "chapeu", estrelas: 4 },
+    { id: "bonetras",nome: "Boné pra trás",   slot: "chapeu", estrelas: 5 },
     { id: "oculos",  nome: "Óculos",          slot: "rosto2", estrelas: 6 },
+    { id: "cachecol",nome: "Cachecol",        slot: "pescoco", estrelas: 7 },
     { id: "gorro",   nome: "Gorro",           slot: "chapeu", estrelas: 9 },
+    { id: "bandana", nome: "Bandana",         slot: "chapeu", estrelas: 10 },
     { id: "faixa",   nome: "Faixa ninja",     slot: "chapeu", estrelas: 12 },
+    { id: "mochila", nome: "Mochila",         slot: "costas", estrelas: 13 },
     { id: "fone",    nome: "Fone gamer",      slot: "chapeu", estrelas: 15 },
+    { id: "gatinho", nome: "Orelhas de gato", slot: "chapeu", estrelas: 16 },
     { id: "escuros", nome: "Óculos escuros",  slot: "rosto2", estrelas: 18 },
     { id: "cowboy",  nome: "Chapéu de cowboy",slot: "chapeu", estrelas: 21 },
+    { id: "corrente",nome: "Corrente de ouro",slot: "pescoco", estrelas: 24 },
     { id: "cartola", nome: "Cartola",         slot: "chapeu", estrelas: 28 },
+    { id: "chifres", nome: "Chifrinhos",      slot: "chapeu", estrelas: 32 },
     { id: "visor",   nome: "Visor neon",      slot: "rosto2", estrelas: 35 },
+    { id: "capa",    nome: "Capa de herói",   slot: "costas", estrelas: 40 },
     { id: "mago",    nome: "Chapéu de mago",  slot: "chapeu", estrelas: 45 },
+    { id: "aureola", nome: "Auréola",         slot: "chapeu", estrelas: 50 },
     { id: "coroa",   nome: "Coroa",           slot: "chapeu", estrelas: 60 }
   ];
-  const PADRAO = { sexo: "m", pele: 1, cabelo: "curto", corCabelo: 0, rosto: "normal", corOlhos: 0, roupa: "camiseta", corRoupa: 0, corRoupa2: 9, calca: "calca", corCalca: 0, calcado: "tenis", corCalcado: 0, fundo: 0, chapeu: "", rosto2: "", corChapeu: 0 };
+  const PADRAO = { sexo: "m", pele: 1, cabelo: "curto", corCabelo: 0, rosto: "normal", corOlhos: 0, roupa: "camiseta", corRoupa: 0, corRoupa2: 9, calca: "calca", corCalca: 0, calcado: "tenis", corCalcado: 0, fundo: 0, chapeu: "", rosto2: "", pescoco: "", costas: "", corChapeu: 0 };
+  const SLOTS = ["chapeu", "rosto2", "pescoco", "costas"];
 
   function normalizar(av) {
     const a = Object.assign({}, PADRAO, av || {});
     for (const k of Object.keys(ESTILOS)) if (!ESTILOS[k].includes(a[k])) a[k] = PADRAO[k];
-    if (a.chapeu && !ITENS.some(i => i.id === a.chapeu && i.slot === "chapeu")) a.chapeu = "";
-    if (a.rosto2 && !ITENS.some(i => i.id === a.rosto2 && i.slot === "rosto2")) a.rosto2 = "";
+    for (const sl of SLOTS) if (a[sl] && !ITENS.some(i => i.id === a[sl] && i.slot === sl)) a[sl] = "";
     return a;
   }
 
@@ -115,8 +124,13 @@
   // luz vindo de cima e da direita (lado do rosto)
   const tomDe = (nx, ny) => (-nx * 0.5 + ny * 0.85 > 0.55 ? "1" : (nx * 0.45 - ny * 0.85 > 0.62 ? "2" : "0"));
   // junta a camada na imagem final, com contorno escuro em volta (semCont(x, y) pula pontos do contorno)
-  function compor(base, cam, contorno, semCont) {
+  function compor(base, cam, contorno, semCont, sombra) {
     const p = cam.p;
+    // sombra projetada: escurece "sombra" pixels logo abaixo da camada (ex.: franja sobre a testa)
+    if (sombra) for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      if (!p[y][x] || (y < H - 1 && p[y + 1][x])) continue;
+      for (let k = 1; k <= sombra; k++) { const v = y + k < H && base.p[y + k][x]; if (v && (v[1] === "0" || v[1] === "2") && "EWIMmrkj".indexOf(v[0]) < 0 && !(y + k < H && p[y + k][x])) base.p[y + k][x] = v[0] + "1"; }
+    }
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (p[y][x]) base.p[y][x] = p[y][x];
     if (contorno === false) return;
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
@@ -151,6 +165,14 @@
       return [tx0, tx1];
     };
 
+    const costasIt = av.costas, pesc = av.pescoco;
+    // ===== 0. capa (de frente ela fica atrás de tudo) =====
+    if (costasIt === "capa" && !costas) {
+      const k = camada();
+      k.forma((x, y) => y >= Y0 && y <= YS - 2 && x >= tx0 - 3 - Math.floor((y - Y0) / 5) && x <= tx1 + 1 + Math.floor((y - Y0) / 7), "C", (x, y) => (y >= YS - 3 ? "1" : (x - y) % 7 === 0 ? "0" : "1"));
+      compor(base, k);
+    }
+
     // ===== 1. cabelo comprido atrás do corpo =====
     const cabeloAtras = () => {
       const c = camada();
@@ -166,6 +188,10 @@
         const ox = costas ? CX : CX - 13;
         for (let k = 0; k <= 16; k++) { const hw = 3.2 - Math.abs(k - 6) * 0.22; c.elipse(ox - (costas ? 0 : Math.round(k / 5)), CY + 1 + k, Math.max(1.4, hw), 1.2, "H", k % 4 === 0 ? "1" : null); }
       }
+      if (cab === "chiquinha") {
+        const lados = costas ? [CX - 14, CX + 14] : [CX - 14];
+        lados.forEach(ox => { const s = ox < CX ? -1 : 1; for (let k = 0; k <= 13; k++) { const hw = 3 - Math.abs(k - 5) * 0.2; c.elipse(ox + s * Math.round(k / 6), CY - 3 + k, Math.max(1.3, hw), 1.2, "H", k % 4 === 1 ? "1" : null); } c.ret(ox - 1, CY - 4, ox + 1, CY - 3, "R0"); });
+      }
       if (cab === "tranca") {
         const ox = costas ? CX : CX - 11;
         for (let k = 0; k < 6; k++) c.elipse(ox, CY + 4 + k * 4, 2.8, 2.4, "H", k % 2 ? "1" : null);
@@ -179,7 +205,7 @@
       }
       return c;
     };
-    const cabeloLongo = ["longo", "chanel", "rabo", "tranca", "cacheado", "afro"].includes(cab);
+    const cabeloLongo = ["longo", "chanel", "rabo", "chiquinha", "tranca", "cacheado", "afro"].includes(cab);
     if (cabeloLongo && !costas) compor(base, cabeloAtras());
     if (cab === "afro" && costas) compor(base, cabeloAtras());
 
@@ -251,6 +277,7 @@
         for (let x = x0; x <= x0 + aw - 1; x++) {
           let t = frente ? (x === x0 ? "1" : x === x0 + aw - 1 && manga ? "2" : "0") : "1";
           if (manga && y === fimManga) t = "1";
+          if (roupa === "time" && manga && y >= fimManga - 1) { c.set(x + d, y, "U" + (frente ? "0" : "1")); continue; }
           if (roupa === "listrada" && manga && (y - Y0) % 4 === 3) { c.set(x + d, y, "U" + (frente ? "0" : "1")); continue; }
           c.set(x + d, y, mat + (mat === "S" && t === "2" ? "0" : t));
         }
@@ -259,6 +286,7 @@
       compor(base, c);
     };
     const braco1 = costas ? tx1 + 1 : tx0 - aw, braco2 = costas ? tx0 - aw : tx1;
+    if (costasIt === "mochila" && !costas) { const k = camada(); k.forma((x, y) => y >= Y0 + 2 && y <= Y0 + 18 && x >= tx0 - 6 && x <= tx0 + 1 && !(y === Y0 + 2 && x === tx0 - 6), "C", (x, y) => (x <= tx0 - 5 ? "1" : y === Y0 + 2 ? "2" : y === Y0 + 10 ? "1" : "0")); compor(base, k); }
     braco(braco1, passo[3], false);
 
     const t = camada();
@@ -277,7 +305,7 @@
     const meio = 28;
     if (!costas) {
       const decote = (fundo) => { for (let k = 0; k <= fundo; k++) t.ret(meio - 3 + k, Y0 + k, meio + 2 - k, Y0 + k, "S" + (k === 0 ? "1" : "0")); };
-      if (["camiseta", "listrada", "vestido", "xadrez"].includes(roupa)) { decote(roupa === "vestido" && fem ? 3 : 2); t.ret(meio - 2, Y0 + 3, meio + 1, Y0 + 3, corTronco + "1"); }
+      if (["camiseta", "estampa", "jardineira", "listrada", "vestido", "xadrez"].includes(roupa)) { decote(roupa === "vestido" && fem ? 3 : 2); t.ret(meio - 2, Y0 + 3, meio + 1, Y0 + 3, corTronco + "1"); }
       if (roupa === "polo") { decote(1); t.ret(meio - 5, Y0, meio - 3, Y0 + 2, "U0"); t.ret(meio + 2, Y0, meio + 4, Y0 + 2, "U0"); t.set(meio - 1, Y0 + 3, "T1"); t.set(meio - 1, Y0 + 5, "U0"); t.set(meio - 1, Y0 + 7, "U0"); }
       if (roupa === "regata") { decote(4); for (let y = Y0; y <= Y0 + 5; y++) { const [a, b] = larg(y); t.ret(a, y, a + 2 - (y > Y0 + 3 ? 1 : 0), y, "S1"); t.ret(b - 2 + (y > Y0 + 3 ? 1 : 0), y, b, y, "S0"); } }
       if (roupa === "moletom") {
@@ -296,25 +324,77 @@
         t.ret(meio - 1, Y0, meio, Y0 + 1, "T1"); t.ret(meio - 1, Y0 + 2, meio, Y0 + 12, "T0"); t.ret(meio - 2, Y0 + 9, meio + 1, Y0 + 12, "T0"); t.set(meio, Y0 + 3, "T2"); t.ret(meio - 1, Y0 + 13, meio, Y0 + 13, "T1");
       }
       if (roupa === "vestido") { t.ret(tx0, Y0 + 13, tx1, Y0 + 14, "U0"); }
+      if (roupa === "estampa") {   // estrela no peito
+        ["...#...", "..###..", "#######", ".#####.", "..###..", ".##.##.", "##...##"].forEach((l, j) => [...l].forEach((ch, i) => { if (ch === "#") t.set(meio - 2 + i, Y0 + 6 + j, j < 3 && i > 3 ? "U2" : "U0"); }));
+      }
+      if (roupa === "time") {
+        decote(3); for (let k = 0; k <= 3; k++) { t.set(meio - 3 + k, Y0 + k, "U0"); t.set(meio + 2 - k, Y0 + k, "U0"); }
+        for (let y = Y0 + 2; y < YL - 1; y++) { t.set(tx0 + 3, y, "U1"); t.set(tx1 - 2, y, "U0"); }
+        t.ret(meio + 3, Y0 + 5, meio + 4, Y0 + 6, "K0"); t.set(meio + 4, Y0 + 5, "K2");
+      }
+      if (roupa === "jardineira") {
+        t.forma((x, y) => (y >= Y0 + 7 && y < YL && x >= meio - 5 && x <= meio + 4) || (y >= Y0 + 15 && y < YL && x >= tx0 && x <= tx1), "P", (x, y) => (x <= tx0 + 2 || x === meio - 5 ? "1" : y === Y0 + 7 ? "2" : "0"));
+        for (let y = Y0; y <= Y0 + 7; y++) { t.ret(meio - 7, y, meio - 6, y, "P1"); t.ret(meio + 5, y, meio + 6, y, "P0"); }
+        t.set(meio - 6, Y0 + 7, "K0"); t.set(meio + 5, Y0 + 7, "K0");
+        t.ret(meio - 2, Y0 + 9, meio + 1, Y0 + 9, "P1"); t.ret(meio - 2, Y0 + 10, meio - 2, Y0 + 12, "P1"); t.ret(meio + 1, Y0 + 10, meio + 1, Y0 + 12, "P1"); t.ret(meio - 2, Y0 + 12, meio + 1, Y0 + 12, "P1");
+      }
     } else {
+      if (roupa === "time") {   // número 10 nas costas
+        const dig = { 1: [".#", "##", ".#", ".#", ".#", ".#", "##"], 0: ["###", "#.#", "#.#", "#.#", "#.#", "#.#", "###"] };
+        [[dig[1], meio - 4], [dig[0], meio]].forEach(([g, x0]) => g.forEach((l, j) => [...l].forEach((ch, i) => { if (ch === "#") t.set(x0 + i, Y0 + 4 + j, "U0"); })));
+      }
+      if (roupa === "jardineira") {
+        for (let k = 0; k <= 13; k++) { t.ret(meio - 7 + k, Y0 + k, meio - 6 + k, Y0 + k, "P0"); t.ret(meio + 5 - k, Y0 + k, meio + 6 - k, Y0 + k, "P1"); }
+        t.forma((x, y) => y >= Y0 + 14 && y < YL && x >= tx0 && x <= tx1, "P", (x, y) => (x >= tx1 - 2 ? "1" : "0"));
+      }
       if (roupa === "moletom") { t.forma((x, y) => y >= Y0 - 1 && y <= Y0 + 6 && Math.abs(x - meio + 0.5) <= 8 - Math.max(0, y - Y0 - 2) * 1.4, "T", (x, y) => (y >= Y0 + 5 ? "1" : y === Y0 - 1 ? "2" : "0")); t.forma((x, y) => y >= Y0 && y <= Y0 + 3 && Math.abs(x - meio + 0.5) <= 5 - (y - Y0), "T", () => "1"); }
       if (roupa === "regata") { t.forma((x, y) => y >= Y0 && y <= Y0 + 3 && Math.abs(x - meio + 0.5) <= 6 - (y - Y0), "S", () => "1"); }
-      if (["camiseta", "listrada", "polo", "xadrez", "vestido", "social"].includes(roupa)) t.ret(meio - 3, Y0, meio + 2, Y0, roupa === "polo" ? "U0" : "S1");
+      if (["camiseta", "estampa", "time", "listrada", "polo", "xadrez", "vestido", "social", "jardineira"].includes(roupa)) t.ret(meio - 3, Y0, meio + 2, Y0, roupa === "polo" || roupa === "time" ? "U0" : "S1");
       if (roupa === "jaqueta") t.ret(meio - 5, Y0, meio + 4, Y0 + 1, "T1");
       if (roupa === "vestido") t.ret(tx0, Y0 + 13, tx1, Y0 + 14, "U0");
     }
     if (roupa === "listrada") t.pinta((x, y, k) => (k[0] === "T" && (y - Y0) % 4 === 3 ? "U" + k[1] : null));
     if (roupa === "xadrez") t.pinta((x, y, k) => { if (k[0] !== "T") return null; const lx = (x + 1) % 6 < 2, ly = (y - Y0) % 6 < 2; return lx && ly ? "U1" : lx || ly ? "U0" : null; });
+    if (costasIt === "mochila" && !costas) for (let y = Y0; y <= Y0 + 12; y++) { t.ret(tx0 + 3, y, tx0 + 4, y, y === Y0 + 8 ? "G1" : "G0"); if (y <= Y0 + 9) t.set(tx1 - 3, y, "G0"); }
+    if (costasIt === "capa" && !costas) { t.ret(tx0, Y0, tx0 + 2, Y0 + 1, "C0"); t.ret(tx1 - 2, Y0, tx1, Y0 + 1, "C0"); t.set(tx0 + 3, Y0 + 1, "K0"); t.set(tx1 - 3, Y0 + 1, "K0"); }
     compor(base, t);
-
-    // pescoço
+    if (costas && costasIt === "mochila") {
+      const k = camada();
+      k.forma((x, y) => y >= Y0 + 1 && y <= Y0 + 19 && x >= tx0 + 1 && x <= tx1 - 1 && !((y === Y0 + 1 || y === Y0 + 19) && (x === tx0 + 1 || x === tx1 - 1)), "C", (x, y) => (x >= tx1 - 3 ? "1" : y <= Y0 + 2 ? "2" : "0"));
+      k.ret(tx0 + 2, Y0 + 7, tx1 - 2, Y0 + 7, "C1");
+      k.forma((x, y) => y >= Y0 + 11 && y <= Y0 + 17 && x >= meio - 6 && x <= meio + 5, "C", (x, y) => (y === Y0 + 11 ? "1" : x >= meio + 4 ? "1" : "0"));
+      k.ret(meio - 5, Y0 + 12, meio + 4, Y0 + 12, "Z0"); k.set(meio + 4, Y0 + 13, "K0");
+      compor(base, k);
+    }
     const pc = camada();
     pc.ret(CX - 3, CY + 8, CX + 3, Y0, "S1"); pc.ret(CX + 1, CY + 8, CX + 3, Y0 - 1, "S0");
     compor(base, pc, true, (x, y) => y > Y0);
+    // acessórios do pescoço
+    if (pesc === "cachecol") {
+      const k = camada();
+      k.forma((x, y) => y >= Y0 - 3 && y <= Y0 + 1 && Math.abs(x - meio + 0.5) <= 6.5 - (y === Y0 - 3 ? 1 : 0), "C", (x, y) => (y === Y0 + 1 ? "1" : "0"));
+      k.pinta((x, y, v) => (v[0] === "C" && x % 4 === 0 ? "Z" + (y === Y0 + 1 ? "1" : "0") : null));
+      const tx = costas ? -99 : meio - 4;
+      if (!costas) k.forma((x, y) => y > Y0 + 1 && y <= Y0 + 10 && x >= tx && x <= tx + 2, "C", (x, y) => (y >= Y0 + 9 ? "1" : x === tx ? "1" : "0"));
+      k.pinta((x, y, v) => (y === Y0 + 10 && x % 2 === 0 ? "Z0" : y === Y0 + 6 && v[0] === "C" ? "Z0" : null));
+      compor(base, k, true, null, 1);
+    }
+    if (pesc === "corrente" && !costas) {
+      const k = camada();
+      for (let i = 0; i <= 5; i++) { k.set(meio - 5 + i, Y0 + i, i % 2 ? "K1" : "K0"); k.set(meio + 4 - i, Y0 + i, i % 2 ? "K1" : "K0"); }
+      k.ret(meio - 1, Y0 + 6, meio, Y0 + 8, "K0"); k.set(meio, Y0 + 6, "K2");
+      compor(base, k, false);
+    }
+    if (costas && costasIt === "capa") {
+      const k = camada();
+      k.forma((x, y) => y >= Y0 - 1 && y <= YS - 2 && x >= tx0 - 2 - Math.floor((y - Y0) / 5) && x <= tx1 + 2 + Math.floor((y - Y0) / 5), "C", (x, y) => { const a = tx0 - 2 - Math.floor((y - Y0) / 5), b = tx1 + 2 + Math.floor((y - Y0) / 5); return y >= YS - 3 || x >= b - 1 ? "1" : x <= a + 1 ? "2" : (x - meio) % 6 === 0 && y > Y0 + 6 ? "1" : "0"; });
+      k.ret(meio - 7, Y0 - 1, meio + 6, Y0, "C1");
+      compor(base, k);
+    }
     braco(braco2, passo[2], true);
 
     // ===== 5. cabelo comprido por cima das costas =====
-    if (costas && cabeloLongo && !["afro", "rabo", "tranca"].includes(cab)) compor(base, cabeloAtras());
+    if (costas && cabeloLongo && !["afro", "rabo", "tranca", "chiquinha"].includes(cab)) compor(base, cabeloAtras());
 
     // ===== 6. cabeça =====
     const cb = camada();
@@ -373,18 +453,20 @@
     const topo = (x, y) => naCabeca(x, y, 1.6) && y <= CY - 6;
     const nuca = (x, y, lim) => naCabeca(x, y, 1.4) && x <= CX - 9 && y <= lim;
     if (costas) {
-      const lim = { curto: CY + 4, topete: CY + 4, espetado: CY + 4, franja: CY + 6, chanel: CY + 9, longo: CY + 9, rabo: CY + 6, coque: CY + 6, tranca: CY + 6, cacheado: CY + 9, afro: CY + 8 }[cab];
-      if (lim) h.forma((x, y) => naCabeca(x, y, 1.6) && y <= lim, "H", tomCab);
+      const lim = { degrade: CY - 1, lateral: CY + 6, chiquinha: CY + 6, curto: CY + 4, topete: CY + 4, espetado: CY + 4, franja: CY + 6, chanel: CY + 9, longo: CY + 9, rabo: CY + 6, coque: CY + 6, tranca: CY + 6, cacheado: CY + 9, afro: CY + 8 }[cab];
+      if (lim) h.forma((x, y) => naCabeca(x, y, cab === "degrade" ? 1 : 1.6) && y <= lim && (cab !== "degrade" || y <= CY - 5 || (x + y) % 2 === 0), "H", tomCab);
       if (cab === "rabo") { h.ret(CX - 2, CY + 1, CX + 2, CY + 2, "R0"); }
       if (cab === "tranca") h.ret(CX - 1, CY + 2, CX + 1, CY + 3, "H1");
     } else if (cab !== "careca" && cab !== "moicano") {
-      const liso = ["rabo", "coque", "tranca", "longo"].includes(cab);
+      const liso = ["rabo", "chiquinha", "coque", "tranca", "longo"].includes(cab);
       h.forma((x, y) => {
+        if (cab === "degrade") return (naCabeca(x, y, 1) && y <= CY - 7) || (naCabeca(x, y, 1) && x <= CX - 4 && y <= CY + 1 && (y <= CY - 5 || (x + y) % 2 === 0));
         if (topo(x, y)) return true;
         if (nuca(x, y, ["longo", "chanel", "cacheado", "afro"].includes(cab) ? CY + 7 : CY + 3)) return true;
         if (naCabeca(x, y, 1.4) && x <= CX - 5 && y <= (["longo", "chanel", "cacheado", "afro"].includes(cab) ? CY + 7 : CY - 2)) return true;
-        if (x >= CX - 4 && x <= CX - 3 && y <= CY + 2 && naCabeca(x, y)) return !["rabo", "coque", "tranca"].includes(cab) || y <= CY - 1;   // costeleta
+        if (x >= CX - 4 && x <= CX - 3 && y <= CY + 2 && naCabeca(x, y)) return !["rabo", "chiquinha", "coque", "tranca"].includes(cab) || y <= CY - 1;   // costeleta
         if (!naCabeca(x, y, 1.6)) return false;
+        if (cab === "lateral") return y <= Math.min(CY + 1, CY - 4 + Math.floor(Math.max(0, x - CX + 2) / 1.6));
         if (cab === "franja" || cab === "chanel") return y <= CY - 3 - (cab === "franja" ? Math.floor(Math.max(0, x - CX - 2) / 4) : 0) + (cab === "franja" && x < CX + 2 ? 1 : 0);
         if (liso) return y === CY - 5 && x >= CX - 4 && x <= CX + 4;
         if (cab === "cacheado" || cab === "afro") return y <= CY - 4 && (x % 3 !== 0 || y <= CY - 5);
@@ -396,6 +478,7 @@
       if (cab === "chanel") h.forma((x, y) => x >= CX + 11 && x <= CX + 14 && y >= CY - 6 && y <= CY + 6 && naCabeca(x, y, 1.8) && !naCabeca(x - 2, y), "H", () => "1");
       if (cab === "longo") h.forma((x, y) => x >= CX + 10 && x <= CX + 14 && y >= CY - 6 && y <= CY + 9 && !naCabeca(x - 1, y) && naCabeca(x - 2, Math.min(y, CY + 4), 2.6), "H", () => "1");
       if (liso) { for (let x = CX - 4; x <= CX + 6; x += 3) h.set(x, CY - 9, "H1"); }
+      if (cab === "chiquinha") { const ox = CX + 14; for (let k = 0; k <= 13; k++) { const hw = 3 - Math.abs(k - 5) * 0.2; h.elipse(ox + Math.round(k / 6), CY - 3 + k, Math.max(1.3, hw), 1.2, "H", k % 4 === 1 ? "1" : k % 4 === 3 ? "2" : null); } h.ret(ox - 1, CY - 4, ox + 1, CY - 3, "R0"); }
     }
     if (!costas || ["topete", "espetado", "moicano", "coque"].includes(cab)) {
       if (cab === "topete") { h.elipse(CX + 4, CY - RY - 2, 9, 4.2, "H"); h.elipse(CX + 11, CY - RY - 1, 3.5, 2.6, "H"); h.set(CX + 13, CY - RY + 1, "H1"); }
@@ -408,8 +491,8 @@
     }
     if (cab === "careca") { base.set(CX - 4, CY - 9, "S2"); base.set(CX - 3, CY - 9, "S2"); base.set(CX - 5, CY - 8, "S2"); }
     if (cab === "afro" || cab === "cacheado") h.pinta((x, y, k) => ((x * 7 + y * 13) % 9 === 0 ? "H2" : (x * 3 + y * 5) % 7 === 0 ? "H1" : null));
-    compor(base, h);
-    if (costas && (cab === "rabo" || cab === "tranca")) compor(base, cabeloAtras());
+    compor(base, h, true, null, 1);
+    if (costas && (cab === "rabo" || cab === "tranca" || cab === "chiquinha")) compor(base, cabeloAtras());
     if (cab === "rabo" && !costas) base.ret(CX - 8, CY - 3, CX - 7, CY - 1, "R0");
 
     // ===== 9. óculos (só de frente) =====
@@ -442,7 +525,30 @@
     if (ch === "mago") { for (let k = 0; k <= 22; k++) { const hw = Math.max(1, (22 - k) * 0.55); const cx2 = CX + 1 - k * 0.25; for (let x = Math.round(cx2 - hw); x <= Math.round(cx2 + hw); x++) c.set(x, CY - 7 - k, "A" + (x > cx2 + 1 ? "1" : "0")); } c.elipse(CX, CY - 6, 20, 3.2, "A", "1"); [[CX + 1, CY - 13], [CX - 2, CY - 19], [CX - 3, CY - 25]].forEach(([x, y]) => { c.set(x, y, "K0"); c.set(x - 1, y, "K1"); c.set(x + 1, y, "K1"); c.set(x, y - 1, "K1"); c.set(x, y + 1, "K1"); }); }
     if (ch === "coroa") { c.ret(CX - 11, CY - 12, CX + 11, CY - 8, "K0"); c.ret(CX - 11, CY - 8, CX + 11, CY - 8, "K1"); for (const sx of [CX - 11, CX - 6, CX, CX + 6, CX + 11]) for (let k = 0; k <= 4; k++) for (let x = sx - (k < 2 ? 1 : 0); x <= sx + (k < 2 ? 1 : 0); x++) c.set(x, CY - 13 - k, "K" + (k === 4 ? "2" : "0")); [[CX - 6, "k0"], [CX, "j0"], [CX + 6, "k0"]].forEach(([x, k]) => c.ret(x - 1, CY - 11, x, CY - 10, k)); }
     if (ch === "laco") { const lx = costas ? CX - 4 : CX + 2; c.elipse(lx - 5, CY - RY - 2, 4.5, 3.4, "C"); c.elipse(lx + 5, CY - RY - 2, 4.5, 3.4, "C"); c.ret(lx - 1, CY - RY - 4, lx + 1, CY - RY, "C1"); c.set(lx - 5, CY - RY - 2, "C1"); c.set(lx + 5, CY - RY - 2, "C1"); }
-    compor(base, c);
+    if (ch === "bonetras") {
+      cupula(CY - 5, "C"); c.forma((x, y) => y >= CY - 6 && y <= CY - 5 && naCabeca(x, y, 2), "C", () => "1");
+      c.ret(CX - 20, CY - 6, CX - 8, CY - 4, "C1"); c.ret(CX - 19, CY - 7, CX - 9, CY - 7, "C0");
+      if (costas) { c.ret(CX - 2, CY - 9, CX + 2, CY - 7, "S1"); c.ret(CX - 2, CY - 9, CX + 2, CY - 9, "C1"); }
+      c.set(CX, CY - RY - 2, "C2"); c.set(CX + 1, CY - RY - 2, "C2");
+    }
+    if (ch === "bandana") {
+      cupula(CY - 6, "C", false, 1.8);
+      c.pinta((x, y, v) => (v[0] === "C" && (x + y) % 4 === 0 && x % 2 === 0 ? "Z0" : null));
+      const ox = costas ? CX : CX - 13;
+      c.elipse(ox, CY - 5, 2.4, 2, "C", "1");
+      for (let k = 1; k <= 7; k++) { c.set(ox - 1 - Math.floor(k / 3), CY - 4 + k, "C0"); c.set(ox + 1 + Math.floor(k / 4), CY - 4 + k, "C1"); }
+    }
+    if (ch === "gatinho") {
+      c.forma((x, y) => y >= CY - 10 && y <= CY - 9 && naCabeca(x, y, 1.8) && !naCabeca(x, y + 2, 1.8), "C", () => "1");
+      for (const sx of [CX - 7, CX + 6]) for (let k = 0; k <= 7; k++) { const hw = Math.round((7 - k) * 0.55); for (let x = sx - hw; x <= sx + hw; x++) c.set(x, CY - RY - k, k >= 1 && k <= 4 && Math.abs(x - sx) <= hw - 2 ? "m0" : "C" + (x > sx ? "1" : "0")); }
+    }
+    if (ch === "chifres") {
+      for (const [sx, s] of [[CX - 7, -1], [CX + 6, 1]]) for (let k = 0; k <= 6; k++) { const hw = Math.round((6 - k) / 2.6); const cx2 = sx + s * Math.round(k / 3); for (let x = cx2 - hw; x <= cx2 + hw; x++) c.set(x, CY - RY + 1 - k, "R" + (k >= 5 ? "2" : x > cx2 ? "1" : "0")); }
+    }
+    if (ch === "aureola") {
+      c.forma((x, y) => { const nx = (x - CX) / 10.5, ny = (y - (CY - RY - 7)) / 2.8; const d = nx * nx + ny * ny; return d <= 1 && d >= 0.42; }, "K", (x, y) => (y > CY - RY - 7 ? "1" : "2"));
+    }
+    compor(base, c, true, null, 1);
 
     return base.p;
   }
@@ -503,8 +609,8 @@
   function aleatorio(sexo) {
     const pick = a => a[Math.floor(Math.random() * a.length)], idx = a => Math.floor(Math.random() * a.length);
     const sx = sexo || pick(["m", "f"]);
-    const cab = sx === "f" ? ["franja", "chanel", "longo", "rabo", "coque", "tranca", "cacheado", "afro"] : ["curto", "topete", "espetado", "moicano", "curto", "afro", "cacheado", "careca"];
-    const rp = sx === "f" ? ["camiseta", "listrada", "polo", "moletom", "jaqueta", "regata", "vestido", "xadrez"] : ["camiseta", "listrada", "polo", "xadrez", "moletom", "jaqueta", "social", "regata"];
+    const cab = sx === "f" ? ["franja", "lateral", "chanel", "longo", "rabo", "chiquinha", "coque", "tranca", "cacheado", "afro"] : ["curto", "degrade", "topete", "espetado", "moicano", "lateral", "afro", "cacheado", "careca"];
+    const rp = sx === "f" ? ["camiseta", "estampa", "time", "listrada", "polo", "moletom", "jaqueta", "jardineira", "regata", "vestido", "xadrez"] : ["camiseta", "estampa", "time", "listrada", "polo", "xadrez", "moletom", "jaqueta", "social", "jardineira", "regata"];
     const cl = sx === "f" ? ["calca", "rasgada", "shorts", "saia"] : ["calca", "rasgada", "bermuda", "shorts"];
     const cd = sx === "f" ? ["tenis", "cano", "bota", "sapatilha", "chinelo"] : ["tenis", "cano", "bota", "chinelo"];
     return normalizar({
@@ -514,5 +620,5 @@
     });
   }
 
-  window.AVATAR = { desenhar, sprite, animar, normalizar, aleatorio, PALETA, ESTILOS, NOMES, ITENS, PADRAO, tom, LARGURA: W, ALTURA: H, PES: YS + 5 };
+  window.AVATAR = { SLOTS, desenhar, sprite, animar, normalizar, aleatorio, PALETA, ESTILOS, NOMES, ITENS, PADRAO, tom, LARGURA: W, ALTURA: H, PES: YS + 5 };
 })();

@@ -211,7 +211,7 @@ function painelDecorar() {
   let h = `<div class="secao">${sel ? "MÓVEL SELECIONADO" : sala.pegando ? "TOQUE NO CHÃO PARA COLOCAR" : "SEUS MÓVEIS (toque em um e depois no chão)"}</div>`;
   if (sel || sala.pegando) h += `<div class="row"><button class="btn sm cy" id="dGirar">↻ GIRAR</button>${sel && !sala.pegando ? `<button class="btn sm cy" id="dMover">✥ MOVER</button><button class="btn sm" id="dGuardar">⬇ GUARDAR</button>` : ""}<button class="btn sm dk" id="dCancelar">CANCELAR</button></div>`;
   h += `<div class="inv" id="dInv"></div>`;
-  h += `<div class="secao">PISO</div><div class="grade" id="dPiso"></div><div class="secao">PAREDE</div><div class="grade" id="dParede"></div>`;
+  h += `<div class="secao">PISO</div><div class="grade" id="dPiso"></div><div class="secao">PAREDE</div><div class="grade" id="dParede"></div><div class="secao">ESTAMPA DA PAREDE</div><div class="grade" id="dPapel"></div>`;
   $("#qPainel").innerHTML = h;
   const invBox = $("#dInv");
   const ids = MOVEIS.filter(m => (inv[m.id] || 0) > 0);
@@ -226,6 +226,8 @@ function painelDecorar() {
   const { PISOS, PAREDES } = QUARTO_OPCOES;
   PISOS.forEach((p, i) => { const b = document.createElement("button"); b.className = "sw" + (sala.q.piso === i ? " on" : ""); b.style.background = `linear-gradient(135deg,${p[0]} 50%,${p[1]} 50%)`; b.onclick = () => { sala.q.piso = i; painelDecorar(); }; $("#dPiso").appendChild(b); });
   PAREDES.forEach((p, i) => { const b = document.createElement("button"); b.className = "sw" + (sala.q.parede === i ? " on" : ""); b.style.background = p; b.onclick = () => { sala.q.parede = i; painelDecorar(); }; $("#dParede").appendChild(b); });
+  const { PAPEIS, papelCss } = QUARTO_OPCOES, corP = PAREDES[sala.q.parede] || PAREDES[0];
+  PAPEIS.forEach((nome, i) => { const b = document.createElement("button"); b.className = "sw" + ((sala.q.papel || 0) === i ? " on" : ""); b.title = nome; b.style.background = papelCss(i, corP); b.onclick = () => { sala.q.papel = i; painelDecorar(); }; $("#dPapel").appendChild(b); });
   const on = (id, fn) => { const el = $(id); if (el) el.onclick = () => { SOM.clique(); fn(); painelDecorar(); }; };
   on("#dGirar", () => sala.girar()); on("#dMover", () => sala.moverSelecionado()); on("#dGuardar", () => sala.guardar()); on("#dCancelar", () => { sala.pegando = null; sala.selecionado = null; });
 }
@@ -525,7 +527,7 @@ async function terminarFase() {
    EDITOR DE AVATAR
    ================================================================= */
 let AV = null, aba = "rosto", primeiroAv = false, avDir = 0, avAndar = false;
-const ABAS = [["rosto", "CORPO E ROSTO"], ["cabelo", "CABELO"], ["roupa", "ROUPA"], ["calca", "CALÇA"], ["calcado", "CALÇADO"], ["itens", "CHAPÉUS E ÓCULOS"], ["fundo", "FUNDO"]];
+const ABAS = [["rosto", "CORPO E ROSTO"], ["cabelo", "CABELO"], ["roupa", "ROUPA"], ["calca", "CALÇA"], ["calcado", "CALÇADO"], ["itens", "ACESSÓRIOS"], ["fundo", "FUNDO"]];
 function abrirAvatar(primeiro) {
   primeiroAv = primeiro; AV = Object.assign({}, J.aluno.avatar); avDir = 0; avAndar = false;
   mostrar("tAvatar");
@@ -564,10 +566,10 @@ function renderAv() {
       b.onclick = () => { if (!lib) { SOM.erro(); return; } SOM.clique(); AV[it.slot] = usando ? "" : it.id; renderAv(); };
       d.appendChild(b);
     });
-    cores("COR DO CHAPÉU", P.roupa, "corChapeu");
+    cores("COR DOS ACESSÓRIOS", P.roupa, "corChapeu");
   }
 }
-$("#bAleatorio").onclick = () => { SOM.clique(); AV = Object.assign(AVATAR.aleatorio(AV.sexo), { chapeu: AV.chapeu, rosto2: AV.rosto2, corChapeu: AV.corChapeu }); renderAv(); };
+$("#bAleatorio").onclick = () => { SOM.clique(); AV = Object.assign(AVATAR.aleatorio(AV.sexo), { chapeu: AV.chapeu, rosto2: AV.rosto2, pescoco: AV.pescoco, costas: AV.costas, corChapeu: AV.corChapeu }); renderAv(); };
 $("#bSalvarAv").onclick = async () => {
   SOM.ok();
   const e = est();

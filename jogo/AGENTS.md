@@ -14,10 +14,10 @@ Jogo educacional **Código Arcade**: ensina lógica e Python para alunos do 2º 
 |---|---|
 | `js/config.js` | URL e chave anon do Supabase; turmas do modo offline |
 | `js/dados.js` | `DADOS.turmas / cadastrar / entrar / trocarSenha / salvarFase / salvarAvatar / moveis / comprar / salvarQuarto / verQuarto / ranking` (online via RPC ou offline via localStorage) + fila de envios quando cai a internet + login do professor |
-| `js/avatar.js` | Avatar isométrico 56×106 (campo `sexo`: "m" ou "f"): cada parte é desenhada numa camada com contorno próprio. `AVATAR.sprite(av, dir, quadro, piscar)` (canvas com cache), `AVATAR.desenhar(canvas, av, escala, comFundo, {dir, quadro, piscar, retrato})`, `AVATAR.animar(...)`, `ESTILOS`, `PALETA`, `ITENS` (chapéus/óculos liberados por estrelas). dir: 0 frente-dir, 1 frente-esq, 2 costas-esq, 3 costas-dir. Use escalas inteiras (1, 2, 3) |
+| `js/avatar.js` | Avatar isométrico 56×106 (campo `sexo`: "m" ou "f"): cada parte é desenhada numa camada com contorno próprio. `AVATAR.sprite(av, dir, quadro, piscar)` (canvas com cache), `AVATAR.desenhar(canvas, av, escala, comFundo, {dir, quadro, piscar, retrato})`, `AVATAR.animar(...)`, `ESTILOS`, `PALETA`, `ITENS` (acessórios liberados por estrelas, em 4 encaixes: `chapeu`, `rosto2`, `pescoco`, `costas`; todos usam a cor `corChapeu`). dir: 0 frente-dir, 1 frente-esq, 2 costas-esq, 3 costas-dir. Use escalas inteiras (1, 2, 3) |
 | `js/quarto.js` (desenho) | O quarto é desenhado com resolução dobrada (`setTransform(2…)`) e o avatar entra em tamanho real, por isso fica nítido |
-| `js/moveis.js` | `MOVEIS` (id, nome, preco, w, d, andavel, partes, extra) montados com caixas isométricas; `ISO.desenhar`, `ISO.miniatura`. **O id e o preço precisam ser iguais aos da tabela `moveis` no schema.sql** |
-| `js/quarto.js` | Classe `Quarto` (piso 8×8): andar com setas/toque/D-pad, porta em (0,2) chama `aoSair`, modo decorar (`pegarDoInventario`, `girar`, `moverSelecionado`, `guardar`), modo visita |
+| `js/moveis.js` | `MOVEIS` (id, nome, preco, w, d, andavel, pet, partes, extra) montados com caixas isométricas. Cada parte pode ter textura (`veio`, `tecido`, `listra`). `extra(ctx, cx, cy, r, t)` recebe a rotação e o tempo (dá para animar: fogo, peixes, lava). Itens com `pet: "gato"`/`"cachorro"` são bichinhos que andam sozinhos (`ISO.pet`). `ISO.desenhar`, `ISO.miniatura`. **O id e o preço precisam ser iguais aos da tabela `moveis` no schema.sql** |
+| `js/quarto.js` | Classe `Quarto` (piso 8×8, campos salvos `piso`, `parede`, `papel` = estampa da parede, `itens`; janela fixa na parede da direita): andar com setas/toque/D-pad, porta em (0,2) chama `aoSair`, modo decorar (`pegarDoInventario`, `girar`, `moverSelecionado`, `guardar`), modo visita |
 | `js/cenarios.js` | `CENARIO.pintarCenario(canvas, tema, W, H, pontos)` (temas: floresta, praia, deserto, neve, caverna, cidade, circuito), ícones SVG em pixel, `fluxogramaSvg(nos)`, `legendaSvg()` |
 | `js/motor.js` | Telas (início, mundos, mapa, fase, resultado, avatar, ranking, caderno, troféus), regras de estrelas e XP |
 | `mundos/mundos.js` | `MUNDOS` (n, nome, sub, tema, cor, pronto, guia opcional `{nome, avatar}`) e a lista global `FASES` |
@@ -38,7 +38,7 @@ Jogo educacional **Código Arcade**: ensina lógica e Python para alunos do 2º 
 ## Como criar um mundo novo
 1. Em `mundos/mundos.js`, mude o mundo para `pronto: true`.
 2. Crie `mundos/mundoN.js` (copie a estrutura do `mundo1.js`).
-3. Adicione `<script src="mundos/mundoN.js?v=4"></script>` no `index.html` **e** no `professor.html`, depois do último mundo.
+3. Adicione `<script src="mundos/mundoN.js?v=5"></script>` no `index.html` **e** no `professor.html`, depois do último mundo.
 4. Sempre que mudar um arquivo `.js`, aumente o número do `?v=` nos dois HTML, para o navegador dos alunos baixar a versão nova.
 
 ## Formato de uma fase
