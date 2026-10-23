@@ -71,7 +71,8 @@
 <section class="tela" id="tQuarto"><div class="wrap">
   <div class="fhead"><h2 id="qTitulo">MEU QUARTO</h2><span style="flex:1"></span><button class="btn sm yl" id="bDecorar">DECORAR</button><button class="btn sm gr" data-go2="loja" onclick="ir('loja')">LOJA</button></div>
   <div class="sala"><canvas id="qCanvas"></canvas></div>
-  <div class="dica-sala">Use as <b>setas</b> do teclado ou <b>toque no chão</b> para andar. Entre na <b>porta</b> para ir aos mundos.</div>
+  <form class="chat-sala" id="qChat" autocomplete="off"><input id="qFala" maxlength="70" placeholder="Escreva aqui e aperte ENTER para falar"><button class="btn sm cy" type="submit">FALAR</button></form>
+  <div class="dica-sala"><b>Clique no chão</b> para andar, <b>clique numa cadeira ou sofá</b> para sentar e use as <b>setas</b> do teclado se preferir. Entre na <b>porta</b> para ir aos mundos.</div>
   <div class="dpad" id="dpad">
     <button id="dp_cima" title="Cima">▲</button><button id="dp_esq" title="Esquerda">◀</button><button id="dp_dir" title="Direita">▶</button><button id="dp_baixo" title="Baixo">▼</button>
   </div>
@@ -127,16 +128,16 @@
 
 <div class="modal" id="modal"><div class="box" id="modalBox"></div></div>
 
-<script src="js/config.js?v=6"></script>
-<script src="js/dados.js?v=6"></script>
-<script src="js/avatar.js?v=6"></script>
-<script src="js/cenarios.js?v=6"></script>
-<script src="js/moveis.js?v=6"></script>
-<script src="js/quarto.js?v=6"></script>
-<script src="mundos/mundos.js?v=6"></script>
-<script src="mundos/mundo1.js?v=6"></script>
-<script src="mundos/mundo2.js?v=6"></script>
-<script src="mundos/mundo3.js?v=6"></script>
-<script src="js/motor.js?v=6"></script>
+<script src="js/config.js?v=7"></script>
+<script src="js/dados.js?v=7"></script>
+<script src="js/avatar.js?v=7"></script>
+<script src="js/cenarios.js?v=7"></script>
+<script src="js/moveis.js?v=7"></script>
+<script src="js/quarto.js?v=7"></script>
+<script src="mundos/mundos.js?v=7"></script>
+<script src="mundos/mundo1.js?v=7"></script>
+<script src="mundos/mundo2.js?v=7"></script>
+<script src="mundos/mundo3.js?v=7"></script>
+<script src="js/motor.js?v=7"></script>
 </body>
 </html>

@@ -253,7 +253,10 @@ svg.fluxo{display:block;margin:0 auto}
 .hud .menu{display:flex;flex-wrap:wrap;gap:2px}
 .stat.md{color:var(--yellow)}
 .sala{position:relative;margin:14px auto;max-width:960px;background:#06061a;border-radius:6px;box-shadow:0 0 0 4px #000,0 0 0 8px var(--borda),0 0 0 11px #000;overflow:hidden;touch-action:manipulation}
-.sala canvas{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges;cursor:pointer}
+.sala canvas{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges;cursor:default}
+.chat-sala{display:flex;gap:10px;max-width:960px;margin:10px auto 0}
+.chat-sala input{flex:1;min-width:0;font-family:'VT323',monospace;font-size:22px;padding:8px 12px;background:#0c0a1e;color:#fff;border:none;box-shadow:0 0 0 3px #000,0 0 0 6px var(--borda);border-radius:3px}
+.chat-sala input:focus{outline:none;box-shadow:0 0 0 3px #000,0 0 0 6px var(--cyan)}
 .dica-sala{text-align:center;color:var(--gray);margin:6px 10px;font-size:22px}
 .dpad{display:none;position:fixed;right:24px;bottom:24px;z-index:60;width:150px;height:150px;transform:rotate(45deg)}
 .dpad button{position:absolute;width:52px;height:52px;border:none;border-radius:8px;background:rgba(46,46,110,.85);color:#fff;font-size:22px;box-shadow:0 0 0 3px #000,0 4px 0 3px #000;touch-action:manipulation;user-select:none}

@@ -190,7 +190,7 @@ function abrirQuarto() {
   $("#qTitulo").textContent = `QUARTO DE ${(J.aluno.nick || "").toUpperCase()}`;
   $("#qPainel").style.display = "none"; $("#bDecorar").textContent = "DECORAR";
   sala = new Quarto($("#qCanvas"), {
-    quarto: J.aluno.quarto, avatar: () => J.aluno.avatar,
+    quarto: J.aluno.quarto, avatar: () => J.aluno.avatar, nome: J.aluno.nick,
     aoSair: () => { sala = null; ir("mundos"); },
     aoMudar: () => painelDecorar(), aoErro: t => { SOM.erro(); aviso(t); }
   });
@@ -203,6 +203,7 @@ $("#bDecorar").onclick = () => {
   if (sala.editando) painelDecorar();
   else { J.aluno.quarto = JSON.parse(JSON.stringify(sala.q)); DADOS.salvarQuarto(J.token, J.aluno.quarto).then(r => { if (r && r.ok === false && r.erro) aviso("Não salvou: " + r.erro); sync(); }).catch(() => aviso("Sem conexão: tente de novo.")); SOM.ok(); aviso("Quarto salvo!"); }
 };
+$("#qChat").onsubmit = e => { e.preventDefault(); const t = $("#qFala").value.trim(); if (sala && t) { sala.falar(t); $("#qFala").value = ""; SOM.clique(); } };
 ["cima", "baixo", "esq", "dir"].forEach(k => { const b = $("#dp_" + k); if (b) b.addEventListener("pointerdown", e => { e.preventDefault(); if (sala) sala.dpad(...{ cima: [0, -1], baixo: [0, 1], esq: [-1, 0], dir: [1, 0] }[k]); }); });
 function painelDecorar() {
   if (!sala || !sala.editando) return;

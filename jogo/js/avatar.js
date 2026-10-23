@@ -553,15 +553,45 @@
     return base.p;
   }
 
+  // ---------------- pose sentada ----------------
+  // Usa o boneco em pé, abaixa a parte de cima e desenha as pernas dobradas
+  // para a frente (para a direita da grade; o espelho cuida do outro lado).
+  const DESCE = 10;   // quanto o quadril desce ao sentar
+  function gradeSentada(emPe, av) {
+    const base = camada(), fem = av.sexo === "f";
+    const tx0 = fem ? 18 : 17, tx1 = fem ? 37 : 38, quadril = YL + DESCE;
+    const curta = av.calca === "shorts" || av.calca === "saia" || av.roupa === "vestido";
+    const pernaM = (x, y) => (curta && x > tx0 + 6) || (av.calca === "bermuda" && x > tx1 + 2 && y > quadril + 8) ? "S" : "P";
+    const perna = (dx, dy, frente) => {
+      const c = camada(), t0 = frente ? "0" : "1";
+      // coxa (na horizontal) e canela (na vertical)
+      for (let y = quadril + 1 + dy; y <= quadril + 5 + dy; y++) for (let x = tx0 + 1 + dx; x <= tx1 + 6 + dx; x++) c.set(x, y, pernaM(x, y) + (y === quadril + 1 + dy && frente ? "2" : y === quadril + 5 + dy ? "1" : t0));
+      for (let y = quadril + 5 + dy; y <= YS - 1 + dy; y++) for (let x = tx1 + 2 + dx; x <= tx1 + 6 + dx; x++) c.set(x, y, pernaM(x, y) + (x === tx1 + 2 + dx ? "1" : t0));
+      // calçado apontando para a frente
+      const a = tx1 + 1 + dx, b = tx1 + 10 + dx, y0 = YS + dy;
+      c.ret(a, y0, b - 2, y0 + 2, "B" + t0); c.ret(a, y0 + 2, b, y0 + 3, "B" + t0); c.set(b - 1, y0 + 1, "B2");
+      if (av.calcado === "tenis" || av.calcado === "cano") c.ret(a, y0 + 4, b, y0 + 4, "Z" + t0); else c.ret(a, y0 + 4, b, y0 + 4, "B1");
+      compor(base, c);
+    };
+    perna(-2, -2, false);
+    perna(0, 0, true);
+    const lim = curta ? YL + 8 : YL + 3;
+    for (let y = 0; y <= lim; y++) for (let x = 0; x < W; x++) { const v = emPe[y][x]; if (v && y + DESCE < H) base.p[y + DESCE][x] = v; }
+    return base.p;
+  }
+
   // ---------------- sprite (cache) ----------------
+  // pose: "" (em pé) ou "sentado"
   const cache = new Map();
-  function sprite(avBruto, dir, quadro, piscar) {
+  function sprite(avBruto, dir, quadro, piscar, pose) {
     const av = normalizar(avBruto);
-    dir = dir || 0; quadro = quadro || 0;
-    const chave = JSON.stringify(av) + "|" + dir + "|" + quadro + "|" + (piscar ? 1 : 0);
+    dir = dir || 0; quadro = quadro || 0; pose = pose || "";
+    const chave = JSON.stringify(av) + "|" + dir + "|" + quadro + "|" + (piscar ? 1 : 0) + "|" + pose;
     if (cache.has(chave)) return cache.get(chave);
     const costas = dir === 2 || dir === 3, espelho = dir === 1 || dir === 2;
-    const g = desenharGrade(av, costas, quadro, piscar), C = cores(av);
+    let g = desenharGrade(av, costas, pose === "sentado" ? 0 : quadro, piscar);
+    if (pose === "sentado") g = gradeSentada(g, av);
+    const C = cores(av);
     const c = document.createElement("canvas"); c.width = W; c.height = H;
     const ctx = c.getContext("2d");
     for (let r = 0; r < H; r++) for (let k = 0; k < W; k++) {
@@ -577,7 +607,7 @@
   const ALT_RETRATO = 58;
   function desenhar(canvas, av, escala, comFundo, opc) {
     opc = opc || {};
-    const e = escala || 2, s = sprite(av, opc.dir || 0, opc.quadro || 0, opc.piscar);
+    const e = escala || 2, s = sprite(av, opc.dir || 0, opc.quadro || 0, opc.piscar, opc.pose);
     const alt = opc.retrato ? ALT_RETRATO : H;
     canvas.width = Math.round(W * e); canvas.height = Math.round(alt * e);
     const ctx = canvas.getContext("2d"); ctx.imageSmoothingEnabled = false;
@@ -620,5 +650,19 @@
     });
   }
 
-  window.AVATAR = { SLOTS, desenhar, sprite, animar, normalizar, aleatorio, PALETA, ESTILOS, NOMES, ITENS, PADRAO, tom, LARGURA: W, ALTURA: H, PES: YS + 5 };
+  // ---------------- 8 direções ----------------
+  // O motor do quarto trabalha com 8 direções (como nos hotéis isométricos):
+  //   0 = ↗ (grade y-1)   1 = → (x+1, y-1)   2 = ↘ (x+1)   3 = ↓ (x+1, y+1)
+  //   4 = ↙ (grade y+1)   5 = ← (x-1, y+1)   6 = ↖ (x-1)   7 = ↑ (x-1, y-1)
+  // O desenho por código tem 4 ângulos (as diagonais da tela). As direções
+  // "retas" (1, 3, 5 e 7) usam o ângulo mais próximo, mantendo o lado anterior.
+  // Para trocar por spritesheet, basta substituir esta função.
+  const DIR8_PARA_4 = { 0: [3], 1: [0, 3], 2: [0], 3: [0, 1], 4: [1], 5: [1, 2], 6: [2], 7: [2, 3] };
+  function vista(dir8, anterior) { const op = DIR8_PARA_4[dir8 & 7]; return op.includes(anterior) ? anterior : op[0]; }
+  function direcao8(dx, dy) {
+    const sx = Math.sign(dx), sy = Math.sign(dy);
+    return { "0,-1": 0, "1,-1": 1, "1,0": 2, "1,1": 3, "0,1": 4, "-1,1": 5, "-1,0": 6, "-1,-1": 7 }[sx + "," + sy] ?? 2;
+  }
+
+  window.AVATAR = { SLOTS, vista, direcao8, DESCE, desenhar, sprite, animar, normalizar, aleatorio, PALETA, ESTILOS, NOMES, ITENS, PADRAO, tom, LARGURA: W, ALTURA: H, PES: YS + 5 };
 })();

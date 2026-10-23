@@ -10,7 +10,14 @@
 //    textura = "veio" (madeira), "tecido" (pontinhos) ou "listra"
 //  extra(ctx, cx, cy, r, t): detalhes desenhados por cima (cx, cy = centro
 //    do móvel no chão; r = rotação; t = tempo em segundos, para animar)
-//  pet: true = bichinho que anda sozinho pelo quarto (desenhado em ISO.pet)
+//  pet: "gato"/"cachorro" = bichinho que anda sozinho pelo quarto (ISO.pet)
+//
+//  Propriedades de colisão (usadas pelo motor do quarto):
+//    andavel  (canWalk)  = dá para pisar em cima (tapetes)
+//    sentavel (canSit)   = o avatar senta nele; assento = altura do assento
+//    frente   = para onde a pessoa sentada olha, com rotação 0: [dx, dy] na grade
+//               (sem "frente", como no pufe, a pessoa mantém a direção em que chegou)
+//    altura   (height)   = calculada sozinha pelas partes (ISO.altura)
 // ============================================================
 (function () {
   const TW = 32, TH = 16;
@@ -64,9 +71,9 @@
     { id: "planta", nome: "Planta", preco: 30, w: 1, d: 1,
       partes: () => [[0.3, 0.3, 0.4, 0.4, 0, 7, c3("#c0602e"), "veio"], [0.32, 0.32, 0.36, 0.36, 7, 1, c3("#4a2e1c")]],
       extra(ctx, cx, cy) { [[0, -16, 6, "#2f8a3a"], [-5, -12, 5, "#3fa64a"], [5, -12, 5, "#2f8a3a"], [-2, -20, 5, "#58c060"], [3, -19, 4, "#45b04e"], [0, -10, 4, "#3fa64a"], [-3, -22, 2, "#7ad87e"], [4, -15, 1.6, "#7ad87e"]].forEach(([dx, dy, r, c]) => bola(ctx, cx + dx, cy + dy, r, c)); } },
-    { id: "pufe", nome: "Pufe", preco: 35, w: 1, d: 1,
+    { id: "pufe", nome: "Pufe", preco: 35, w: 1, d: 1, sentavel: true, assento: 8.5,
       partes: () => [[0.2, 0.2, 0.6, 0.6, 0, 7, c3("#ff5fa8"), "tecido"], [0.24, 0.24, 0.52, 0.52, 7, 1.5, c3("#ff8ac0"), "tecido"]] },
-    { id: "cadeira", nome: "Cadeira", preco: 40, w: 1, d: 1,
+    { id: "cadeira", nome: "Cadeira", preco: 40, w: 1, d: 1, sentavel: true, assento: 9.8, frente: [0, 1],
       partes: () => [[0.24, 0.24, 0.08, 0.08, 0, 7, c3(MADE)], [0.68, 0.24, 0.08, 0.08, 0, 7, c3(MADE)], [0.24, 0.68, 0.08, 0.08, 0, 7, c3(MADE)], [0.68, 0.68, 0.08, 0.08, 0, 7, c3(MADE)],
         [0.22, 0.22, 0.56, 0.1, 9, 11, c3(MAD), "veio"], [0.2, 0.2, 0.6, 0.6, 7, 2, c3(MAD)], [0.26, 0.26, 0.48, 0.48, 9, 0.8, c3("#e3263a"), "tecido"]] },
     { id: "tapete", nome: "Tapete", preco: 40, w: 2, d: 2, andavel: true,
@@ -98,7 +105,7 @@
         });
         bola(ctx, cx - 1, ty + 3, 1.8, "#7a4a26"); bola(ctx, cx + 2, ty + 3, 1.8, "#6a3a1c");
       } },
-    { id: "poltrona", nome: "Poltrona", preco: 80, w: 1, d: 1,
+    { id: "poltrona", nome: "Poltrona", preco: 80, w: 1, d: 1, sentavel: true, assento: 10, frente: [0, 1],
       partes: () => { const c = c3("#1aa0a0"), l = c3("#3ac8c0"); return [[0.08, 0.1, 0.84, 0.8, 0, 7, c, "tecido"], [0.08, 0.1, 0.84, 0.2, 7, 12, c, "tecido"], [0.08, 0.1, 0.16, 0.8, 7, 5, c], [0.76, 0.1, 0.16, 0.8, 7, 5, c], [0.24, 0.3, 0.52, 0.58, 7, 3, l, "tecido"]]; } },
     { id: "estante", nome: "Estante de livros", preco: 90, w: 1, d: 1,
       partes() {
@@ -124,12 +131,12 @@
         elip(ctx, x + 0.5, y - 7, 1.8, 1.8, "#2a1408"); ctx.fillStyle = "#2a1408"; ctx.fillRect(x - 1, y - 2, 4, 1);
         ctx.fillStyle = "rgba(255,255,255,.6)"; ctx.fillRect(x, y - 26, 1, 22); ctx.fillStyle = "#ffd23f"; ctx.fillRect(x - 2, y - 29, 1, 1); ctx.fillRect(x + 2, y - 29, 1, 1);
       } },
-    { id: "sofa", nome: "Sofá", preco: 120, w: 2, d: 1,
+    { id: "sofa", nome: "Sofá", preco: 120, w: 2, d: 1, sentavel: true, assento: 9, frente: [0, 1],
       partes: () => { const c = c3("#e3263a"), l = c3("#ff5a6a"); return [[0.05, 0.1, 1.9, 0.8, 0, 6, c, "tecido"], [0.05, 0.1, 1.9, 0.2, 6, 11, c, "tecido"], [0.05, 0.1, 0.2, 0.8, 6, 5, c], [0.25, 0.3, 0.74, 0.58, 6, 3, l, "tecido"], [1.01, 0.3, 0.74, 0.58, 6, 3, l, "tecido"], [1.75, 0.1, 0.2, 0.8, 6, 5, c], [0.4, 0.15, 0.4, 0.15, 9, 7, c3("#ffd23f")]]; } },
     { id: "guarda_roupa", nome: "Guarda-roupa", preco: 130, w: 2, d: 1,
       partes: () => [[0.05, 0.1, 1.9, 0.8, 0, 44, c3(MAD), "veio"], [0.0, 0.05, 2.0, 0.9, 44, 2, c3(MADE)], [0.05, 0.1, 1.9, 0.8, 0, 2, c3(MADE)],
         [0.98, 0.9, 0.04, 0.02, 3, 39, c3(MADE)], [0.85, 0.9, 0.06, 0.04, 20, 6, c3("#ffd23f")], [1.09, 0.9, 0.06, 0.04, 20, 6, c3("#ffd23f")], [0.3, 0.9, 0.5, 0.02, 30, 10, ["#cfe8ff", "#a8d0f0", "#88b0d0"]]] },
-    { id: "cadeira_gamer", nome: "Cadeira gamer", preco: 130, w: 1, d: 1,
+    { id: "cadeira_gamer", nome: "Cadeira gamer", preco: 130, w: 1, d: 1, sentavel: true, assento: 11, frente: [0, 1],
       partes: () => [[0.2, 0.46, 0.6, 0.08, 0, 1, c3(PRETO)], [0.46, 0.2, 0.08, 0.6, 0, 1, c3(PRETO)], [0.46, 0.46, 0.08, 0.08, 1, 7, c3(METAL)],
         [0.18, 0.2, 0.64, 0.62, 8, 3, c3("#2a2a3a")], [0.2, 0.2, 0.6, 0.12, 11, 20, c3("#2a2a3a")], [0.38, 0.19, 0.24, 0.12, 12, 18, c3("#ff2a8a")],
         [0.14, 0.3, 0.06, 0.45, 11, 6, c3("#3a3a4a")], [0.8, 0.3, 0.06, 0.45, 11, 6, c3("#3a3a4a")], [0.26, 0.18, 0.48, 0.14, 31, 4, c3("#2a2a3a")]] },
@@ -205,7 +212,7 @@
   function pet(ctx, x, y, tipo, dir, quadro, t) {
     const p = PETS[tipo] || PETS.gato, s = dir < 0 ? -1 : 1;
     x = Math.round(x); y = Math.round(y);
-    elip(ctx, x, y, 8, 3, "rgba(0,0,0,.22)");
+    if (!(arguments[7] && arguments[7].semSombra)) elip(ctx, x, y, 8, 3, "rgba(0,0,0,.22)");
     const R = []; // [x0, y0, larg, alt, cor]  (x relativo, olhando para a direita)
     const pe = quadro % 2 ? [1, 0, 0, 1] : quadro ? [0, 1, 1, 0] : [0, 0, 0, 0];
     [-6, -3, 3, 6].forEach((lx, i) => R.push([lx, -5 - pe[i], 2, 5 - (pe[i] ? 0 : 0), i % 2 ? p.escuro : p.corpo]));
@@ -234,16 +241,27 @@
   const tempo = () => performance.now() / 1000;
 
   // Desenha o móvel m na posição (X, Y) do piso, com rotação r (0 ou 1)
-  function desenhar(ctx, ox, oy, mov, X, Y, r, alpha) {
-    const m = typeof mov === "string" ? MOVEIS.find(x => x.id === mov) : mov; if (!m) return;
+  const achar = mov => typeof mov === "string" ? MOVEIS.find(x => x.id === mov) : mov;
+  // altura do móvel (topo da parte mais alta), usada como "height"
+  const alturas = {};
+  function altura(mov) { const m = achar(mov); if (!m) return 0; if (alturas[m.id] == null) alturas[m.id] = m.partes().reduce((a, p) => Math.max(a, p[4] + p[5]), 0); return alturas[m.id]; }
+  // direção para onde a pessoa sentada olha, já com a rotação
+  function frenteSentado(mov, r) { const m = achar(mov); if (!m || !m.frente) return null; const [a, b] = m.frente; return r % 2 ? [b, a] : [a, b]; }
+
+  // sombra no chão (o motor desenha todas as sombras numa camada própria)
+  function sombra(ctx, ox, oy, mov, X, Y, r) {
+    const m = achar(mov); if (!m || m.andavel || m.pet || !m.partes().length) return;
+    const [pw, pd] = pegada(m, r), P = (a, b) => ponto(ox, oy, a, b, 0), e = 0.06;
+    poli(ctx, [P(X + e, Y + e), P(X + pw + 0.12, Y + e), P(X + pw + 0.12, Y + pd + 0.12), P(X + e, Y + pd + 0.12)], "rgba(0,0,0,.16)");
+  }
+
+  // opc.semSombra = true quando a sombra já foi desenhada na camada de sombras
+  function desenhar(ctx, ox, oy, mov, X, Y, r, alpha, opc) {
+    const m = achar(mov); if (!m) return;
     ctx.save(); if (alpha != null) ctx.globalAlpha = alpha;
     const [pw, pd] = pegada(m, r);
     if (m.pet) { const [cx, cy] = ponto(ox, oy, X + 0.5, Y + 0.5, 0); pet(ctx, cx, cy, m.pet, r % 2 ? -1 : 1, 0, tempo()); ctx.restore(); return; }
-    // sombra no chão
-    if (!m.andavel && m.partes().length) {
-      const P = (a, b) => ponto(ox, oy, a, b, 0), e = 0.06;
-      poli(ctx, [P(X + e, Y + e), P(X + pw + 0.12, Y + e), P(X + pw + 0.12, Y + pd + 0.12), P(X + e, Y + pd + 0.12)], "rgba(0,0,0,.16)");
-    }
+    if (!(opc && opc.semSombra)) sombra(ctx, ox, oy, m, X, Y, r);
     let partes = m.partes();
     if (r % 2) partes = partes.map(([x, y, w, d, z, h, c, t]) => [y, x, d, w, z, h, [c[0], c[2], c[1]], t]);
     partes.forEach(([x, y, w, d, z, h, c, t]) => caixa(ctx, ox, oy, X + x, Y + y, w, d, z, h, c, t));
@@ -267,5 +285,5 @@
   }
 
   window.MOVEIS = MOVEIS;
-  window.ISO = { TW, TH, ponto, caixa, poli, desenhar, miniatura, pegada, pet };
+  window.ISO = { TW, TH, ponto, caixa, poli, desenhar, sombra, miniatura, pegada, pet, altura, frenteSentado, achar };
 })();
