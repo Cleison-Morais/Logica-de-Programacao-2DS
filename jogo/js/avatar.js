@@ -1,6 +1,6 @@
 // ============================================================
 //  AVATAR ISOMÉTRICO (inspirado no estilo dos hotéis de pixel)
-//  Grade de 56 x 106 pixels, 4 direções e 3 quadros de animação.
+//  Grade de 56 x 82 pixels, 4 direções e 3 quadros de animação.
 //  dir: 0 = frente-direita, 1 = frente-esquerda, 2 = costas-esquerda, 3 = costas-direita
 //  quadro: 0 = parado, 1 e 2 = andando
 //  Cada parte (cabeça, cabelo, braço, perna, roupa, chapéu) é desenhada numa
@@ -8,9 +8,9 @@
 //  deixa o boneco bem definido, como nos hotéis de pixel.
 // ============================================================
 (function () {
-  const W = 56, H = 106;
+  const W = 56, H = 82;
   const CX = 27, CY = 31, RX = 13, RY = 12;   // cabeça
-  const Y0 = 47, YL = 68, YS = 92;            // ombro, quadril, topo do sapato
+  const Y0 = 47, YL = 61, YS = 75;            // ombro, quadril, topo do sapato (proporção chibi: corpo curto, cabeça grande)
   const EY = CY - 1, OLHO = [28, 34], MY = CY + 7;  // olhos (longe, perto) e boca
 
   // ---------------- opções ----------------
@@ -161,7 +161,7 @@
     const larg = y => {                                           // largura do tronco em cada linha
       if (y === Y0) return [tx0 + 2, tx1 - 2];
       if (y === Y0 + 1) return [tx0 + 1, tx1 - 1];
-      if (fem && y >= Y0 + 10 && y <= Y0 + 15) return [tx0 + 1, tx1 - 1];
+      if (fem && y >= Y0 + 6 && y <= Y0 + 10) return [tx0 + 1, tx1 - 1];
       return [tx0, tx1];
     };
 
@@ -213,13 +213,13 @@
     const perna = (x0, x1, dx, frente) => {
       const c = camada(), s = camada();
       for (let y = YL + 2; y <= YS - 1; y++) {
-        const d = y >= YL + 10 ? dx : Math.round(dx / 2);
-        const pele = (calca === "bermuda" && y >= YL + 13) || (calca === "shorts" && y >= YL + 6) || (calca === "saia" && y >= YL + 3) || (roupa === "vestido" && y >= YL + 3);
-        const buraco = calca === "rasgada" && (y === YL + 12 || y === YL + 13) && frente;
+        const d = y >= YL + 5 ? dx : Math.round(dx / 2);
+        const pele = (calca === "bermuda" && y >= YL + 7) || (calca === "shorts" && y >= YL + 3) || (calca === "saia" && y >= YL + 2) || (roupa === "vestido" && y >= YL + 2);
+        const buraco = calca === "rasgada" && (y === YL + 6 || y === YL + 7) && frente;
         for (let x = x0; x <= x1; x++) {
           let t = frente ? (x === x0 ? "1" : x === x1 - 1 && !pele ? "2" : "0") : (x >= x1 - 1 ? "0" : "1");
-          if (!pele && frente && y === YL + 13 && x === x0 + 3) t = "1";              // dobra do joelho
-          if (buraco && x >= x0 + 2 && x <= x1 - 2) { c.set(x + d, y, y === YL + 12 ? "Z0" : "S0"); continue; }
+          if (!pele && frente && y === YL + 7 && x === x0 + 3) t = "1";              // dobra do joelho
+          if (buraco && x >= x0 + 2 && x <= x1 - 2) { c.set(x + d, y, y === YL + 6 ? "Z0" : "S0"); continue; }
           c.set(x + d, y, (pele ? "S" : "P") + (pele ? (t === "2" ? "0" : t) : t));
         }
       }
@@ -227,15 +227,15 @@
       const a = x0 + dx - 1, b = x1 + dx + 3, tb = frente ? "0" : "1";
       const pe = () => { s.ret(a + 1, YS, b - 1, YS + 2, "S" + tb); };
       if (av.calcado === "tenis" || av.calcado === "cano") {
-        const topo = av.calcado === "cano" ? YS - 5 : YS;
+        const topo = av.calcado === "cano" ? YS - 3 : YS;
         s.ret(a + 1, topo, b - 2, YS + 1, "B" + tb); s.ret(a, YS + 1, b, YS + 3, "B" + tb);
         s.ret(b - 3, YS + 1, b, YS + 3, "Z0"); s.set(b, YS + 1, "Z1");
         s.ret(a, YS + 4, b, YS + 5, "Z" + (frente ? "0" : "1")); s.ret(a, YS + 5, b, YS + 5, "Z1");
         for (let x = a + 3; x < b - 3; x += 2) s.set(x, YS, "Z0");
-        if (av.calcado === "cano") { s.ret(a + 2, YS - 3, a + 3, YS - 2, "Z0"); s.ret(a + 1, topo, b - 2, topo, "Z0"); }
+        if (av.calcado === "cano") { s.ret(a + 2, YS - 2, a + 3, YS - 1, "Z0"); s.ret(a + 1, topo, b - 2, topo, "Z0"); }
       } else if (av.calcado === "bota") {
-        s.ret(a + 1, YS - 6, b - 3, YS + 1, "B" + tb); s.ret(a, YS + 1, b, YS + 4, "B" + tb); s.ret(b - 2, YS + 1, b, YS + 2, "B2");
-        s.ret(a + 1, YS - 6, b - 3, YS - 5, "B1"); s.ret(a, YS + 5, b, YS + 5, "D0"); s.ret(a, YS + 4, a + 2, YS + 5, "D0");
+        s.ret(a + 1, YS - 4, b - 3, YS + 1, "B" + tb); s.ret(a, YS + 1, b, YS + 4, "B" + tb); s.ret(b - 2, YS + 1, b, YS + 2, "B2");
+        s.ret(a + 1, YS - 4, b - 3, YS - 3, "B1"); s.ret(a, YS + 5, b, YS + 5, "D0"); s.ret(a, YS + 4, a + 2, YS + 5, "D0");
       } else if (av.calcado === "sapatilha") {
         pe(); s.ret(a, YS + 2, b, YS + 4, "B" + tb); s.ret(b - 2, YS + 1, b - 1, YS + 1, "B" + tb); s.ret(a, YS + 5, b, YS + 5, "B1"); s.set(b - 4, YS + 2, "B2");
       } else {
@@ -258,10 +258,10 @@
       for (let y = YL; y <= YL + 3; y++) { q.set(tx0, y, "P1"); q.set(tx0 + 1, y, "P1"); }
       q.ret(tx0, YL, tx1, YL, "P1");
       if (!costas && calca !== "saia") q.ret(28, YL + 1, 28, YL + 3, "P1");
-      if (calca === "saia") q.forma((x, y) => y >= YL && y <= YL + 10 && x >= tx0 - Math.floor((y - YL) / 2) && x <= tx1 + Math.floor((y - YL) / 2), "P", (x, y) => (y === YL + 10 || x <= tx0 - Math.floor((y - YL) / 2) + 1 ? "1" : (x - y) % 6 === 0 ? "1" : "0"));
+      if (calca === "saia") q.forma((x, y) => y >= YL && y <= YL + 6 && x >= tx0 - Math.floor((y - YL) / 2) && x <= tx1 + Math.floor((y - YL) / 2), "P", (x, y) => (y === YL + 6 || x <= tx0 - Math.floor((y - YL) / 2) + 1 ? "1" : (x - y) % 6 === 0 ? "1" : "0"));
     } else {
-      q.forma((x, y) => y >= YL && y <= YL + 12 && x >= tx0 - Math.floor((y - YL) / 2) && x <= tx1 + Math.floor((y - YL) / 2), "T", (x, y) => (y >= YL + 11 ? "1" : x <= tx0 - Math.floor((y - YL) / 2) + 1 ? "1" : (x + y) % 7 === 0 ? "1" : "0"));
-      q.ret(tx0 - 5, YL + 11, tx1 + 5, YL + 11, "U0");
+      q.forma((x, y) => y >= YL && y <= YL + 7 && x >= tx0 - Math.floor((y - YL) / 2) && x <= tx1 + Math.floor((y - YL) / 2), "T", (x, y) => (y >= YL + 6 ? "1" : x <= tx0 - Math.floor((y - YL) / 2) + 1 ? "1" : (x + y) % 7 === 0 ? "1" : "0"));
+      q.ret(tx0 - 3, YL + 6, tx1 + 3, YL + 6, "U0");
     }
     compor(base, q);
 
@@ -269,9 +269,9 @@
     const aw = fem ? 4 : 5;
     const braco = (x0, dx, frente) => {
       const c = camada();
-      for (let y = Y0 + 1; y <= Y0 + 19; y++) {
-        const d = y >= Y0 + 9 ? dx : y >= Y0 + 5 ? Math.round(dx / 2) : 0;
-        const fimManga = mangaLonga ? Y0 + 17 : roupa === "regata" ? Y0 - 1 : roupa === "vestido" ? Y0 + 5 : Y0 + 7;
+      for (let y = Y0 + 1; y <= Y0 + 12; y++) {
+        const d = y >= Y0 + 6 ? dx : y >= Y0 + 3 ? Math.round(dx / 2) : 0;
+        const fimManga = mangaLonga ? Y0 + 11 : roupa === "regata" ? Y0 - 1 : roupa === "vestido" ? Y0 + 3 : Y0 + 4;
         const manga = y <= fimManga;
         const mat = manga ? (roupa === "social" || roupa === "listrada" && y === fimManga ? "U" : "T") : "S";
         for (let x = x0; x <= x0 + aw - 1; x++) {
@@ -282,11 +282,11 @@
           c.set(x + d, y, mat + (mat === "S" && t === "2" ? "0" : t));
         }
       }
-      c.elipse(x0 + (aw - 1) / 2 + dx, Y0 + 21, fem ? 2.3 : 2.7, 2.4, "S", frente ? "0" : "1");
+      c.elipse(x0 + (aw - 1) / 2 + dx, Y0 + 14, fem ? 2.3 : 2.7, 2.4, "S", frente ? "0" : "1");
       compor(base, c);
     };
     const braco1 = costas ? tx1 + 1 : tx0 - aw, braco2 = costas ? tx0 - aw : tx1;
-    if (costasIt === "mochila" && !costas) { const k = camada(); k.forma((x, y) => y >= Y0 + 2 && y <= Y0 + 18 && x >= tx0 - 6 && x <= tx0 + 1 && !(y === Y0 + 2 && x === tx0 - 6), "C", (x, y) => (x <= tx0 - 5 ? "1" : y === Y0 + 2 ? "2" : y === Y0 + 10 ? "1" : "0")); compor(base, k); }
+    if (costasIt === "mochila" && !costas) { const k = camada(); k.forma((x, y) => y >= Y0 + 2 && y <= Y0 + 12 && x >= tx0 - 6 && x <= tx0 + 1 && !(y === Y0 + 2 && x === tx0 - 6), "C", (x, y) => (x <= tx0 - 5 ? "1" : y === Y0 + 2 ? "2" : y === Y0 + 7 ? "1" : "0")); compor(base, k); }
     braco(braco1, passo[3], false);
 
     const t = camada();
@@ -295,9 +295,9 @@
       for (let x = a; x <= b; x++) {
         let k = "0";
         if (costas) { if (x >= b - 2) k = "1"; else if (x <= a + 1 && y > Y0 + 1) k = "2"; }
-        else { if (x <= a + 2) k = "1"; else if (x >= b - 1 && y > Y0 + 1 && y < Y0 + 8) k = "2"; }
+        else { if (x <= a + 2) k = "1"; else if (x >= b - 1 && y > Y0 + 1 && y < Y0 + 6) k = "2"; }
         if (y === YL - 1) k = "1";
-        if (fem && !costas && y === Y0 + 7 && x >= a + 4 && x <= b - 3) k = "1";   // linha do busto
+        if (fem && !costas && y === Y0 + 5 && x >= a + 4 && x <= b - 3) k = "1";   // linha do busto
         t.set(x, y, corTronco + k);
       }
     }
@@ -310,22 +310,22 @@
       if (roupa === "regata") { decote(4); for (let y = Y0; y <= Y0 + 5; y++) { const [a, b] = larg(y); t.ret(a, y, a + 2 - (y > Y0 + 3 ? 1 : 0), y, "S1"); t.ret(b - 2 + (y > Y0 + 3 ? 1 : 0), y, b, y, "S0"); } }
       if (roupa === "moletom") {
         t.ret(meio - 6, Y0, meio + 5, Y0 + 1, "T1"); t.ret(meio - 3, Y0, meio + 2, Y0, "S1");
-        t.ret(meio - 3, Y0 + 2, meio - 3, Y0 + 7, "U0"); t.ret(meio + 2, Y0 + 2, meio + 2, Y0 + 6, "U0");
-        t.ret(tx0 + 5, Y0 + 12, tx1 - 4, Y0 + 12, "T1"); t.ret(tx0 + 4, Y0 + 13, tx0 + 4, Y0 + 18, "T1"); t.ret(tx1 - 3, Y0 + 13, tx1 - 3, Y0 + 18, "T1");
+        t.ret(meio - 3, Y0 + 2, meio - 3, Y0 + 5, "U0"); t.ret(meio + 2, Y0 + 2, meio + 2, Y0 + 4, "U0");
+        t.ret(tx0 + 5, Y0 + 8, tx1 - 4, Y0 + 8, "T1"); t.ret(tx0 + 4, Y0 + 9, tx0 + 4, Y0 + 12, "T1"); t.ret(tx1 - 3, Y0 + 9, tx1 - 3, Y0 + 12, "T1");
       }
       if (roupa === "jaqueta") {
         t.forma((x, y) => y >= Y0 && y < YL && x >= meio - 3 && x <= meio + 2, "U", (x, y) => (y === YL - 1 ? "1" : "0"));
         for (let y = Y0; y < YL; y++) { t.set(meio - 4, y, "T1"); t.set(meio + 3, y, "T2"); }
         t.ret(meio - 6, Y0, meio - 4, Y0 + 3, "T2"); t.ret(meio + 3, Y0, meio + 5, Y0 + 3, "T1");
-        t.set(meio + 4, Y0 + 9, "K0"); t.set(meio + 4, Y0 + 14, "K0");
+        t.set(meio + 4, Y0 + 6, "K0"); t.set(meio + 4, Y0 + 10, "K0");
       }
       if (roupa === "social") {
         t.ret(meio - 3, Y0, meio - 2, Y0 + 1, "Z0"); t.ret(meio + 1, Y0, meio + 2, Y0 + 1, "Z0");
-        t.ret(meio - 1, Y0, meio, Y0 + 1, "T1"); t.ret(meio - 1, Y0 + 2, meio, Y0 + 12, "T0"); t.ret(meio - 2, Y0 + 9, meio + 1, Y0 + 12, "T0"); t.set(meio, Y0 + 3, "T2"); t.ret(meio - 1, Y0 + 13, meio, Y0 + 13, "T1");
+        t.ret(meio - 1, Y0, meio, Y0 + 1, "T1"); t.ret(meio - 1, Y0 + 2, meio, Y0 + 9, "T0"); t.ret(meio - 2, Y0 + 7, meio + 1, Y0 + 9, "T0"); t.set(meio, Y0 + 3, "T2"); t.ret(meio - 1, Y0 + 10, meio, Y0 + 10, "T1");
       }
-      if (roupa === "vestido") { t.ret(tx0, Y0 + 13, tx1, Y0 + 14, "U0"); }
+      if (roupa === "vestido") { t.ret(tx0, Y0 + 9, tx1, Y0 + 10, "U0"); }
       if (roupa === "estampa") {   // estrela no peito
-        ["...#...", "..###..", "#######", ".#####.", "..###..", ".##.##.", "##...##"].forEach((l, j) => [...l].forEach((ch, i) => { if (ch === "#") t.set(meio - 2 + i, Y0 + 6 + j, j < 3 && i > 3 ? "U2" : "U0"); }));
+        ["..#..", ".###.", "#####", ".###.", "##.##"].forEach((l, j) => [...l].forEach((ch, i) => { if (ch === "#") t.set(meio - 1 + i, Y0 + 5 + j, j < 2 && i > 2 ? "U2" : "U0"); }));
       }
       if (roupa === "time") {
         decote(3); for (let k = 0; k <= 3; k++) { t.set(meio - 3 + k, Y0 + k, "U0"); t.set(meio + 2 - k, Y0 + k, "U0"); }
@@ -333,37 +333,37 @@
         t.ret(meio + 3, Y0 + 5, meio + 4, Y0 + 6, "K0"); t.set(meio + 4, Y0 + 5, "K2");
       }
       if (roupa === "jardineira") {
-        t.forma((x, y) => (y >= Y0 + 7 && y < YL && x >= meio - 5 && x <= meio + 4) || (y >= Y0 + 15 && y < YL && x >= tx0 && x <= tx1), "P", (x, y) => (x <= tx0 + 2 || x === meio - 5 ? "1" : y === Y0 + 7 ? "2" : "0"));
-        for (let y = Y0; y <= Y0 + 7; y++) { t.ret(meio - 7, y, meio - 6, y, "P1"); t.ret(meio + 5, y, meio + 6, y, "P0"); }
-        t.set(meio - 6, Y0 + 7, "K0"); t.set(meio + 5, Y0 + 7, "K0");
-        t.ret(meio - 2, Y0 + 9, meio + 1, Y0 + 9, "P1"); t.ret(meio - 2, Y0 + 10, meio - 2, Y0 + 12, "P1"); t.ret(meio + 1, Y0 + 10, meio + 1, Y0 + 12, "P1"); t.ret(meio - 2, Y0 + 12, meio + 1, Y0 + 12, "P1");
+        t.forma((x, y) => (y >= Y0 + 5 && y < YL && x >= meio - 5 && x <= meio + 4) || (y >= Y0 + 10 && y < YL && x >= tx0 && x <= tx1), "P", (x, y) => (x <= tx0 + 2 || x === meio - 5 ? "1" : y === Y0 + 5 ? "2" : "0"));
+        for (let y = Y0; y <= Y0 + 5; y++) { t.ret(meio - 7, y, meio - 6, y, "P1"); t.ret(meio + 5, y, meio + 6, y, "P0"); }
+        t.set(meio - 6, Y0 + 5, "K0"); t.set(meio + 5, Y0 + 5, "K0");
+        t.ret(meio - 2, Y0 + 7, meio + 1, Y0 + 7, "P1"); t.ret(meio - 2, Y0 + 8, meio - 2, Y0 + 9, "P1"); t.ret(meio + 1, Y0 + 8, meio + 1, Y0 + 9, "P1"); t.ret(meio - 2, Y0 + 9, meio + 1, Y0 + 9, "P1");
       }
     } else {
       if (roupa === "time") {   // número 10 nas costas
-        const dig = { 1: [".#", "##", ".#", ".#", ".#", ".#", "##"], 0: ["###", "#.#", "#.#", "#.#", "#.#", "#.#", "###"] };
+        const dig = { 1: [".#", "##", ".#", ".#", "##"], 0: ["###", "#.#", "#.#", "#.#", "###"] };
         [[dig[1], meio - 4], [dig[0], meio]].forEach(([g, x0]) => g.forEach((l, j) => [...l].forEach((ch, i) => { if (ch === "#") t.set(x0 + i, Y0 + 4 + j, "U0"); })));
       }
       if (roupa === "jardineira") {
-        for (let k = 0; k <= 13; k++) { t.ret(meio - 7 + k, Y0 + k, meio - 6 + k, Y0 + k, "P0"); t.ret(meio + 5 - k, Y0 + k, meio + 6 - k, Y0 + k, "P1"); }
-        t.forma((x, y) => y >= Y0 + 14 && y < YL && x >= tx0 && x <= tx1, "P", (x, y) => (x >= tx1 - 2 ? "1" : "0"));
+        for (let k = 0; k <= 9; k++) { t.ret(meio - 7 + Math.round(k * 1.3), Y0 + k, meio - 6 + Math.round(k * 1.3), Y0 + k, "P0"); t.ret(meio + 5 - Math.round(k * 1.3), Y0 + k, meio + 6 - Math.round(k * 1.3), Y0 + k, "P1"); }
+        t.forma((x, y) => y >= Y0 + 10 && y < YL && x >= tx0 && x <= tx1, "P", (x, y) => (x >= tx1 - 2 ? "1" : "0"));
       }
       if (roupa === "moletom") { t.forma((x, y) => y >= Y0 - 1 && y <= Y0 + 6 && Math.abs(x - meio + 0.5) <= 8 - Math.max(0, y - Y0 - 2) * 1.4, "T", (x, y) => (y >= Y0 + 5 ? "1" : y === Y0 - 1 ? "2" : "0")); t.forma((x, y) => y >= Y0 && y <= Y0 + 3 && Math.abs(x - meio + 0.5) <= 5 - (y - Y0), "T", () => "1"); }
       if (roupa === "regata") { t.forma((x, y) => y >= Y0 && y <= Y0 + 3 && Math.abs(x - meio + 0.5) <= 6 - (y - Y0), "S", () => "1"); }
       if (["camiseta", "estampa", "time", "listrada", "polo", "xadrez", "vestido", "social", "jardineira"].includes(roupa)) t.ret(meio - 3, Y0, meio + 2, Y0, roupa === "polo" || roupa === "time" ? "U0" : "S1");
       if (roupa === "jaqueta") t.ret(meio - 5, Y0, meio + 4, Y0 + 1, "T1");
-      if (roupa === "vestido") t.ret(tx0, Y0 + 13, tx1, Y0 + 14, "U0");
+      if (roupa === "vestido") t.ret(tx0, Y0 + 9, tx1, Y0 + 10, "U0");
     }
     if (roupa === "listrada") t.pinta((x, y, k) => (k[0] === "T" && (y - Y0) % 4 === 3 ? "U" + k[1] : null));
     if (roupa === "xadrez") t.pinta((x, y, k) => { if (k[0] !== "T") return null; const lx = (x + 1) % 6 < 2, ly = (y - Y0) % 6 < 2; return lx && ly ? "U1" : lx || ly ? "U0" : null; });
-    if (costasIt === "mochila" && !costas) for (let y = Y0; y <= Y0 + 12; y++) { t.ret(tx0 + 3, y, tx0 + 4, y, y === Y0 + 8 ? "G1" : "G0"); if (y <= Y0 + 9) t.set(tx1 - 3, y, "G0"); }
+    if (costasIt === "mochila" && !costas) for (let y = Y0; y <= Y0 + 8; y++) { t.ret(tx0 + 3, y, tx0 + 4, y, y === Y0 + 5 ? "G1" : "G0"); if (y <= Y0 + 6) t.set(tx1 - 3, y, "G0"); }
     if (costasIt === "capa" && !costas) { t.ret(tx0, Y0, tx0 + 2, Y0 + 1, "C0"); t.ret(tx1 - 2, Y0, tx1, Y0 + 1, "C0"); t.set(tx0 + 3, Y0 + 1, "K0"); t.set(tx1 - 3, Y0 + 1, "K0"); }
     compor(base, t);
     if (costas && costasIt === "mochila") {
       const k = camada();
-      k.forma((x, y) => y >= Y0 + 1 && y <= Y0 + 19 && x >= tx0 + 1 && x <= tx1 - 1 && !((y === Y0 + 1 || y === Y0 + 19) && (x === tx0 + 1 || x === tx1 - 1)), "C", (x, y) => (x >= tx1 - 3 ? "1" : y <= Y0 + 2 ? "2" : "0"));
-      k.ret(tx0 + 2, Y0 + 7, tx1 - 2, Y0 + 7, "C1");
-      k.forma((x, y) => y >= Y0 + 11 && y <= Y0 + 17 && x >= meio - 6 && x <= meio + 5, "C", (x, y) => (y === Y0 + 11 ? "1" : x >= meio + 4 ? "1" : "0"));
-      k.ret(meio - 5, Y0 + 12, meio + 4, Y0 + 12, "Z0"); k.set(meio + 4, Y0 + 13, "K0");
+      k.forma((x, y) => y >= Y0 + 1 && y <= Y0 + 13 && x >= tx0 + 1 && x <= tx1 - 1 && !((y === Y0 + 1 || y === Y0 + 13) && (x === tx0 + 1 || x === tx1 - 1)), "C", (x, y) => (x >= tx1 - 3 ? "1" : y <= Y0 + 2 ? "2" : "0"));
+      k.ret(tx0 + 2, Y0 + 5, tx1 - 2, Y0 + 5, "C1");
+      k.forma((x, y) => y >= Y0 + 8 && y <= Y0 + 12 && x >= meio - 6 && x <= meio + 5, "C", (x, y) => (y === Y0 + 8 ? "1" : x >= meio + 4 ? "1" : "0"));
+      k.ret(meio - 5, Y0 + 9, meio + 4, Y0 + 9, "Z0"); k.set(meio + 4, Y0 + 10, "K0");
       compor(base, k);
     }
     const pc = camada();
@@ -375,14 +375,14 @@
       k.forma((x, y) => y >= Y0 - 3 && y <= Y0 + 1 && Math.abs(x - meio + 0.5) <= 6.5 - (y === Y0 - 3 ? 1 : 0), "C", (x, y) => (y === Y0 + 1 ? "1" : "0"));
       k.pinta((x, y, v) => (v[0] === "C" && x % 4 === 0 ? "Z" + (y === Y0 + 1 ? "1" : "0") : null));
       const tx = costas ? -99 : meio - 4;
-      if (!costas) k.forma((x, y) => y > Y0 + 1 && y <= Y0 + 10 && x >= tx && x <= tx + 2, "C", (x, y) => (y >= Y0 + 9 ? "1" : x === tx ? "1" : "0"));
-      k.pinta((x, y, v) => (y === Y0 + 10 && x % 2 === 0 ? "Z0" : y === Y0 + 6 && v[0] === "C" ? "Z0" : null));
+      if (!costas) k.forma((x, y) => y > Y0 + 1 && y <= Y0 + 7 && x >= tx && x <= tx + 2, "C", (x, y) => (y >= Y0 + 6 ? "1" : x === tx ? "1" : "0"));
+      k.pinta((x, y, v) => (y === Y0 + 7 && x % 2 === 0 ? "Z0" : y === Y0 + 4 && v[0] === "C" ? "Z0" : null));
       compor(base, k, true, null, 1);
     }
     if (pesc === "corrente" && !costas) {
       const k = camada();
-      for (let i = 0; i <= 5; i++) { k.set(meio - 5 + i, Y0 + i, i % 2 ? "K1" : "K0"); k.set(meio + 4 - i, Y0 + i, i % 2 ? "K1" : "K0"); }
-      k.ret(meio - 1, Y0 + 6, meio, Y0 + 8, "K0"); k.set(meio, Y0 + 6, "K2");
+      for (let i = 0; i <= 4; i++) { k.set(meio - 5 + i, Y0 + i, i % 2 ? "K1" : "K0"); k.set(meio + 4 - i, Y0 + i, i % 2 ? "K1" : "K0"); }
+      k.ret(meio - 1, Y0 + 5, meio, Y0 + 7, "K0"); k.set(meio, Y0 + 5, "K2");
       compor(base, k, false);
     }
     if (costas && costasIt === "capa") {
@@ -556,7 +556,7 @@
   // ---------------- pose sentada ----------------
   // Usa o boneco em pé, abaixa a parte de cima e desenha as pernas dobradas
   // para a frente (para a direita da grade; o espelho cuida do outro lado).
-  const DESCE = 10;   // quanto o quadril desce ao sentar
+  const DESCE = 4;    // quanto o quadril desce ao sentar
   function gradeSentada(emPe, av) {
     const base = camada(), fem = av.sexo === "f";
     const tx0 = fem ? 18 : 17, tx1 = fem ? 37 : 38, quadril = YL + DESCE;
@@ -575,7 +575,7 @@
     };
     perna(-2, -2, false);
     perna(0, 0, true);
-    const lim = curta ? YL + 8 : YL + 3;
+    const lim = curta ? YL + 6 : YL + 3;
     for (let y = 0; y <= lim; y++) for (let x = 0; x < W; x++) { const v = emPe[y][x]; if (v && y + DESCE < H) base.p[y + DESCE][x] = v; }
     return base.p;
   }
@@ -664,5 +664,8 @@
     return { "0,-1": 0, "1,-1": 1, "1,0": 2, "1,1": 3, "0,1": 4, "-1,1": 5, "-1,0": 6, "-1,-1": 7 }[sx + "," + sy] ?? 2;
   }
 
-  window.AVATAR = { SLOTS, vista, direcao8, DESCE, desenhar, sprite, animar, normalizar, aleatorio, PALETA, ESTILOS, NOMES, ITENS, PADRAO, tom, LARGURA: W, ALTURA: H, PES: YS + 5 };
+  // altura do quadril do boneco sentado, medida do chão (em pixels do desenho do quarto, que é a metade)
+  const ASSENTO = (YS + 5 - (YL + DESCE)) / 2;
+
+  window.AVATAR = { SLOTS, vista, direcao8, DESCE, ASSENTO, desenhar, sprite, animar, normalizar, aleatorio, PALETA, ESTILOS, NOMES, ITENS, PADRAO, tom, LARGURA: W, ALTURA: H, PES: YS + 5 };
 })();

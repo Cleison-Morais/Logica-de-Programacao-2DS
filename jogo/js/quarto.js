@@ -197,8 +197,8 @@
       const f = ISO.frenteSentado(a.m, a.item.r);
       if (f) e.dir8 = AVATAR.direcao8(f[0], f[1]);
       e.dir = AVATAR.vista(e.dir8, e.dir);
-      // o desenho sentado já fica na altura de um assento de ~9.5; o resto é compensado aqui
-      e.sentado = { item: a.item, x: e.x, y: e.y, dz: Math.round(((a.m.assento || 9.5) - 9.5) * ESCALA) };
+      // o boneco sentado já tem o quadril a AVATAR.ASSENTO do chão; sobe o que faltar para chegar no assento
+      e.sentado = { item: a.item, x: e.x, y: e.y, dz: Math.round(((a.m.assento || AVATAR.ASSENTO) - AVATAR.ASSENTO) * ESCALA) };
       e.quadro = 0;
     }
     levantar() { this.eu.sentado = null; }
